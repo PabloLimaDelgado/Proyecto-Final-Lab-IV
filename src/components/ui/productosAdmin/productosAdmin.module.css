@@ -1,0 +1,181 @@
+.productosAdminContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80vw;
+  height: 100vh;
+}
+
+.productosAdminContainer h1 {
+  font-size: 3rem;
+  color: black;
+  font-family: "Roboto", sans-serif;
+  margin: 0.4rem;
+  font-weight: 500;
+}
+
+.productosAdminButtons {
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  align-items: center;
+  margin: 0.4rem;
+  gap: 0.4rem;
+}
+
+.productosAdminButtons button {
+  width: 15vw;
+  background-color: transparent;
+  border-radius: 0.4rem;
+  border: 2px solid #4caf50;
+  color: #4caf50;
+  font-family: "Afacad", sans-serif;
+  font-size: 1.5rem;
+  box-shadow: 0px 0px 2px #4caf50;
+}
+
+.productosAdminButtons button:hover {
+  cursor: pointer;
+}
+
+.productosAdminSearch {
+  width: 35vw;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid black;
+  padding: 0.4rem;
+  border-radius: 3rem;
+  margin-left: 1.2rem;
+}
+
+.productosAdminSearch input {
+  border: none;
+  width: 30vw;
+  color: black;
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+}
+
+.productosAdminSearch input::placeholder {
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+}
+
+.productosAdminSearch input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.productosAdminSearch button {
+  width: 5vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: black;
+  box-shadow: none;
+}
+
+.productosAdminSearch button span {
+  overflow: hidden;
+}
+
+.productosMapAdminContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  gap: 0.4rem;
+  height: 70%;
+}
+
+.productosMapAdminContainer div {
+  width: 95%;
+  display: grid;
+  border: 1px solid black;
+  border-radius: 1rem;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0.4rem;
+  box-shadow: 1px 1px 1px 1px black;
+}
+
+.productosMapAdminContainer div h1 {
+  font-family: "Afacad", sans-serif;
+  font-size: 1.2rem;
+  color: black;
+}
+
+.productosMapAdminContainer h2 {
+  font-family: "Afacad", sans-serif;
+  font-size: 1rem;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.productosMapAdminContainer h3 {
+  font-family: "Afacad", sans-serif;
+  font-size: 1rem;
+  color: black;
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+}
+
+.productosMapAdminContainer button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: black;
+}
+
+.productosMapAdminContainer button span {
+  overflow: hidden;
+}
+
+.productoAdminButtonsDiv {
+  display: flex !important;
+  flex-direction: row !important;
+  border: none !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  gap: 0.4rem !important;
+  box-shadow: none !important;
+}
+
+.deleteButton {
+  color: #ff0404 !important;
+  border: 1px solid #ff0404 !important;
+}
+
+.editButton {
+  color: #f6ad24 !important;
+  border: 1px solid #f6ad24 !important;
+}
+
+.addButton {
+  border: 1px solid black !important;
+}
+
+.imageButton span {
+  color: #4caf50 !important;
+}
+
+.visibilityButton {
+  color: #008cff !important;
+  border: 1px solid #008cff !important;
+}
+
+.imagesButtonAdd {
+  color: white !important;
+  font-family: "Afacad", sans-serif !important;
+  background-color: gray !important;
+  padding: 0.2rem !important;
+  font-weight: bolder !important;
+}

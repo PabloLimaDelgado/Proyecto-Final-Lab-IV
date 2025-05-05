@@ -1,0 +1,61 @@
+.headerContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100vw;
+  justify-content: space-around;
+  height: 15vh;
+  overflow: hidden;
+}
+
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logo img {
+  height: 5vw;
+  width: 10vw;
+}
+
+.logo h1 {
+  font-family: "Bebas Neue", sans-serif;
+  color: black;
+  font-size: 2rem;
+}
+
+.navbar {
+  width: 40vw;
+}
+
+.navbar ul {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  list-style: none;
+}
+
+.navbar ul li a {
+  text-decoration: none;
+  font-family: "Bebas Neue", sans-serif;
+  color: black;
+  font-size: 2rem;
+  cursor: auto;
+}
+
+.navbar ul li a:hover {
+  cursor: pointer;
+}
+
+.icons {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.icons span {
+  font-size: 2rem;
+  overflow: hidden;
+}

@@ -1,0 +1,132 @@
+.landingContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  align-items: center;
+}
+
+.landingInfo {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  justify-content: center;
+}
+
+.landingInfo h2 {
+  text-align: center;
+  font-family: "Bebas Neue", sans-serif;
+  color: black;
+  font-size: 2rem;
+  font-weight: bolder;
+}
+
+.landingInfo p {
+  text-align: justify;
+  font-family: "Bebas Neue", sans-serif;
+  color: black;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.landingDescuentos {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: start;
+}
+
+.landingDescuentos h3 {
+  width: 15%;
+  text-align: center;
+  font-family: "Roboto", sans-serif;
+  font-size: 2rem;
+}
+
+.containerDescuentos {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.containerDescuentos div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0.8rem;
+}
+
+.containerDescuentos div img {
+  width: 15vw;
+  height: 15vw;
+  border: 1px solid black;
+}
+
+.containerDescuentos div h4 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+}
+
+.containerDescuentos button span {
+  overflow: hidden;
+  background-color: transparent;
+  border: none;
+}
+
+.containerDescuentos button {
+  background-color: transparent;
+  border: none;
+}
+
+.containerImagenes {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0.4rem;
+  gap: 0.8em;
+  width: 95vw;
+}
+
+.containerHombre {
+  display: flex;
+  height: 90vh;
+  width: 40%;
+  background-image: url("https://images.pexels.com/photos/30473467/pexels-photo-30473467/free-photo-of-retrato-de-moda-creativo-con-maquillaje-atrevido.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+  background-size: cover;
+  border: 2px solid black;
+  align-items: end;
+  justify-content: end;
+}
+
+.containerHombre button {
+  margin: 0.4rem;
+  padding: 0.4rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+  border-radius: 20rem;
+  border: 1px solid black;
+  width: 8vw;
+  background-color: white;
+}
+
+.containerMujer {
+  display: flex;
+  height: 90vh;
+  width: 40%;
+  background-image: url("https://images.pexels.com/photos/28593652/pexels-photo-28593652/free-photo-of-retrato-dinamico-en-angulo-bajo-de-una-mujer-segura-de-si-misma.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2");
+  background-size: cover;
+  border: 2px solid black;
+  align-items: end;
+  justify-content: end;
+}
+
+.containerMujer button {
+  margin: 0.4rem;
+  padding: 0.4rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+  border-radius: 20rem;
+  border: 1px solid black;
+  width: 8vw;
+  background-color: white;
+}

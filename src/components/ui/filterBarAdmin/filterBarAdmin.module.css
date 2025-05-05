@@ -1,0 +1,50 @@
+.filterBarAdminContainer {
+  display: flex;
+  flex-direction: column;
+  width: 15vw;
+  height: 100vh;
+  align-items: center;
+  justify-content: start;
+  border-right: 2px solid black;
+}
+
+.logoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.logoContainer img {
+  height: 3vw;
+  width: 5vw;
+  scale: 1.5;
+}
+
+.logoContainer h1 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2.5rem;
+}
+
+.buttonsContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.buttonsContainer button {
+  border: none;
+  background-color: transparent;
+  color: black;
+  text-align: start;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.5rem;
+}
+
+.activeButton {
+  text-decoration: underline;
+  font-weight: bold;
+}

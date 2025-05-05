@@ -1,0 +1,43 @@
+.detalleProductoContainer {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 84.7vh;
+  border-top: 0.3vh solid black;
+}
+
+.imagenDivContainer {
+  width: 50vw;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.imagenDivContainer div {
+  height: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: start;
+  padding: 0.4rem;
+}
+
+.imagenDivContainer div h2 {
+  font-family: "Roboto", sans-serif;
+  font-weight: bolder;
+  font-size: 2rem;
+}
+
+.imagenDivContainer div p {
+  font-family: "Roboto", sans-serif;
+  font-weight: light;
+  font-size: 1rem;
+}
+
+.imagenDivContainer img {
+  width: 95%;
+  height: 90%;
+  border-right: 2px solid black;
+  border-top: 2px solid black;
+}

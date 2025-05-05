@@ -1,0 +1,107 @@
+.productosContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  width: 100%;
+}
+
+.buscador {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.buscador input {
+  border-radius: 20rem;
+  border: 1px solid black;
+  background-color: white;
+  padding: 0.4rem;
+  font-family: "Roboto", sans-serif;
+  width: 20vw;
+}
+
+.buscador input::placeholder {
+  font-family: "Roboto", sans-serif;
+  color: #383d42;
+}
+
+.buscador button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: transparent;
+  border: none;
+}
+
+.buscador button:hover {
+  cursor: pointer;
+}
+
+.buscador button span {
+  overflow: hidden;
+}
+
+.gridDetalles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0.4rem;
+  gap: 1rem;
+}
+
+.divProducto {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.divProducto img {
+  width: 20vw;
+  height: 20vw;
+  border: 2px solid black;
+  object-fit: cover;
+  box-sizing: border-box;
+}
+
+.divProducto h5 {
+  color: black;
+  font-size: 1.5rem;
+  font-family: "Bebas Neue", sans-serif;
+}
+
+.divButtonProducto {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 20vw;
+  height: 20vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.divButtonProducto button {
+    margin: 0.4rem;
+    padding: 0.4rem;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 1rem;
+    border-radius: 20rem;
+    border: 1px solid black;
+    width: 8vw;
+    background-color: white;
+}
+
+.divButtonProducto button:hover{
+    cursor: pointer;
+}
+
+.divProducto:hover .divButtonProducto {
+  opacity: 1;
+}

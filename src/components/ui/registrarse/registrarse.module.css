@@ -1,0 +1,63 @@
+.registrarseContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.registrarseContainer h1 {
+  font-family: "Bebas Neue", sans-serif;
+  color: black;
+  font-size: 4rem;
+}
+
+.registrarseContainer span {
+  color: black;
+  font-size: 10rem;
+  overflow: hidden;
+}
+
+.registrarseContainer form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+.registrarseContainer form input {
+  width: 20vw;
+  height: 5vh;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+  border: 1px solid black;
+  font-size: 1rem;
+  font-family: "Roboto", sans-serif;
+}
+
+.registrarseContainer form input::placeholder {
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+  color: black;
+}
+
+.registrarseContainer div {
+  grid-column: span 2;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 0.4rem;
+}
+
+.registrarseContainer form div button {
+  padding: 0.4rem;
+  border-radius: 0.8rem;
+  border: 1px solid black;
+  background-color: black;
+  color: white;
+  font-size: 1.2rem;
+  font-family: "Bebas Neue", sans-serif;
+  width: 10vw;
+  margin: 0.4rem;
+}
+
+.registrarseContainer form div button:hover {
+  cursor: pointer;
+}

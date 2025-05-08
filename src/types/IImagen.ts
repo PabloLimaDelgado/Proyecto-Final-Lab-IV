@@ -4,5 +4,6 @@ export interface IImagen {
   id?: number;
   url: string;
   alt: string;
-  detalle: IDetalle;
+  detalle?: IDetalle;
+  estado: boolean
 }

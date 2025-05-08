@@ -23,7 +23,7 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
 
         setDetalles(data);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 

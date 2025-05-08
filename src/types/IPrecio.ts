@@ -7,4 +7,5 @@ export interface IPrecio {
     precioCompra?: number | null;
     precioVenta: number;
     detalle: IDetalle;
+    estado: boolean
 }

@@ -1,12 +1,12 @@
 import { ChangeEvent, FC, FormEvent, useState } from "react";
-import { ITalle } from "../../../types/ITalle";
+import { ITalle } from "../../../../types/ITalle";
 import styles from "./crearTalle.module.css";
 
-interface ICrearTalle {
+interface ICrearTalles {
   close: () => void;
 }
 
-export const CrearTalle: FC<ICrearTalle> = ({ close }) => {
+export const CrearTalles: FC<ICrearTalles> = ({ close }) => {
   const initialForm: ITalle = {
     estado: true,
     talle: "",
@@ -42,8 +42,6 @@ export const CrearTalle: FC<ICrearTalle> = ({ close }) => {
           body: JSON.stringify(talle),
         }
       );
-
-      console.log(await response.json());
     } catch (error) {
       console.error("Error en crear talle", error);
     }

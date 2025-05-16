@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import styles from "./landing.module.css";
-import { IDetalle } from "../../../types/IDetalle";
 import { HeaderShop } from "../../ui/headerShop/HeaderShop";
 import { IPrecio } from "../../../types/IPrecio";
+import { useNavigate } from "react-router-dom";
 
 export const Landing = () => {
   const [precios, setPrecios] = useState<null | IPrecio[]>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDetalle = async () => {
@@ -24,6 +25,10 @@ export const Landing = () => {
 
     fetchDetalle();
   }, []);
+
+  const handleSelect = (tipo: string, genero: string) => {
+    navigate(`/vistaShop?tipo=${tipo}&genero=${genero}`);
+  };
 
   return (
     <>
@@ -60,10 +65,14 @@ export const Landing = () => {
 
         <div className={styles.containerImagenes}>
           <div className={styles.containerHombre}>
-            <button>Hombre</button>
+            <button onClick={() => handleSelect("Remera", "Masculino")}>
+              Hombre
+            </button>
           </div>
           <div className={styles.containerMujer}>
-            <button>Mujer</button>
+            <button onClick={() => handleSelect("Remera", "Femenino")}>
+              Mujer
+            </button>
           </div>
         </div>
       </div>

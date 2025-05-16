@@ -26,7 +26,7 @@
 }
 
 .navbar {
-  width: 40vw;
+  width: 30vw;
 }
 
 .navbar ul {
@@ -53,9 +53,49 @@
   display: flex;
   flex-direction: row;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
 .icons span {
   font-size: 2rem;
   overflow: hidden;
+}
+
+.icons span:hover {
+  cursor: pointer;
+}
+
+.iconUser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  width: 8vw;
+  height: 12vh;
+}
+
+.iconUser span {
+  font-size: 2rem;
+}
+
+.iconUser span:hover {
+  cursor: pointer;
+}
+
+.hoverMenu {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-direction: column;
+}
+
+.hoverMenu h4 {
+  font-family: "Roboto", sans-serif;
+  font-size: 0.8rem;
+  border-bottom: 1px solid transparent;
+}
+
+.hoverMenu h4:hover {
+  border-bottom: 1px solid black;
+  cursor: pointer;
 }

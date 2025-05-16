@@ -1,0 +1,114 @@
+.divDireccionesContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  backdrop-filter: blur(10px) brightness(90%);
+}
+
+.divDireccionesContainer div {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 80vw;
+  height: 80vh;
+  border-radius: 0.5rem;
+  position: relative;
+  border: 1px solid black;
+}
+
+.divDireccionesContainer div h1 {
+  height: 10%;
+  margin-top: 0.4rem;
+  font-family: "Bebas Neue", sans-serif;
+  color: black;
+  font-size: 2rem;
+}
+
+.buttonCancelar {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: red;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.divDireccionesMapContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center !important;
+  justify-content: start !important;
+  gap: 0.4rem !important;
+  border: none !important;
+}
+
+.divDireccionesMapContainer div {
+  margin: 0.4rem;
+  width: 95%;
+  height: 5vh;
+  display: grid;
+  border: 1px solid black;
+  border-radius: 1rem;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 0.4rem;
+  box-shadow: 1px 1px 1px 1px black;
+}
+
+.divDireccionesMapContainer div h2 {
+  font-family: "Afacad", sans-serif;
+  font-size: 1rem;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 300;
+}
+
+.divDireccionesMapContainer div button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: black;
+}
+
+.divDireccionesMapContainer div button span {
+  overflow: hidden;
+}
+
+.direccionesButtonMapContainer {
+  display: flex !important;
+  flex-direction: row !important;
+  border: none !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  box-shadow: none !important;
+  height: auto !important;
+}
+
+.direccionesButtonMapContainer button span {
+  overflow: hidden !important;
+}
+
+.editButton {
+  color: #f6ad24 !important;
+  border: 1px solid #f6ad24 !important;
+}
+
+.deleteButton {
+  color: #ff0404 !important;
+  border: 1px solid #ff0404 !important;
+}

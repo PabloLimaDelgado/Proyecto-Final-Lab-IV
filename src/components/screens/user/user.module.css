@@ -1,0 +1,241 @@
+.header {
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #383d42;
+  height: 20vh;
+}
+
+.header img {
+  height: 5vw;
+  width: 5vw;
+  scale: 2;
+}
+
+.header h1 {
+  font-family: "Bebas Neue", sans-serif;
+  color: white;
+  font-size: 3rem;
+}
+
+.divContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 100vw;
+  height: 80vh;
+  background-color: #d9d9d9;
+  position: relative;
+}
+
+.divUserInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  width: 40%;
+  background-color: white;
+  border-radius: 0.4rem;
+  border: 1px solid black;
+  gap: 0.8rem;
+  padding: 0.8rem;
+}
+
+.divAtributoEdit {
+  display: flex;
+  flex-direction: column;
+}
+
+.divAtributoEdit h2 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.6rem;
+  color: black;
+}
+
+.divAtributoEdit div {
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  border: #d9d9d9 2px solid;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+}
+
+.divAtributoEdit div h3 {
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+  color: black;
+  font-weight: normal;
+}
+
+.divAtributoEdit div button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: black;
+}
+
+.divAtributoEdit div button:hover {
+  cursor: pointer;
+}
+
+.divAtributoEdit div button span {
+  color: #f6ad24;
+  border: 1px solid #f6ad24;
+  overflow: hidden;
+}
+
+.divContraseña {
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.divContraseña h2 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.6rem;
+  color: black;
+}
+
+.divContraseña button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: transparent;
+  color: black;
+}
+
+.divContraseña button:hover {
+  cursor: pointer;
+}
+
+.divContraseña button span {
+  color: #f6ad24;
+  border: 1px solid #f6ad24;
+  overflow: hidden;
+}
+
+.divDNI {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  justify-content: center;
+}
+
+.divDNI h2 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.6rem;
+  color: black;
+}
+
+.divDNI h3 {
+  font-family: "Roboto", sans-serif;
+  font-size: 1rem;
+  color: black;
+  font-weight: normal;
+  border: #d9d9d9 2px solid;
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+}
+
+.divDirecciones {
+  display: flex;
+  flex-direction: column;
+}
+
+.divDirecciones h2 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.6rem;
+  color: black;
+}
+
+.divDirecciones div {
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.divDirecciones div button {
+  background-color: #d9d9d9;
+  font-family: "Roboto", sans-serif;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  gap: 0.4rem;
+}
+
+.divDirecciones div button:hover {
+  cursor: pointer;
+}
+
+.spanAdd {
+  overflow: hidden;
+  color: black;
+}
+
+.spanVer {
+  overflow: hidden;
+  color: #008cff;
+  border: 1px solid #008cff;
+}
+
+.divButtons {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+  width: 50%;
+}
+
+.divButtons button {
+  margin: 0.4rem;
+  padding: 0.4rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+  width: 15vw;
+  border-radius: 10rem;
+  border: 1px solid white;
+  background-color: black;
+  color: white;
+}
+
+.divButtons button:hover {
+  cursor: pointer;
+}
+
+.goBack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0.8rem;
+  background-color: transparent;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2vw;
+  height: 2vw;
+}
+
+.goBack span {
+  overflow: hidden;
+}
+
+.goBack:hover {
+  cursor: pointer;
+}

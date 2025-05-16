@@ -7,7 +7,7 @@ interface IFilterBar {
   genero: string;
   tipo: string;
 }
-
+//CAMBIAR TAMAÑOS LETRAS
 export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
   const navigate = useNavigate();
   const prendas = ["Buzo", "Calzado", "Campera", "Remera", "Zapatillas"];

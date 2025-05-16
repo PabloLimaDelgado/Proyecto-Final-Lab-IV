@@ -4,17 +4,21 @@ import { Admin } from "../components/screens/admin/Admin";
 import { Shop } from "../components/screens/shop/Shop";
 import { Landing } from "../components/screens/landing/Landing";
 import { DetalleProducto } from "../components/screens/detalleProducto/DetalleProducto";
+import { User } from "../components/screens/user/User";
+import { Carrito } from "../components/screens/carrito/Carrito";
 
 export const AppRouter = () => {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Navigate to="/vistaUsuario" replace />} />
-        <Route path="/vistaUsuario" element={<Login />} />
+        <Route path="/" element={<Navigate to="/vistaLogin" replace />} />
+        <Route path="/vistaLogin" element={<Login />} />
         <Route path="/vistaAdmin" element={<Admin />} />
         <Route path="/vistaShop" element={<Shop />} />
         <Route path="/VistaLanding" element={<Landing />} />
         <Route path="/vistaDetalleProducto" element={<DetalleProducto />} />
+        <Route path="/VistaUsuario" element={<User />} />
+        <Route path="/VistaCarrito" element={<Carrito />} />
       </Routes>
     </>
   );

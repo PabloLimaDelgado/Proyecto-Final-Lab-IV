@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 export const HeaderShop = () => {
   const [hoverShop, setHoverShop] = useState<boolean>(false);
+  const [hoverAccount, setHoverAccount] = useState<boolean>(false);
+
   const navigate = useNavigate();
 
   const handleHoverEnter = () => {
@@ -15,12 +17,35 @@ export const HeaderShop = () => {
   const handleHoverLeave = () => {
     setTimeout(() => {
       setHoverShop(false);
-    }, 1000);
+    }, 1500);
+  };
+
+  const handleHoverAccountEnter = () => {
+    setHoverAccount(true);
+  };
+
+  const handleHoverAccountLeave = () => {
+    setTimeout(() => {
+      setHoverAccount(false);
+    }, 1500);
   };
 
   const handleHome = () => {
-    navigate(`/vistaLanding`);
+    navigate("/vistaLanding");
   };
+
+  const handleLogin = () => {
+    navigate("/vistaLogin");
+  };
+
+  const handleUser = () => {
+    navigate("/VistaUsuario");
+  };
+
+  const handleCarrito = () => {
+    navigate("/VistaCarrito");
+  };
+
   return (
     <>
       <header className={styles.headerContainer}>
@@ -44,17 +69,27 @@ export const HeaderShop = () => {
                 Shop
               </a>
             </li>
-            <li>
-              <a href="">About</a>
-            </li>
-            <li>
-              <a href="">Contact</a>
-            </li>
           </ul>
         </nav>
         <div className={styles.icons}>
-          <span className="material-symbols-outlined">account_circle</span>
-          <span className="material-symbols-outlined">shopping_cart</span>
+          <div className={styles.iconUser}>
+            <span
+              className="material-symbols-outlined"
+              onMouseEnter={handleHoverAccountEnter}
+              onMouseLeave={handleHoverAccountLeave}
+            >
+              account_circle
+            </span>
+            {hoverAccount && (
+              <div className={styles.hoverMenu}>
+                <h4 onClick={handleUser}>Configuracion</h4>
+                <h4 onClick={handleLogin}>Salir</h4>
+              </div>
+            )}
+          </div>
+          <span className="material-symbols-outlined" onClick={handleCarrito}>
+            shopping_cart
+          </span>
         </div>
       </header>
 

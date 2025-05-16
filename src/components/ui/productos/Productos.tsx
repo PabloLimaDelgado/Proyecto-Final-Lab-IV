@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from "react";
 import styles from "./productos.module.css";
 import { IDetalle } from "../../../types/IDetalle";
 import { useNavigate } from "react-router-dom";
+import { detalleProductoStore } from "../../../store/detalleProductoStore";
 
 interface IProductos {
   genero: string;
@@ -9,7 +10,7 @@ interface IProductos {
 }
 
 export const Productos: FC<IProductos> = ({ genero, tipo }) => {
-  const [detalles, setDetalles] = useState<null | IDetalle[]>(null);
+  const { detalles, setArrayDetalle } = detalleProductoStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,7 +22,7 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
         const data: IDetalle[] = await response.json();
         console.log(data);
 
-        setDetalles(data);
+        setArrayDetalle(data);
       } catch (error) {
         console.error(error);
       }
@@ -30,8 +31,8 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
     fetchDetalle();
   }, []);
 
-  const handleNavigate = (idDetalleProducto: number | null) => {
-    navigate(`/vistaDetalleProducto?idDetalleProducto=${idDetalleProducto}`);
+  const handleNavigate = (idProducto: number | null) => {
+    navigate(`/vistaDetalleProducto?idProducto=${idProducto}`);
   };
 
   return (
@@ -45,32 +46,35 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
         </div>
         <div className={styles.gridDetalles}>
           {detalles &&
-            detalles
-              .filter(
-                (detalle) =>
-                  detalle.producto.sexo.toLowerCase() ===
-                    genero.toLowerCase() &&
-                  detalle.producto.tipoProducto.toLowerCase() ===
-                    tipo.toLowerCase()
-              )
-              .map((detalle) => (
-                <>
-                  <div className={styles.divProducto}>
-                    <img src={detalle.imagenList[0].url} alt="" />
-                    <h5>{detalle.producto.nombre}</h5>
-
-                    <div className={styles.divButtonProducto}>
-                      <button
-                        onClick={() =>
-                          handleNavigate(detalle.id ? detalle.id : null)
-                        }
-                      >
-                        Ver mas
-                      </button>
-                    </div>
-                  </div>
-                </>
-              ))}
+            Object.values(
+              detalles
+                .filter(
+                  (detalle) =>
+                    detalle.producto.sexo.toLowerCase() ===
+                      genero.toLowerCase() &&
+                    detalle.producto.tipoProducto.toLowerCase() ===
+                      tipo.toLowerCase()
+                )
+                .reduce((acc, detalle) => {
+                  const productoId = detalle.producto.id;
+                  if (productoId !== undefined && !acc[productoId]) {
+                    acc[productoId] = detalle;
+                  }
+                  return acc;
+                }, {} as Record<number, IDetalle>)
+            ).map((detalle) => (
+              <div key={detalle.producto.id} className={styles.divProducto}>
+                <img src={detalle.imagenList[0]?.url} alt="" />
+                <h5>{detalle.producto.nombre}</h5>
+                <div className={styles.divButtonProducto}>
+                  <button
+                    onClick={() => handleNavigate(detalle.producto.id ?? null)}
+                  >
+                    Ver más
+                  </button>
+                </div>
+              </div>
+            ))}
         </div>
       </div>
     </>

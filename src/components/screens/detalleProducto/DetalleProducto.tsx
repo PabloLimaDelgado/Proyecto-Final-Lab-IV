@@ -2,56 +2,97 @@ import { HeaderShop } from "../../ui/headerShop/HeaderShop";
 import { useLocation } from "react-router-dom";
 import styles from "./detalleProducto.module.css";
 import { IDetalle } from "../../../types/IDetalle";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { detalleProductoStore } from "../../../store/detalleProductoStore";
 
 export const DetalleProducto = () => {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
-  const idDetalleProducto = params.get("idDetalleProducto");
-  const [detalle, setDetalle] = useState<null | IDetalle>(null);
+  const idProducto = params.get("idProducto");
+  const { detalles, setArrayDetalle } = detalleProductoStore();
+
+  const [detalleIndex, setDetalleIndex] = useState<number>(0);
+  const [imagenIndex, setImagenIndex] = useState<number>(0);
 
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
         const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle/${idDetalleProducto}`
+          `${import.meta.env.VITE_BASE_URL}/detalle`
         );
-        const data: IDetalle = await response.json();
-        console.log(data);
+        const data: IDetalle[] = await response.json();
+        setArrayDetalle(data);
 
-        setDetalle(data);
+        const index = data.findIndex(
+          (detalle) => detalle.producto?.id === Number(idProducto)
+        );
+
+        setDetalleIndex(index);
       } catch (error) {
-        console.log(error);
+        console.log("Error al traer detalles:", error);
       }
     };
 
     fetchDetalle();
-  }, []);
+  }, [idProducto, setArrayDetalle]);
 
   return (
     <>
       <HeaderShop />
       <div className={styles.detalleProductoContainer}>
-        {detalle && (
+        {detalles && (
           <>
-            <div className={styles.imagenDivContainer}>
-              <div>
-                <h2>{detalle.producto.nombre}</h2>
-                <p>{detalle.producto.categoria.nombre}</p>
+            {detalles && (
+              <>
+                <div className={styles.imagenDivContainer}>
+                  <div
+                    className={styles.imagenDivWitdh}
+                    style={{
+                      backgroundImage: `url(${detalles[detalleIndex].imagenList[imagenIndex].url})`,
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  >
+                    <div>
+                      <img
+                        src={detalles[detalleIndex].imagenList[imagenIndex].url}
+                        alt=""
+                      />
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className={styles.carritoContainer}>
+              <h2>{detalles[detalleIndex].producto.nombre}</h2>
+              <ul>
+                {detalles
+                  .filter(
+                    (detalle) => detalle.producto.id === Number(idProducto)
+                  )
+                  .map((detalle) => (
+                    <li key={detalle.id}>{detalle.talle.talle}</li>
+                  ))}
+              </ul>
+              <div className={styles.imagenesContainer}>
+                {detalles
+                  .filter(
+                    (detalle) => detalle.producto.id === Number(idProducto)
+                  )
+                  .map((detalle, indexDetalle) =>
+                    detalle.imagenList.map((image, indexImagen) => (
+                      <img
+                        src={image.url}
+                        onClick={() => {
+                          setImagenIndex(indexImagen);
+                          setDetalleIndex(indexDetalle);
+                        }}
+                      />
+                    ))
+                  )}
               </div>
-              <img src={detalle.imagenList[0].url} alt="" />
-            </div>
-            <div>
-              <div>
-                <ul>
-                  <li>{detalle.talle.talle}</li>
-                </ul>
-              </div>
-              <div>
-                {detalle.imagenList.map((image) => (
-                  <img src={image.url} alt={image.alt} key={image.id} />
-                ))}
-              </div>
+              <button>Añadir al Carrito</button>
             </div>
           </>
         )}

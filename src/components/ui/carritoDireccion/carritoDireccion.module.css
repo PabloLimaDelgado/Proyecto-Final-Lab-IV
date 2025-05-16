@@ -1,0 +1,26 @@
+.formContainer {
+  height: 3vh;
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+  margin-left: 0.4rem;
+}
+
+.formContainer input {
+  text-align: start !important;
+  text-align: center;
+  font-family: "Roboto", sans-serif;
+  height: 2.5vh;
+  color: black;
+  width: 15vw;
+  border: 1px solid black;
+  background-color: #d9d9d9;
+  font-size: 1rem;
+}
+
+.formContainer input::placeholder {
+  color: black;
+  font-family: "Roboto", sans-serif;
+  text-align: start;
+  font-size: 1rem;
+}

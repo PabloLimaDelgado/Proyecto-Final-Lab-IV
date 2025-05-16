@@ -1,4 +1,4 @@
-.formProductoContainer {
+.formModificarUsuarioContainer {
   position: fixed;
   bottom: 0;
   right: 0;
@@ -11,20 +11,21 @@
   backdrop-filter: blur(10px) brightness(90%);
 }
 
-.formProductoForm {
+.formModificarUsuario {
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   width: 25vw;
-  height: 45vh;
+  height: 35vh;
   border-radius: 0.5rem;
   position: relative;
   border: 1px solid black;
+  position: relative;
 }
 
-.formProductoForm h1 {
+.formModificarUsuario h1 {
   width: 100%;
   text-align: center;
   font-family: "Bebas Neue", sans-serif;
@@ -33,7 +34,7 @@
   font-size: 2rem;
 }
 
-.formProductoForm input {
+.formModificarUsuario input {
   width: 90%;
   border-radius: 0.2rem;
   padding: 0.4rem;
@@ -45,37 +46,12 @@
   color: black;
 }
 
-.formProductoForm input::placeholder {
+.formModificarUsuario input::placeholder {
   color: #3a3a3a;
   font-family: "Roboto", sans-serif;
 }
 
-.formProductoForm select {
-  width: 94%;
-  border-radius: 0.2rem;
-  padding: 0.4rem;
-  background-color: #d9d9d9;
-  border: 1px solid black;
-  font-family: "Roboto", sans-serif;
-  margin: 0.4rem;
-  font-size: 1rem;
-  color: black;
-}
-
-.formProductoForm select option {
-  color: black;
-  font-family: "Roboto", sans-serif;
-}
-
-.formProductoForm div {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-around;
-  box-shadow: none;
-}
-
-.formProductoForm div button {
+.buttonSubmit {
   font-family: "Bebas Neue", sans-serif;
   font-weight: 300;
   margin: 0.4rem;
@@ -83,9 +59,6 @@
   font-size: 1.2rem;
   background-color: transparent;
   border-radius: 0.4rem;
-}
-
-.buttonSubmit {
   border: 1px solid #4caf50;
   color: #4caf50;
 }
@@ -94,11 +67,18 @@
   cursor: pointer;
 }
 
-.buttonConcelar {
-  border: 1px solid #e74c3c;
-  color: #e74c3c;
+.buttonCancelar {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: red;
+  cursor: pointer;
+  overflow: hidden;
 }
 
-.buttonConcelar:hover {
+.buttonCancelar:hover {
   cursor: pointer;
 }

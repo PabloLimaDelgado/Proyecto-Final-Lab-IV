@@ -109,6 +109,10 @@
   background-color: white;
 }
 
+.containerHombre button:hover {
+  cursor: pointer;
+}
+
 .containerMujer {
   display: flex;
   height: 90vh;
@@ -129,4 +133,8 @@
   border: 1px solid black;
   width: 8vw;
   background-color: white;
+}
+
+.containerMujer button:hover {
+  cursor: pointer;
 }

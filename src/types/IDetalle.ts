@@ -9,5 +9,5 @@ export interface IDetalle {
   color: string;
   producto: IProducto;
   imagenList: IImagen[];
-  stock: number;
+  stock: number | string;
 }

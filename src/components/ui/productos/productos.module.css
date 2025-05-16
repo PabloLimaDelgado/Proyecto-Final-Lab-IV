@@ -65,6 +65,12 @@
   border: 2px solid black;
   object-fit: cover;
   box-sizing: border-box;
+  background: #ffffff;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1) 10%,
+    rgba(110, 109, 109, 0.5) 80%
+  );
 }
 
 .divProducto h5 {
@@ -88,18 +94,18 @@
 }
 
 .divButtonProducto button {
-    margin: 0.4rem;
-    padding: 0.4rem;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 1rem;
-    border-radius: 20rem;
-    border: 1px solid black;
-    width: 8vw;
-    background-color: white;
+  margin: 0.4rem;
+  padding: 0.4rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1rem;
+  border-radius: 20rem;
+  border: 1px solid black;
+  width: 8vw;
+  background-color: white;
 }
 
-.divButtonProducto button:hover{
-    cursor: pointer;
+.divButtonProducto button:hover {
+  cursor: pointer;
 }
 
 .divProducto:hover .divButtonProducto {

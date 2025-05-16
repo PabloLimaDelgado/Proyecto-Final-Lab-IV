@@ -5,18 +5,19 @@ import styles from "./login.module.css";
 import { Registrarse } from "../../ui/registrarse/Registrarse";
 
 export const Login = () => {
-  const [usuario, setUsuario] = useState<boolean>(false);
+  const [iniciarUsuario, setIniciarUsuario] = useState<boolean>(false);
 
   const handleRegistarseIniciarSesion = () => {
-    setUsuario(!usuario);
+    setIniciarUsuario(!iniciarUsuario);
   };
+
   return (
     <>
       <header className={styles.header}>
         <img src={zapatoLogo} alt="" />
         <h1>SNEAKSHOP</h1>
       </header>
-      {usuario == false ? (
+      {iniciarUsuario == false ? (
         <div>
           <IniciarSesion handleRegistarse={handleRegistarseIniciarSesion} />
         </div>

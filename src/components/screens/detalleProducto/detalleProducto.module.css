@@ -2,42 +2,131 @@
   display: flex;
   flex-direction: row;
   width: 100vw;
-  height: 84.7vh;
+  height: 84.8vh;
   border-top: 0.3vh solid black;
 }
 
 .imagenDivContainer {
-  width: 50vw;
+  width: 70vw;
   display: flex;
   flex-direction: column;
   align-items: start;
-  justify-content: space-between;
 }
 
 .imagenDivContainer div {
-  height: 10%;
   display: flex;
   flex-direction: column;
   align-items: start;
   justify-content: start;
   padding: 0.4rem;
+  height: 5.9vh;
 }
 
 .imagenDivContainer div h2 {
   font-family: "Roboto", sans-serif;
   font-weight: bolder;
   font-size: 2rem;
+  text-align: center;
+  width: 70vw;
+  overflow: hidden;
 }
 
-.imagenDivContainer div p {
-  font-family: "Roboto", sans-serif;
-  font-weight: light;
-  font-size: 1rem;
-}
-
-.imagenDivContainer img {
-  width: 95%;
-  height: 90%;
+.imagenDivWitdh {
+  width: 98%;
+  height: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
   border-right: 2px solid black;
-  border-top: 2px solid black;
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.imagenDivWitdh div {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden;
+}
+
+.imagenDivWitdh div img {
+  scale: 1.3;
+  width: 50%;
+  border: 1px solid black;
+  background: #ffffff;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1) 10%,
+    rgba(110, 109, 109, 1) 80%
+  );
+}
+
+.carritoContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  width: 30vw;
+}
+
+.carritoContainer h2 {
+  font-family: "Roboto", sans-serif;
+  font-weight: bolder;
+  font-size: 2rem;
+  text-align: center;
+  width: 70vw;
+  overflow: hidden;
+}
+
+.carritoContainer ul {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.carritoContainer ul li {
+  font-size: 1.5rem;
+  color: black;
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  margin: 0.4rem;
+}
+
+.imagenesContainer {
+  display: flex;
+  align-items: start;
+  justify-content: start;
+  flex-direction: column;
+  width: 30vw;
+  height: 60vh;
+  overflow-y: auto;
+}
+
+.imagenesContainer img {
+  width: 10vw;
+  height: 10vw;
+  margin: 0.4rem;
+  border: 2px solid black;
+  object-fit: cover;
+  background: #ffffff;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 1) 10%,
+    rgba(110, 109, 109, 1) 80%
+  );
+}
+
+.carritoContainer button {
+  margin: 0.4rem;
+  padding: 0.5rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 1.5rem;
+  border-radius: 18rem;
+  border: 1px solid black;
+  background-color: white;
 }

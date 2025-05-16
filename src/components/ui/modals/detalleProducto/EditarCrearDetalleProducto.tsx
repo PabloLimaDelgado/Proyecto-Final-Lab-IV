@@ -21,11 +21,10 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
   producto,
 }) => {
   const { setArrayTalle, talles } = talleStore();
-  const { detalleActivo, postDetalle, updateDetalle, setDetalleActivo } =
+  const { postDetalle, updateDetalle, setDetalleActivo } =
     detalleProductoStore();
 
-  const { precioActivo, postPrecio, updatePrecio, setPrecioActivo } =
-    precioStore();
+  const { postPrecio, updatePrecio, setPrecioActivo } = precioStore();
 
   useEffect(() => {
     const fetchTalle = async () => {
@@ -51,7 +50,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
     estado: true,
     color: detalleProducto ? detalleProducto.color : "",
     producto: detalleProducto ? detalleProducto.producto : producto,
-    stock: detalleProducto ? detalleProducto.stock : 0,
+    stock: detalleProducto ? detalleProducto.stock : "",
     imagenList: detalleProducto ? detalleProducto.imagenList : [],
   };
 
@@ -60,8 +59,8 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
   const initialFormPrecio: IPrecio = {
     id: precio ? precio.id : undefined,
-    precioVenta: precio ? precio.precioVenta : 0,
-    precioCompra: precio ? precio.precioCompra : 0,
+    precioVenta: precio ? precio.precioVenta : "",
+    precioCompra: precio ? precio.precioCompra : "",
     detalle: precio?.detalle ? precio.detalle : initialFormDetalle,
     estado: true,
   };
@@ -100,13 +99,13 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         color: valuesDetalle.color,
         producto: detalleProducto.producto,
         imagenList: detalleProducto.imagenList,
-        stock: valuesDetalle.stock,
+        stock: Number(valuesDetalle.stock),
       };
 
       console.log(detalleEditado);
 
       const responseDetalle: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/detalle/${detalleEditado.id}`,
+        `${import.meta.env.VITE_BASE_URL}/detalle/update`,
         {
           method: "PUT",
           headers: {
@@ -121,8 +120,8 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
       const precioEditado: IPrecio = {
         id: precio.id,
-        precioVenta: valuesPrecio.precioVenta,
-        precioCompra: valuesPrecio.precioCompra,
+        precioVenta: Number(valuesPrecio.precioVenta),
+        precioCompra: Number(valuesPrecio.precioCompra),
         detalle: detalleGuardado,
         estado: true,
         descuento: precio.descuento,
@@ -152,11 +151,11 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           color: valuesDetalle.color,
           producto: initialFormDetalle.producto,
           imagenList: [],
-          stock: valuesDetalle.stock,
+          stock: Number(valuesDetalle.stock),
         };
 
         const responseDetalle: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle`,
+          `${import.meta.env.VITE_BASE_URL}/detalle/post`,
           {
             method: "POST",
             headers: {
@@ -170,8 +169,8 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         if (!responseDetalle.ok) throw new Error("Error al crear detalle");
 
         const precioCreado: IPrecio = {
-          precioVenta: valuesPrecio.precioVenta,
-          precioCompra: valuesPrecio.precioCompra,
+          precioVenta: Number(valuesPrecio.precioVenta),
+          precioCompra: Number(valuesPrecio.precioCompra),
           detalle: detalleGuardado,
           estado: true,
           descuento: null,
@@ -241,7 +240,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           <input
             type="number"
             placeholder="Ingrese precio venta"
-            value={valuesPrecio.precioVenta}
+            value={valuesPrecio.precioVenta ?? ""}
             onChange={handleChangePrecio}
             name="precioVenta"
           />
@@ -249,7 +248,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
             type="number"
             placeholder="Ingrese precio compra"
             onChange={handleChangePrecio}
-            value={valuesPrecio.precioCompra ?? 0}
+            value={valuesPrecio.precioCompra ?? ""}
             name="precioCompra"
           />
           <div>

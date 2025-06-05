@@ -1,7 +1,7 @@
 export enum ITipoProducto {
   REMERA = "REMERA",
-  CALZADO = "CALZADO",
+  PANTALON = "PANTALON",
   CAMPERA = "CAMPERA",
   BUZO = "BUZO",
-  ZAPATILLAS = "ZAPATILLAS",
+  CALZADO = "CALZADO",
 }

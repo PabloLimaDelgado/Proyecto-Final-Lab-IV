@@ -1,13 +1,14 @@
-import { ITipoUsuario } from "./enums/ITipoUsuario";
+import { IRol } from "./enums/IRol.";
 import { IDireccion } from "./IDireccion";
 
 export interface IUsuario {
   id?: number;
   nombre: string;
-  contra: string;
+  password: string;
   dni: string;
   estado: boolean;
-  rol: ITipoUsuario;
+  rol: IRol;
   mail: string;
   direcciones: IDireccion[];
+  token?: string;
 }

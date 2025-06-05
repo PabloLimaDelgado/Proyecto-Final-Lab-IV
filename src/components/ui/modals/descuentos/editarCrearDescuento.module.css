@@ -1,4 +1,4 @@
-.formDetalleProductoContainer {
+.formDescuentoContainer {
   position: fixed;
   bottom: 0;
   right: 0;
@@ -11,20 +11,20 @@
   backdrop-filter: blur(10px) brightness(90%);
 }
 
-.formDetalleProductoForm {
+.formDescuentoContainerForm {
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
   width: 25vw;
-  height: 60vh;
+  height: 50vh;
   border-radius: 0.5rem;
   position: relative;
   border: 1px solid black;
 }
 
-.formDetalleProductoForm h1 {
+.formDescuentoContainerForm h1 {
   width: 100%;
   text-align: center;
   font-family: "Bebas Neue", sans-serif;
@@ -33,7 +33,7 @@
   font-size: 2rem;
 }
 
-.formDetalleProductoForm input {
+.formDescuentoContainerForm input {
   width: 90%;
   border-radius: 0.2rem;
   padding: 0.4rem;
@@ -45,37 +45,12 @@
   color: black;
 }
 
-.formDetalleProductoForm input::placeholder {
+.formDescuentoContainerForm input::placeholder {
   color: #3a3a3a;
   font-family: "Roboto", sans-serif;
 }
 
-.formDetalleProductoForm select {
-  width: 94%;
-  border-radius: 0.2rem;
-  padding: 0.4rem;
-  background-color: #d9d9d9;
-  border: 1px solid black;
-  font-family: "Roboto", sans-serif;
-  margin: 0.4rem;
-  font-size: 1rem;
-  color: black;
-}
-
-.formDetalleProductoForm select option {
-  color: black;
-  font-family: "Roboto", sans-serif;
-}
-
-.formDetalleProductoForm div {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: space-around;
-  box-shadow: none;
-}
-
-.formDetalleProductoForm div button {
+.formDescuentoContainerForm div button {
   font-family: "Bebas Neue", sans-serif;
   font-weight: 300;
   margin: 0.4rem;
@@ -85,7 +60,7 @@
   border-radius: 0.4rem;
 }
 
-.formDetalleProductoForm div button:hover {
+.formDescuentoContainerForm div button:hover {
     cursor: pointer;
 }
 

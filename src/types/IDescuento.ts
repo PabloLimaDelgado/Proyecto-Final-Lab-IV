@@ -1,6 +1,7 @@
 export interface IDescuento {
   id?: number;
-  fechaInicio: Date;
-  fechaFin: Date;
+  fechaInicio: string;
+  fechaFin: string;
   descuento: number;
+  estado: boolean;
 }

@@ -7,6 +7,9 @@ import styles from "./editarCrearDetalleProducto.module.css";
 import { talleStore } from "../../../../store/talleStore";
 import { detalleProductoStore } from "../../../../store/detalleProductoStore";
 import { precioStore } from "../../../../store/precioStore";
+import { productoStore } from "../../../../store/productoStore";
+import { IDescuento } from "../../../../types/IDescuento";
+import { descuentoStore } from "../../../../store/descuentoStore";
 
 interface IEditarCrearDetalleProducto {
   close: () => void;
@@ -23,9 +26,9 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
   const { setArrayTalle, talles } = talleStore();
   const { postDetalle, updateDetalle, setDetalleActivo } =
     detalleProductoStore();
-
   const { postPrecio, updatePrecio, setPrecioActivo } = precioStore();
-
+  const { setProductoActivo } = productoStore();
+  const { setArrayDescuentos, descuentos } = descuentoStore();
   useEffect(() => {
     const fetchTalle = async () => {
       try {
@@ -39,7 +42,20 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
       }
     };
 
+    const fetchDescuento = async () => {
+      try {
+        const responseDescuento: Response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/descuento`
+        );
+        const data: IDescuento[] = await responseDescuento.json();
+        setArrayDescuentos(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     fetchTalle();
+    fetchDescuento();
   }, []);
 
   const emptyTalle: ITalle = { talle: "", estado: true };
@@ -83,9 +99,19 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
     });
   };
 
-  const handleChangePrecio = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangePrecio = (
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = event.target;
-    setValuesPrecio((prev) => ({ ...prev, [name]: value }));
+    setValuesPrecio((prev) => {
+      if (name === "descuento") {
+        const descuentoSeleccionado = descuentos.find(
+          (descuento) => String(descuento.descuento) === value
+        );
+        return { ...prev, descuento: descuentoSeleccionado ?? undefined };
+      }
+      return { ...prev, [name]: value };
+    });
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -101,8 +127,6 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         imagenList: detalleProducto.imagenList,
         stock: Number(valuesDetalle.stock),
       };
-
-      console.log(detalleEditado);
 
       const responseDetalle: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/detalle/update`,
@@ -124,8 +148,10 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         precioCompra: Number(valuesPrecio.precioCompra),
         detalle: detalleGuardado,
         estado: true,
-        descuento: precio.descuento,
+        descuento: valuesPrecio.descuento,
       };
+
+      console.log(precioEditado);
 
       const responsePrecio: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/precio/${precioEditado.id}`,
@@ -189,7 +215,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
         const precioGuardado: IPrecio = await responsePrecio.json();
         if (!responsePrecio.ok) throw new Error("Error al crear precio");
-
+        
         postDetalle(detalleGuardado);
         postPrecio(precioGuardado);
       } catch (error) {
@@ -237,6 +263,23 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
                 </option>
               ))}
           </select>
+
+          <select
+            name="descuento"
+            defaultValue=""
+            value={
+              valuesPrecio.descuento ? valuesPrecio.descuento.descuento : ""
+            }
+            onChange={handleChangePrecio}
+          >
+            <option value="" disabled hidden>Seleccione un Descuento</option>
+            {descuentos &&
+              descuentos.map((descuento) => (
+                <option key={descuento.id} value={descuento.descuento}>
+                  {descuento.descuento}
+                </option>
+              ))}
+          </select>
           <input
             type="number"
             placeholder="Ingrese precio venta"
@@ -257,13 +300,14 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
                 close();
                 setDetalleActivo(null);
                 setPrecioActivo(null);
+                setProductoActivo(null);
               }}
               className={styles.buttonConcelar}
             >
               Cancelar
             </button>
             <button type="submit" className={styles.buttonSubmit}>
-              Crear
+              {detalleProducto ? "Editar" : "Crear"}
             </button>
           </div>
         </form>

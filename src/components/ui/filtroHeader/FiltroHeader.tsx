@@ -7,7 +7,7 @@ interface IFiltroHeader {
 }
 
 export const FiltroHeader: FC<IFiltroHeader> = ({ titulo, onSelect }) => {
-  const prendas = ["Buzo", "Calzado", "Campera", "Remera", "Zapatillas"];
+  const prendas = ["Buzo", "Pantalon", "Campera", "Remera", "Calzado"];
   return (
     <div className={styles.filtroContainer}>
       <h2>{titulo}</h2>

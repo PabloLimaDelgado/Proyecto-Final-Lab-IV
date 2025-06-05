@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import zapatoLogoBlanco from "../../../images/logoblanco.png";
 import { usuarioStore } from "../../../store/usuarioStore";
 import styles from "./user.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModificarUsuario } from "../../ui/modals/usuarios/ModificarUsuario";
 import { CrearEditarDireccion } from "../../ui/modals/direcciones/CrearEditarDireccion";
 import { DireccionesUsuario } from "../../ui/direccionesUsuario/DireccionesUsuario";
@@ -13,7 +13,7 @@ export const User = () => {
   const [campoAModificar, setCampoAModificar] = useState<string>("");
   const [verDirecciones, setVerDirecciones] = useState<boolean>(false);
 
-  const { usuarioActivo } = usuarioStore();
+  const { usuarioActivo, setUsuarioActivo } = usuarioStore();
   const navigate = useNavigate();
 
   const handleNavigate = () => {
@@ -31,6 +31,19 @@ export const User = () => {
   const handeVerDirecciones = () => {
     setVerDirecciones(!verDirecciones);
   };
+
+  const handleCerrarSesion = () => {
+    localStorage.removeItem("usuarioActivo");
+    setUsuarioActivo(null);
+    navigate("/");
+  };
+
+   useEffect(() => {
+    if (usuarioActivo) {
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
+    }
+  }, [usuarioActivo]);
+
 
   return (
     <>
@@ -106,7 +119,7 @@ export const User = () => {
           </div>
         </div>
         <div className={styles.divButtons}>
-          <button>Cerrar Sesion</button>
+          <button onClick={handleCerrarSesion}>Cerrar Sesion</button>
           <button>Eliminar Cuenta</button>
         </div>
       </div>

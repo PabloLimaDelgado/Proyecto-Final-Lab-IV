@@ -2,16 +2,13 @@ import { useLocation } from "react-router-dom";
 import { HeaderShop } from "../../ui/headerShop/HeaderShop";
 import { FilterBar } from "../../ui/filterBar/FilterBar";
 import { Productos } from "../../ui/productos/Productos";
-import styles from "./shop.module.css"
+import styles from "./shop.module.css";
 
 export const Shop = () => {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const tipo = params.get("tipo");
   const genero = params.get("genero");
-
-  console.log("Tipo:", tipo);
-  console.log("Género:", genero);
 
   return (
     <>

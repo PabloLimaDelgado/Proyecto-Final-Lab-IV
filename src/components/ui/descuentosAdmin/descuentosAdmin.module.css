@@ -1,0 +1,146 @@
+.descuentosAdminContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80vw;
+  height: 100vh;
+}
+
+.descuentosAdminContainer h1 {
+  font-size: 3rem;
+  color: black;
+  font-family: "Roboto", sans-serif;
+  margin: 0.4rem;
+  font-weight: 500;
+}
+
+.descuentosAdminButtons {
+  display: flex;
+  flex-direction: row;
+  width: 90%;
+  align-items: center;
+  margin: 0.4rem;
+  gap: 0.4rem;
+}
+
+.descuentosAdminButtons button {
+  width: 15vw;
+  background-color: transparent;
+  border-radius: 0.4rem;
+  border: 2px solid #4caf50;
+  color: #4caf50;
+  font-family: "Afacad", sans-serif;
+  font-size: 1.5rem;
+  box-shadow: 0px 0px 2px #4caf50;
+}
+
+.descuentosAdminButtons button:hover {
+  cursor: pointer;
+}
+
+.divDescuentos {
+  min-height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.divDescuentoContainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border: 1px solid black;
+  border-radius: 1rem;
+  box-shadow: 1px 1px 1px 1px black;
+  padding: 0.4rem;
+  width: 90%;
+}
+
+.divDescuentoContainer h1 {
+  font-family: "Afacad", sans-serif;
+  font-size: 1.2rem;
+  color: black;
+}
+
+.divDescuentoContainer h2 {
+  font-family: "Afacad", sans-serif;
+  font-size: 1rem;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.divDescuentoContainer div {
+  display: flex;
+  flex-direction: row;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  box-shadow: none;
+}
+
+.divDescuentoContainer div button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.divDescuentoContainer div button span {
+  overflow: hidden;
+}
+
+.divDescuentoContainer div button span:hover {
+  cursor: pointer;
+}
+
+.editButton {
+  color: #f6ad24;
+  border: 1px solid #f6ad24;
+}
+
+.deleteButton {
+  color: #ff0404;
+  border: 1px solid #ff0404;
+}
+
+.divPaginadoBotones {
+  display: flex;
+  flex-direction: row;
+  margin: 0.4rem 0;
+  align-items: center;
+  gap: 0.6rem;
+  user-select: none;
+}
+
+.divPaginadoBotones button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #222;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.divPaginadoBotones p {
+  font-family: "Afacad", sans-serif;
+  font-size: 1.2rem;
+}
+
+.divPaginadoBotones button span {
+  overflow: hidden;
+}
+
+.divPaginadoBotones button:disabled {
+  cursor: default;
+  color: #999;
+}
+
+.divPaginadoBotones button:not(:disabled):hover {
+  color: #4caf50;
+}

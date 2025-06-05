@@ -1,9 +1,9 @@
 import { ChangeEvent, FC, FormEvent, useState } from "react";
 import styles from "./registrarse.module.css";
 import { IUsuario } from "../../../types/IUsuario";
-import { ITipoUsuario } from "../../../types/enums/ITipoUsuario";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { useNavigate } from "react-router-dom";
+import { IRol } from "../../../types/enums/IRol.";
 
 interface IRegistrarse {
   handleIniciarSesion: () => void;
@@ -15,10 +15,10 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
 
   const initialForm: IUsuario = {
     nombre: "",
-    contra: "",
+    password: "",
     dni: "",
     estado: true,
-    rol: ITipoUsuario.Usuario,
+    rol: IRol.USER,
     mail: "",
     direcciones: [],
   };
@@ -35,7 +35,7 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
 
     const usuarioCreado: IUsuario = {
       nombre: values.nombre,
-      contra: values.contra,
+      password: values.password,
       dni: values.dni,
       mail: values.mail,
       estado: initialForm.estado,
@@ -45,7 +45,7 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
 
     try {
       const responseUsuario: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario`,
+        `${import.meta.env.VITE_BASE_URL}/usuario/registrarUsuario`,
         {
           method: "POST",
           headers: {
@@ -54,11 +54,17 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
           body: JSON.stringify(usuarioCreado),
         }
       );
-
       const data: IUsuario = await responseUsuario.json();
+
+      console.log(data);
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       postusuario(data);
       setUsuarioActivo(data);
+      localStorage.setItem("usuarioActivo", JSON.stringify(data));
     } catch (error) {
       console.error("Error en crear usuario", error);
     }
@@ -88,9 +94,9 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
         <input
           type="text"
           placeholder="Contraseña"
-          value={values.contra}
+          value={values.password}
           onChange={handleChange}
-          name="contra"
+          name="password"
         />
         <input
           type="text"

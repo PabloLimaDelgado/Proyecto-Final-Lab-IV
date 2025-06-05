@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { IProducto } from "../../../types/IProducto";
 import { IDetalle } from "../../../types/IDetalle";
 import { IPrecio } from "../../../types/IPrecio";
@@ -25,12 +25,28 @@ export const ProductosAdmin = () => {
     useState<boolean>(false);
   const [crearImagen, setCrearImagen] = useState<boolean>(false);
 
-  const { setArrayProducto, productos, productoActivo, setProductoActivo } =
-    productoStore();
-  const { setArrayDetalle, detalles, detalleActivo, setDetalleActivo } =
-    detalleProductoStore();
+  const {
+    setArrayProducto,
+    productos,
+    productoActivo,
+    setProductoActivo,
+    deleteProducto,
+  } = productoStore();
+  const {
+    setArrayDetalle,
+    detalles,
+    detalleActivo,
+    setDetalleActivo,
+    deleteDetalle,
+  } = detalleProductoStore();
   const { setArrayPrecio, precios, setPrecioActivo, precioActivo } =
     precioStore();
+
+  const searchValue = {
+    nombreProducto: "",
+  };
+
+  const [values, setValues] = useState(searchValue);
 
   useEffect(() => {
     const fetchProducto = async () => {
@@ -66,8 +82,6 @@ export const ProductosAdmin = () => {
           `${import.meta.env.VITE_BASE_URL}/precio`
         );
         const data: IPrecio[] = await response.json();
-        console.log(data);
-
         setArrayPrecio(data);
       } catch (error) {
         console.log(error);
@@ -78,6 +92,51 @@ export const ProductosAdmin = () => {
     fetchProducto();
     fetchDetalle();
   }, []);
+
+  const ITEMS_POR_PAGINA = 6;
+
+  const [paginaActual, setPaginaActual] = useState<number>(1);
+  const [paginasTotales, setPaginasTotales] = useState<number>(1);
+
+  useEffect(() => {
+    const productosFiltrados = productos.filter(
+      (producto) =>
+        producto.nombre
+          .toLowerCase()
+          .includes(values.nombreProducto.toLowerCase()) &&
+        producto.estado === true
+    );
+    const totalPaginas = Math.max(
+      1,
+      Math.ceil(productosFiltrados.length / ITEMS_POR_PAGINA)
+    );
+    setPaginasTotales(totalPaginas);
+
+    if (paginaActual > totalPaginas) {
+      setPaginaActual(totalPaginas);
+    }
+  }, [productos, values.nombreProducto]);
+
+  const handleAvanzarPagina = () => {
+    setPaginaActual((prev) => (prev < paginasTotales ? prev + 1 : prev));
+  };
+
+  const handleRetrocederPagina = () => {
+    setPaginaActual((prev) => (prev > 1 ? prev - 1 : prev));
+  };
+
+  const productosFiltrados = productos.filter(
+    (producto) =>
+      producto.nombre
+        .toLowerCase()
+        .includes(values.nombreProducto.toLowerCase()) &&
+      producto.estado === true
+  );
+
+  const productosPaginados = productosFiltrados.slice(
+    (paginaActual - 1) * ITEMS_POR_PAGINA,
+    paginaActual * ITEMS_POR_PAGINA
+  );
 
   const toggleDetalleProducto = (productoId: number) => {
     setDetalleProductoAbierto((prevId) =>
@@ -105,16 +164,67 @@ export const ProductosAdmin = () => {
     setCrearImagen(!crearImagen);
   };
 
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value, name } = event.target;
+    setValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleDeleteProducto = async (idProducto?: number) => {
+    try {
+      const response: Response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/producto/${idProducto}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (idProducto) {
+        deleteProducto(idProducto);
+      }
+    } catch (error) {
+      console.error("Error en crear producto", error);
+    }
+  };
+
+  const handleDeleteDetalleProducto = async (idDetalle?: number) => {
+    try {
+      const response: Response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/detalle/${idDetalle}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (idDetalle) {
+        deleteDetalle(idDetalle);
+      }
+    } catch (error) {
+      console.error("Error en crear producto", error);
+    }
+  };
+
   return (
     <>
       <div className={styles.productosAdminContainer}>
-        <h1>SneakAdmin</h1>
+        <h1>SneakAdmin - Productos</h1>
         <div className={styles.productosAdminButtons}>
           <button onClick={handleCrearEditarProducto}>Agregar Producto</button>
           <button onClick={handleCloseTalle}>Agregar Talle</button>
           <button onClick={handleCloseCategoria}>Agregar Categoria</button>
           <div className={styles.productosAdminSearch}>
-            <input type="text" placeholder="Buscar producto" />
+            <input
+              type="text"
+              placeholder="Buscar producto"
+              onChange={handleChange}
+              value={values.nombreProducto}
+              name="nombreProducto"
+            />
             <button>
               <span className="material-symbols-outlined">search</span>
             </button>
@@ -122,7 +232,7 @@ export const ProductosAdmin = () => {
         </div>
         <div className={styles.productosMapAdminContainer}>
           {productos &&
-            productos.map((producto) => (
+            productosPaginados.map((producto) => (
               <>
                 <div key={producto.id}>
                   <h1>Producto id: {producto.id}</h1>
@@ -130,8 +240,11 @@ export const ProductosAdmin = () => {
                   <h2>Tipo producto: {producto.tipoProducto}</h2>
                   <h2>Sexo: {producto.sexo}</h2>
                   <h2>Categoria: {producto.categoria.nombre}</h2>
-                  <div className={styles.productoAdminButtonsDiv}>
-                    <button className={styles.deleteButton}>
+                  <div className={`${styles.productoAdminButtonsDiv}`}>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteProducto(producto.id)}
+                    >
                       <span className="material-symbols-outlined">delete</span>
                     </button>
                     <button className={styles.editButton}>
@@ -166,10 +279,13 @@ export const ProductosAdmin = () => {
                       </span>
                     </button>
                   )}
+
+                  <section></section>
                   {detalles &&
                     detalleProductoAbierto === producto.id &&
                     detalles
                       .filter((detalle) => detalle.producto.id === producto.id)
+                      .filter((detalle) => detalle.estado === true)
                       .map((detalle) => (
                         <React.Fragment key={detalle.id}>
                           <h2>Detalle id: {detalle.id}</h2>
@@ -183,14 +299,24 @@ export const ProductosAdmin = () => {
                                 <React.Fragment key={precio.id}>
                                   <h3>Precio compra: {precio.precioCompra}</h3>
                                   <h3>Precio venta: {precio.precioVenta}</h3>
+                                  <h3>Stock: {detalle.stock}</h3>
                                   <h3>Color: {detalle.color}</h3>
                                   <h3>
-                                    Descuento: {precio.descuento?.descuento}%
+                                    Descuento:{" "}
+                                    {precio.descuento
+                                      ? precio.descuento.descuento
+                                      : 0}
+                                    %
                                   </h3>
                                   <div
                                     className={styles.productoAdminButtonsDiv}
                                   >
-                                    <button className={styles.deleteButton}>
+                                    <button
+                                      className={styles.deleteButton}
+                                      onClick={() =>
+                                        handleDeleteDetalleProducto(detalle.id)
+                                      }
+                                    >
                                       <span className="material-symbols-outlined">
                                         delete
                                       </span>
@@ -206,11 +332,6 @@ export const ProductosAdmin = () => {
                                     >
                                       <span className="material-symbols-outlined">
                                         edit
-                                      </span>
-                                    </button>
-                                    <button className={styles.visibilityButton}>
-                                      <span className="material-symbols-outlined">
-                                        visibility
                                       </span>
                                     </button>
                                     <button
@@ -231,6 +352,27 @@ export const ProductosAdmin = () => {
               </>
             ))}
         </div>
+        <div className={styles.divPaginadoBotones}>
+          <button
+            onClick={handleRetrocederPagina}
+            disabled={paginaActual === 1}
+          >
+            <span className="material-symbols-outlined">
+              keyboard_double_arrow_left
+            </span>
+          </button>
+          <p>
+            Página {paginaActual} de {paginasTotales}
+          </p>
+          <button
+            onClick={handleAvanzarPagina}
+            disabled={paginaActual === paginasTotales}
+          >
+            <span className="material-symbols-outlined">
+              keyboard_double_arrow_right
+            </span>
+          </button>
+        </div>
       </div>
 
       {creartalle && <CrearTalles close={handleCloseTalle} />}
@@ -249,7 +391,9 @@ export const ProductosAdmin = () => {
           precio={precioActivo ?? undefined}
         />
       )}
-      {crearImagen && detalleActivo && <Imagenes detalle={detalleActivo} close={handleCrearImagen}/>}
+      {crearImagen && detalleActivo && (
+        <Imagenes detalle={detalleActivo} close={handleCrearImagen} />
+      )}
     </>
   );
 };

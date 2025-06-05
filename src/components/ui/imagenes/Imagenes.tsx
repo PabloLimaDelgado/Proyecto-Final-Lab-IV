@@ -26,6 +26,26 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDeleteImage = async (idImagen?: number) => {
+    try {
+      const response: Response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/imagen/${idImagen}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      detalle.imagenList = detalle.imagenList.filter(
+        (imagen) => imagen.id !== idImagen
+      );
+
+      updateDetalle(detalle);
+    } catch (error) {}
+  };
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -68,18 +88,32 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
           <h1>{detalle.producto.nombre}</h1>
           <button
             className={`material-symbols-outlined ${styles.buttonCancelar}`}
-            onClick={() => {
-              close();
-            }}
+            onClick={close}
           >
             close
           </button>
-          <div className={styles.divImagenes}>
-            {detalle.imagenList.map((imagen) => (
-              <img src={imagen.url} alt={imagen.alt} key={imagen.id} />
-            ))}
 
-            <button onClick={() => setAgregarImagen(!agregarImagen)}>
+          <div className={styles.divImagenes}>
+            {detalle.imagenList
+              .filter((imagen) => imagen.estado === true)
+              .map((imagen) => (
+                <div key={imagen.id} className={styles.imagenWrapper}>
+                  <img src={imagen.url} alt={imagen.alt} />
+                  <button
+                    className={`material-symbols-outlined ${styles.botonCerrarImagen}`}
+                    onClick={() => {
+                      handleDeleteImage(imagen.id);
+                    }}
+                  >
+                    close
+                  </button>
+                </div>
+              ))}
+
+            <button
+              className={styles.imagenAgregarBoton}
+              onClick={() => setAgregarImagen(!agregarImagen)}
+            >
               <span className="material-symbols-outlined">add</span>
             </button>
           </div>

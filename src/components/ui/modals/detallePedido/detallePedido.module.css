@@ -1,0 +1,103 @@
+.divDetalleCompra {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  backdrop-filter: blur(10px) brightness(90%);
+}
+
+.divDetalleCompraDiv {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 60vw;
+  height: 70vh;
+  border-radius: 0.5rem;
+  position: relative;
+  border: 1px solid black;
+}
+
+.divDetalleCompraDiv h1 {
+  width: 100%;
+  text-align: center;
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 300;
+  font-size: 2rem;
+}
+
+.gridDireccion {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.gridDireccion h3 {
+  text-align: start;
+  padding: 0.4rem;
+  margin: 0.4rem;
+  background-color: #d9d9d9;
+  border-radius: 0.4rem;
+  font-family: "Roboto", sans-serif;
+  border: 1px solid black;
+  font-weight: 400;
+}
+
+.detallesProductosDiv {
+  display: flex;
+  flex-direction: column;
+  height: 50vh;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.detallesProductosDiv table {
+  width: 90%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 0.2rem;
+}
+
+.detallesProductosDiv th,
+.detallesProductosDiv td {
+  border: 1px solid black;
+  padding: 0.5rem;
+  font-family: "Roboto", sans-serif;
+}
+
+.detallesProductosDiv thead {
+  background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+}
+
+.detallesProductosDiv tfoot tr td {
+  text-align: end;
+  border: none;
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.detallesProductosDiv button {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 300;
+  margin: 0.4rem;
+  padding: 0.4rem;
+  font-size: 1.2rem;
+  background-color: transparent;
+  border-radius: 0.4rem;
+  border: 1px solid #4caf50;
+  color: #4caf50;
+}
+
+.detallesProductosDiv button:hover {
+  cursor: pointer;
+}

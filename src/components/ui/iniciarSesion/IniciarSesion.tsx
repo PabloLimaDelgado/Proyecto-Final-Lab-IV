@@ -1,4 +1,4 @@
-import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FC, FormEvent, useState } from "react";
 import styles from "./iniciarSesion.module.css";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { IUsuario } from "../../../types/IUsuario";
@@ -9,32 +9,15 @@ interface IIniciarSesion {
 }
 
 export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
-  const { setArrayUsuario, usuarios, setUsuarioActivo, usuarioActivo } =
-    usuarioStore();
+  const { setUsuarioActivo } = usuarioStore();
   const navigate = useNavigate();
 
   const initialForm = {
-    usuario: "",
+    mail: "",
     contraseña: "",
   };
 
   const [values, setValues] = useState(initialForm);
-
-  useEffect(() => {
-    const fetchUsuario = async () => {
-      try {
-        const responseUsuario: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/usuario/get`
-        );
-        const data: IUsuario[] = await responseUsuario.json();
-        setArrayUsuario(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUsuario();
-  }, []);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = event.target;
@@ -44,32 +27,42 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const finalForm = {
-      usuario: values.usuario,
-      contraseña: values.contraseña,
-    };
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/usuario/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            mail: values.mail,
+            password: values.contraseña,
+          }),
+        }
+      );
 
-    const usuarioIniciado = usuarios.find(
-      (usuario) =>
-        usuario.contra === finalForm.contraseña &&
-        usuario.nombre === values.usuario
-    );
-    
-    if (!usuarioIniciado) {
-    } else {
+      if (!response.ok) throw new Error("Login fallido");
+
+      const usuario: IUsuario = await response.json();
+
+      setUsuarioActivo(usuario);
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+
       if (
-        usuarioIniciado.contra === "1234" &&
-        usuarioIniciado.nombre.toLowerCase() === "admin"
+        usuario.mail === "admin@gmail.com" &&
+        usuario.nombre.toLowerCase() === "admin"
       ) {
-        setUsuarioActivo(usuarioIniciado);
         navigate("/VistaAdmin");
       } else {
-        setUsuarioActivo(usuarioIniciado);
-
         navigate("/VistaLanding");
       }
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+      alert("Credenciales inválidas");
     }
   };
+
   return (
     <>
       <main className={styles.iniciarSesionContainer}>
@@ -78,10 +71,10 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
         <form onSubmit={onSubmit}>
           <input
             type="text"
-            placeholder="Nombre de usuario"
+            placeholder="Correo electrónico"
             onChange={handleChange}
-            value={values.usuario}
-            name="usuario"
+            value={values.mail}
+            name="mail"
           />
           <input
             type="text"

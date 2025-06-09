@@ -4,7 +4,7 @@ import { ordenCompraStore } from "../../../store/ordenCompraStore";
 import { ordenCompraDetalleStore } from "../../../store/ordenCompraDetalle";
 import { IOrdenCompraDetalle } from "../../../types/IOrdenCompraDetalle";
 import styles from "./pedidosAdmin.module.css";
-import { DetallePedido } from "../modals/detallePedido/DetallePedido";
+import { DetallePedido } from "../detallePedido/DetallePedido";
 
 export const PedidosAdmin = () => {
   const [verDetallePedido, setVerDetallePedido] = useState<boolean>(false);
@@ -28,8 +28,16 @@ export const PedidosAdmin = () => {
   useEffect(() => {
     const fethOrdenCompra = async () => {
       try {
+        const token = localStorage.getItem("token");
         const responseOrdenCompra: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/ordenCompra/get`
+          `${import.meta.env.VITE_BASE_URL}/ordenCompra/get`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data: IOrdenCompra[] = await responseOrdenCompra.json();
         setArrayOrdenCompra(data);
@@ -40,8 +48,17 @@ export const PedidosAdmin = () => {
 
     const fethOrdenCompraDetalle = async () => {
       try {
+        const token = localStorage.getItem("token");
+
         const responseOrdenCompraDetalle: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/ordenCompraDetalle/get`
+          `${import.meta.env.VITE_BASE_URL}/ordenCompraDetalle/get`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         const data: IOrdenCompraDetalle[] =
           await responseOrdenCompraDetalle.json();

@@ -42,12 +42,15 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
         descuento: values.descuento,
       };
 
+      const token = localStorage.getItem("token");
+
       const responseDescuento: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/descuento/${descuentoEditado.id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(descuentoEditado),
         }
@@ -64,12 +67,15 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
           descuento: values.descuento,
         };
 
+        const token = localStorage.getItem("token");
+
         const responseDescuento: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/descuento`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(descuentoCreado),
           }

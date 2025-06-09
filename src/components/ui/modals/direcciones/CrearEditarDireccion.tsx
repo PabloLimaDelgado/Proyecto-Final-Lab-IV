@@ -51,12 +51,15 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
       console.log(direccionEditada);
 
       try {
+        const token = localStorage.getItem("token");
+
         const responseDireccion: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/direccion/${direccion.id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(direccionEditada),
           }
@@ -83,16 +86,21 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
         provincia: values.provincia,
         departamento: values.departamento,
         codigoPostal: values.codigoPostal,
-        usuarios: [...initialForm.usuarios, usuario],
+        usuarios: [{ id: usuario.id } as any], // ⚠️ solo id, hack para el backend
       };
 
       try {
+        const token = localStorage.getItem("token");
+        
+        console.log(direccionCreada);
+
         const responseDireccion: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/direccion`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(direccionCreada),
           }

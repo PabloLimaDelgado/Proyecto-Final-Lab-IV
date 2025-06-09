@@ -84,12 +84,15 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
       };
 
       try {
+        const token = localStorage.getItem("token");
+
         const response: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/producto/${productoEditado.id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(productoEditado),
           }
@@ -109,12 +112,15 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
       };
 
       try {
+        const token = localStorage.getItem("token");
+
         const response: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/producto`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(productoCreado),
           }

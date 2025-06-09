@@ -128,12 +128,15 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         stock: Number(valuesDetalle.stock),
       };
 
+      const token = localStorage.getItem("token");
+
       const responseDetalle: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/detalle/update`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(detalleEditado),
         }
@@ -159,6 +162,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(precioEditado),
         }
@@ -180,12 +184,15 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           stock: Number(valuesDetalle.stock),
         };
 
+        const token = localStorage.getItem("token");
+
         const responseDetalle: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/detalle/post`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(detalleCreado),
           }
@@ -208,6 +215,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(precioCreado),
           }
@@ -215,7 +223,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
         const precioGuardado: IPrecio = await responsePrecio.json();
         if (!responsePrecio.ok) throw new Error("Error al crear precio");
-        
+
         postDetalle(detalleGuardado);
         postPrecio(precioGuardado);
       } catch (error) {
@@ -272,7 +280,9 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
             }
             onChange={handleChangePrecio}
           >
-            <option value="" disabled hidden>Seleccione un Descuento</option>
+            <option value="" disabled hidden>
+              Seleccione un Descuento
+            </option>
             {descuentos &&
               descuentos.map((descuento) => (
                 <option key={descuento.id} value={descuento.descuento}>

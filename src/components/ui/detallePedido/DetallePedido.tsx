@@ -1,14 +1,14 @@
 import { FC, useEffect } from "react";
-import { IOrdenCompraDetalle } from "../../../../types/IOrdenCompraDetalle";
-import { precioStore } from "../../../../store/precioStore";
-import { IPrecio } from "../../../../types/IPrecio";
+import { IOrdenCompraDetalle } from "../../../types/IOrdenCompraDetalle";
+import { precioStore } from "../../../store/precioStore";
+import { IPrecio } from "../../../types/IPrecio";
 import styles from "./detallePedido.module.css";
-import { IOrdenCompra } from "../../../../types/IOrdenCompra";
+import { IOrdenCompra } from "../../../types/IOrdenCompra";
 import {
   agruparDetalles,
   calcularSubtotal,
   calcularTotalConDescuento,
-} from "../../../../hooks/agruparDetalles";
+} from "../../../hooks/agruparDetalles";
 
 interface IDetallePedido {
   detallesPedido: IOrdenCompraDetalle[];

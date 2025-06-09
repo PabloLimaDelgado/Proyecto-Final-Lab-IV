@@ -27,7 +27,7 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
 
     const usuarioEditado: IUsuario = {
       nombre: values.nombre,
-      contra: values.contra,
+      password: values.password,
       dni: values.dni,
       mail: values.mail,
       estado: values.estado,
@@ -36,12 +36,15 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
     };
 
     try {
+      const token = localStorage.getItem("token");
+
       const responseUsuario: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/usuario/${usuario.id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(usuarioEditado),
         }
@@ -72,7 +75,7 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
             close
           </button>
           <h1>
-            Editar {campoModificar === "contra" ? "contraseña" : campoModificar}
+            Editar {campoModificar === "password" ? "password" : campoModificar}
           </h1>
           <input
             type="text"
@@ -82,12 +85,14 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
             value={
               campoModificar === "nombre"
                 ? values.nombre
-                : campoModificar === "contra"
-                ? values.contra
+                : campoModificar === "password"
+                ? values.password
                 : values.mail
             }
           />
-          <button type="submit" className={styles.buttonSubmit}>Editar</button>
+          <button type="submit" className={styles.buttonSubmit}>
+            Editar
+          </button>
         </form>
       </div>
     </>

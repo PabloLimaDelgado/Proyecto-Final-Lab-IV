@@ -49,10 +49,19 @@ export const ProductosAdmin = () => {
   const [values, setValues] = useState(searchValue);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
     const fetchProducto = async () => {
       try {
         const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/producto`
+          `${import.meta.env.VITE_BASE_URL}/producto`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         const data: IProducto[] = await response.json();

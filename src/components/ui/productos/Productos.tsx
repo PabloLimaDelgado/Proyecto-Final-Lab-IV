@@ -21,6 +21,8 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
         );
         const data: IDetalle[] = await response.json();
 
+        console.log(data);
+        
         setArrayDetalle(data);
       } catch (error) {
         console.error(error);

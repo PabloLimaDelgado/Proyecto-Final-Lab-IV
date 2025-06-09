@@ -2,7 +2,7 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import styles from "./iniciarSesion.module.css";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { IUsuario } from "../../../types/IUsuario";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 
 interface IIniciarSesion {
   handleRegistarse: () => void;
@@ -46,8 +46,36 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
 
       const usuario: IUsuario = await response.json();
 
-      setUsuarioActivo(usuario);
-      localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
+      if (usuario.token) {
+        localStorage.setItem("token", usuario.token);
+      }
+
+      const token = localStorage.getItem("token");
+
+      const getResponse = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/usuario/get`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!getResponse.ok) {
+        throw new Error(`Error al traer usuarios: ${getResponse.status}`);
+      } else {
+        console.log("Entro bien");
+      }
+
+      const usuarios: IUsuario[] = await getResponse.json();
+      const usuarioEncontrado = usuarios.find((u) => u.mail === usuario.mail);
+
+      if (!usuarioEncontrado) throw new Error("Usuario no encontrado");
+
+      setUsuarioActivo(usuarioEncontrado);
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
 
       if (
         usuario.mail === "admin@gmail.com" &&

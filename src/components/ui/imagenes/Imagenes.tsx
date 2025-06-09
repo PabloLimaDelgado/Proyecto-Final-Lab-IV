@@ -64,12 +64,15 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
 
     detalle.imagenList.push(imagenZustand);
 
+    const token = localStorage.getItem("token");
+
     const response: Response = await fetch(
       `${import.meta.env.VITE_BASE_URL}/imagen`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(imagenCreada),
       }

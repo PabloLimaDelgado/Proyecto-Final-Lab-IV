@@ -38,12 +38,11 @@ export const User = () => {
     navigate("/");
   };
 
-   useEffect(() => {
+  useEffect(() => {
     if (usuarioActivo) {
       localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
     }
   }, [usuarioActivo]);
-
 
   return (
     <>
@@ -73,14 +72,6 @@ export const User = () => {
           </div>
           <div className={styles.divContraseña}>
             <h2>Contraseña</h2>
-            <button
-              onClick={() => {
-                setCampoAModificar("contra");
-                handleEditarUsuario();
-              }}
-            >
-              <span className="material-symbols-outlined">edit</span>
-            </button>
           </div>
           <div className={styles.divDNI}>
             <h2>DNI</h2>

@@ -3,7 +3,6 @@ import { IUsuario } from "../types/IUsuario";
 import { IOrdenCompra } from "../types/IOrdenCompra";
 import { carritoStore } from "../store/carritoStore";
 import { ordenCompraStore } from "../store/ordenCompraStore";
-import { IOrdenCompraDetalle } from "../types/IOrdenCompraDetalle";
 import { IDetalle } from "../types/IDetalle";
 
 export const useOrdenCompra = () => {
@@ -16,9 +15,9 @@ export const useOrdenCompra = () => {
     usarDireccionUsuario: boolean,
     total: number
   ) => {
-    const ordenPayload: IOrdenCompra = {
-      usuario,
-      direccion,
+    const ordenPayload = {
+      usuario: { id: usuario.id },
+      direccion: { id: direccion.id },
       direccionUsuario: usarDireccionUsuario,
       estado: true,
       fecha: new Date().toISOString().split("T")[0],
@@ -26,15 +25,20 @@ export const useOrdenCompra = () => {
     };
 
     console.log(ordenPayload);
-    
+
     let ordenCompra: IOrdenCompra;
-        
+
     try {
+      const token = localStorage.getItem("token");
+
       const responseOrdenCompra: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/ordenCompra`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify(ordenPayload),
         }
       );
@@ -69,18 +73,23 @@ export const useOrdenCompra = () => {
 
     for (const idDetlle in detallesCarrito) {
       const { detalle, cantidad } = detallesCarrito[idDetlle];
-      const ordenCompraDetalle: IOrdenCompraDetalle = {
-        ordenCompra: ordenCompra,
-        detalle,
+      const ordenCompraDetalle = {
+        ordenCompra: { id: ordenCompra.id },
+        detalle: { id: detalle.id },
         cantidad,
       };
 
       try {
+        const token = localStorage.getItem("token");
+
         const responseOrdenCompraDetalle: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/ordenCompraDetalle`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
             body: JSON.stringify(ordenCompraDetalle),
           }
         );

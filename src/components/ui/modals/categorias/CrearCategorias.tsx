@@ -33,12 +33,15 @@ export const CrearCategorias: FC<ICrearCategorias> = ({ close }) => {
     };
 
     try {
+      const token = localStorage.getItem("token");
+
       const response: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/categoria`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(categoria),
         }

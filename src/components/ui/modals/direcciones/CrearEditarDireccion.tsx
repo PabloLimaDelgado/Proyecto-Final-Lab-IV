@@ -86,16 +86,15 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
         provincia: values.provincia,
         departamento: values.departamento,
         codigoPostal: values.codigoPostal,
-        usuarios: [{ id: usuario.id } as any], // ⚠️ solo id, hack para el backend
       };
 
       try {
         const token = localStorage.getItem("token");
-        
+
         console.log(direccionCreada);
 
         const responseDireccion: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/direccion`,
+          `${import.meta.env.VITE_BASE_URL}/direccion/post`,
           {
             method: "POST",
             headers: {

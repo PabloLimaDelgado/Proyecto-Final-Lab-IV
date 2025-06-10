@@ -8,5 +8,5 @@ export interface IDireccion {
   provincia: string;
   departamento: string;
   codigoPostal: string;
-  usuarios: IUsuario[];
+  usuarios?: IUsuario[];
 }

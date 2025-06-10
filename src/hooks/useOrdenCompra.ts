@@ -16,8 +16,8 @@ export const useOrdenCompra = () => {
     total: number
   ) => {
     const ordenPayload = {
-      usuario: { id: usuario.id },
-      direccion: { id: direccion.id },
+      usuario: usuario,
+      direccion: direccion,
       direccionUsuario: usarDireccionUsuario,
       estado: true,
       fecha: new Date().toISOString().split("T")[0],
@@ -74,8 +74,8 @@ export const useOrdenCompra = () => {
     for (const idDetlle in detallesCarrito) {
       const { detalle, cantidad } = detallesCarrito[idDetlle];
       const ordenCompraDetalle = {
-        ordenCompra: { id: ordenCompra.id },
-        detalle: { id: detalle.id },
+        ordenCompra: ordenCompra,
+        detalle: detalle,
         cantidad,
       };
 

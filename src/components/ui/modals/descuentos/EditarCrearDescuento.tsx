@@ -2,6 +2,7 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { IDescuento } from "../../../../types/IDescuento";
 import { descuentoStore } from "../../../../store/descuentoStore";
 import styles from "./editarCrearDescuento.module.css";
+import Swal from "sweetalert2";
 
 interface IEditarCrearDescuento {
   close: () => void;
@@ -33,33 +34,52 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (descuento) {
-      const descuentoEditado: IDescuento = {
-        id: initialForm.id,
-        estado: initialForm.estado,
-        fechaInicio: values.fechaInicio,
-        fechaFin: values.fechaFin,
-        descuento: values.descuento,
-      };
+    if (!values.descuento || values.descuento <= 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Descuento inválido",
+        text: "Ingrese un porcentaje de descuento válido.",
+      });
+      return;
+    }
 
+    try {
       const token = localStorage.getItem("token");
 
-      const responseDescuento: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/descuento/${descuentoEditado.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(descuentoEditado),
-        }
-      );
+      if (descuento) {
+        // Editar
+        const descuentoEditado: IDescuento = {
+          id: initialForm.id,
+          estado: initialForm.estado,
+          fechaInicio: values.fechaInicio,
+          fechaFin: values.fechaFin,
+          descuento: values.descuento,
+        };
 
-      const data: IDescuento = await responseDescuento.json();
-      updateDescuento(data);
-    } else {
-      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/descuento/${descuentoEditado.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(descuentoEditado),
+          }
+        );
+
+        if (!response.ok) throw new Error("Error al editar descuento");
+
+        const data: IDescuento = await response.json();
+        updateDescuento(data);
+
+        Swal.fire({
+          icon: "success",
+          title: "Descuento actualizado",
+          text: "El descuento fue editado correctamente.",
+        });
+      } else {
+        // Crear
         const descuentoCreado: IDescuento = {
           estado: initialForm.estado,
           fechaInicio: values.fechaInicio,
@@ -67,9 +87,7 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
           descuento: values.descuento,
         };
 
-        const token = localStorage.getItem("token");
-
-        const responseDescuento: Response = await fetch(
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/descuento`,
           {
             method: "POST",
@@ -81,15 +99,28 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
           }
         );
 
-        const data: IDescuento = await responseDescuento.json();
-        postDescuento(data);
-      } catch (error) {
-        console.error("Error en crear descuento", error);
-      }
-    }
+        if (!response.ok) throw new Error("Error al crear descuento");
 
-    close();
-    setDescuentoActivo(null);
+        const data: IDescuento = await response.json();
+        postDescuento(data);
+
+        Swal.fire({
+          icon: "success",
+          title: "Descuento creado",
+          text: "El descuento se creó correctamente.",
+        });
+      }
+
+      close();
+      setDescuentoActivo(null);
+    } catch (error) {
+      console.error("Error en descuento", error);
+      Swal.fire({
+        icon: "error",
+        title: "Ocurrió un error",
+        text: "No se pudo procesar el descuento. Intente nuevamente.",
+      });
+    }
   };
 
   return (

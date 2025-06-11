@@ -2,6 +2,7 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { ICategoria } from "../../../../types/ICategoria";
 import styles from "./crearCategorias.module.css";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import Swal from "sweetalert2";
 interface ICrearCategorias {
   close: () => void;
 }
@@ -27,9 +28,18 @@ export const CrearCategorias: FC<ICrearCategorias> = ({ close }) => {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!values.nombre.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Campo vacío",
+        text: "Por favor ingrese un nombre de categoría.",
+      });
+      return;
+    }
+
     const categoria: ICategoria = {
       estado: initialForm.estado,
-      nombre: values.nombre,
+      nombre: values.nombre.trim(),
     };
 
     try {
@@ -46,14 +56,30 @@ export const CrearCategorias: FC<ICrearCategorias> = ({ close }) => {
           body: JSON.stringify(categoria),
         }
       );
+
+      if (!response.ok) {
+        throw new Error("No se pudo crear la categoría");
+      }
+
       const data: ICategoria = await response.json();
       postCategoria(data);
+
+      Swal.fire({
+        icon: "success",
+        title: "Categoría creada",
+        text: `La categoría "${data.nombre}" se creó correctamente.`,
+      });
+
+      resetForm();
+      close();
     } catch (error) {
       console.error("Error en crear categoria", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error al crear la categoría.",
+      });
     }
-
-    resetForm();
-    close();
   };
 
   return (

@@ -6,8 +6,6 @@ import { useEffect, useState } from "react";
 import { detalleProductoStore } from "../../../store/detalleProductoStore";
 import { carritoStore } from "../../../store/carritoStore";
 import { ICarrito } from "../../../types/ICarrito";
-import { IPrecio } from "../../../types/IPrecio";
-import { precioStore } from "../../../store/precioStore";
 
 export const DetalleProducto = () => {
   const { search } = useLocation();
@@ -15,7 +13,6 @@ export const DetalleProducto = () => {
   const idProducto = params.get("idProducto");
 
   const { detalles, setArrayDetalle } = detalleProductoStore();
-  const { precios, setArrayPrecio } = precioStore();
   const {
     carritos,
     postCarrito,
@@ -33,7 +30,7 @@ export const DetalleProducto = () => {
     const fetchDetalle = async () => {
       try {
         const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle`
+          `${import.meta.env.VITE_BASE_URL}/detalle/get`
         );
         const data: IDetalle[] = await response.json();
 
@@ -56,25 +53,7 @@ export const DetalleProducto = () => {
       }
     };
 
-    const fetchPrecio = async () => {
-      try {
-        const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/precio`
-        );
-        const data: IPrecio[] = await response.json();
-
-        const precios: IPrecio[] = data.filter(
-          (precio) => precio.detalle.producto.id == Number(idProducto)
-        );
-
-        setArrayPrecio(precios);
-      } catch (error) {
-        console.log("Error al traer detalles:", error);
-      }
-    };
-
     fetchDetalle();
-    fetchPrecio();
 
     const carritoGuardado = localStorage.getItem("carritoActivo");
 
@@ -112,8 +91,6 @@ export const DetalleProducto = () => {
   const handleNavigate = () => {
     navigate(-1);
   };
-
-  const ordenTalles = ["XS", "S", "M", "L", "XL", "XXL"];
 
   return (
     <>
@@ -169,7 +146,7 @@ export const DetalleProducto = () => {
                   const tallesMostrados = new Set();
                   const ordenTalles = ["XS", "S", "M", "L", "XL", "XXL"];
 
-                  return detalles
+                  const detallesFiltrados = detalles
                     .filter(
                       (detalle) =>
                         detalle.producto.id === Number(idProducto) &&
@@ -180,25 +157,37 @@ export const DetalleProducto = () => {
                       if (tallesMostrados.has(talle)) return false;
                       tallesMostrados.add(talle);
                       return true;
-                    })
-                    .sort(
+                    });
+
+                  const tipoProducto =
+                    detallesFiltrados[0]?.producto.tipoProducto;
+
+                  if (tipoProducto === "CALZADO") {
+                    detallesFiltrados.sort(
+                      (a, b) =>
+                        parseInt(a.talle.talle) - parseInt(b.talle.talle)
+                    );
+                  } else {
+                    detallesFiltrados.sort(
                       (a, b) =>
                         ordenTalles.indexOf(a.talle.talle) -
                         ordenTalles.indexOf(b.talle.talle)
-                    )
-                    .map((detalle) => (
-                      <li
-                        key={detalle.id}
-                        onClick={() => setTalleActivo(detalle.talle.talle)}
-                        className={
-                          talleActivo === detalle.talle.talle
-                            ? styles.liActivo
-                            : ""
-                        }
-                      >
-                        {detalle.talle.talle}
-                      </li>
-                    ));
+                    );
+                  }
+
+                  return detallesFiltrados.map((detalle) => (
+                    <li
+                      key={detalle.id}
+                      onClick={() => setTalleActivo(detalle.talle.talle)}
+                      className={
+                        talleActivo === detalle.talle.talle
+                          ? styles.liActivo
+                          : ""
+                      }
+                    >
+                      {detalle.talle.talle}
+                    </li>
+                  ));
                 })()}
               </ul>
 
@@ -247,28 +236,30 @@ export const DetalleProducto = () => {
                           </h2>
 
                           <h2>
-                            <p>Precio: </p>
+                            <p>Precio:</p>
                             {(() => {
-                              const precio = precios.find(
-                                (precio) => precio.detalle.id === detalle.id
-                              );
+                              const precioDTO = detalle?.precioDTO;
+                              if (!precioDTO || precioDTO.precioVenta == null)
+                                return "N/A";
 
-                              if (!precio) return "N/A";
+                              const precioVenta = Number(precioDTO.precioVenta);
 
-                              const { precioVenta, descuento } = precio;
+                              const descuento = precioDTO.descuento;
                               const hoy = new Date();
 
-                              if (
+                              const tieneDescuento =
                                 descuento &&
                                 descuento.fechaInicio &&
                                 descuento.fechaFin &&
                                 new Date(descuento.fechaInicio) <= hoy &&
-                                hoy <= new Date(descuento.fechaFin)
-                              ) {
-                                const porcentaje = descuento.descuento;
+                                hoy <= new Date(descuento.fechaFin);
+
+                              if (tieneDescuento) {
+                                const porcentaje = Number(descuento.descuento);
                                 const precioConDescuento =
-                                  Number(precioVenta) -
-                                  (Number(precioVenta) * porcentaje) / 100;
+                                  precioVenta -
+                                  (precioVenta * porcentaje) / 100;
+
                                 return (
                                   <>
                                     <span
@@ -277,7 +268,7 @@ export const DetalleProducto = () => {
                                         color: "gray",
                                       }}
                                     >
-                                      ${precioVenta}
+                                      ${precioVenta.toFixed(2)}
                                     </span>{" "}
                                     <span style={{ color: "green" }}>
                                       ${precioConDescuento.toFixed(2)}
@@ -286,7 +277,7 @@ export const DetalleProducto = () => {
                                 );
                               }
 
-                              return `$${precioVenta}`;
+                              return `$${precioVenta.toFixed(2)}`;
                             })()}
                           </h2>
                         </div>

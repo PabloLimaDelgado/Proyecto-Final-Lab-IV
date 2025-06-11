@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import { IProducto } from "../../../types/IProducto";
 import { IDetalle } from "../../../types/IDetalle";
-import { IPrecio } from "../../../types/IPrecio";
 import styles from "./ProductosAdmin.module.css";
 import { CrearTalles } from "../modals/talles/CrearTalles";
 import { CrearCategorias } from "../modals/categorias/CrearCategorias";
@@ -39,7 +38,7 @@ export const ProductosAdmin = () => {
     setDetalleActivo,
     deleteDetalle,
   } = detalleProductoStore();
-  const { setArrayPrecio, precios, setPrecioActivo, precioActivo } =
+  const { setPrecioActivo, precioActivo } =
     precioStore();
 
   const searchValue = {
@@ -74,7 +73,7 @@ export const ProductosAdmin = () => {
     const fetchDetalle = async () => {
       try {
         const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle`
+          `${import.meta.env.VITE_BASE_URL}/detalle/get`
         );
         const data: IDetalle[] = await response.json();
         console.log(data);
@@ -85,19 +84,6 @@ export const ProductosAdmin = () => {
       }
     };
 
-    const fetchPrecio = async () => {
-      try {
-        const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/precio`
-        );
-        const data: IPrecio[] = await response.json();
-        setArrayPrecio(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchPrecio();
     fetchProducto();
     fetchDetalle();
   }, []);
@@ -180,12 +166,15 @@ export const ProductosAdmin = () => {
 
   const handleDeleteProducto = async (idProducto?: number) => {
     try {
+      const token = localStorage.getItem("token");
+
       const response: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/producto/${idProducto}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -200,12 +189,15 @@ export const ProductosAdmin = () => {
 
   const handleDeleteDetalleProducto = async (idDetalle?: number) => {
     try {
+      const token = localStorage.getItem("token");
+
       const response: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/detalle/${idDetalle}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -242,7 +234,7 @@ export const ProductosAdmin = () => {
         <div className={styles.productosMapAdminContainer}>
           {productos &&
             productosPaginados.map((producto) => (
-              <>
+              <React.Fragment key={producto.id}>
                 <div key={producto.id}>
                   <h1>Producto id: {producto.id}</h1>
                   <h2>{producto.nombre}</h2>
@@ -299,66 +291,57 @@ export const ProductosAdmin = () => {
                         <React.Fragment key={detalle.id}>
                           <h2>Detalle id: {detalle.id}</h2>
                           <h3>Talle: {detalle.talle.talle}</h3>
-                          {precios &&
-                            precios
-                              .filter(
-                                (precio) => precio.detalle.id === detalle.id
-                              )
-                              .map((precio) => (
-                                <React.Fragment key={precio.id}>
-                                  <h3>Precio compra: {precio.precioCompra}</h3>
-                                  <h3>Precio venta: {precio.precioVenta}</h3>
-                                  <h3>Stock: {detalle.stock}</h3>
-                                  <h3>Color: {detalle.color}</h3>
-                                  <h3>
-                                    Descuento:{" "}
-                                    {precio.descuento
-                                      ? precio.descuento.descuento
-                                      : 0}
-                                    %
-                                  </h3>
-                                  <div
-                                    className={styles.productoAdminButtonsDiv}
-                                  >
-                                    <button
-                                      className={styles.deleteButton}
-                                      onClick={() =>
-                                        handleDeleteDetalleProducto(detalle.id)
-                                      }
-                                    >
-                                      <span className="material-symbols-outlined">
-                                        delete
-                                      </span>
-                                    </button>
-                                    <button
-                                      className={styles.editButton}
-                                      onClick={() => {
-                                        handleCrearEditarDetalleProducto();
-                                        setDetalleActivo(detalle);
-                                        setPrecioActivo(precio);
-                                        setProductoActivo(producto);
-                                      }}
-                                    >
-                                      <span className="material-symbols-outlined">
-                                        edit
-                                      </span>
-                                    </button>
-                                    <button
-                                      className={styles.imagesButtonAdd}
-                                      onClick={() => {
-                                        handleCrearImagen();
-                                        setDetalleActivo(detalle);
-                                      }}
-                                    >
-                                      IMG
-                                    </button>
-                                  </div>
-                                </React.Fragment>
-                              ))}
+                          <h3>
+                            Precio compra: {detalle.precioDTO.precioCompra}
+                          </h3>
+                          <h3>Precio venta: {detalle.precioDTO.precioVenta}</h3>
+                          <h3>Stock: {detalle.stock}</h3>
+                          <h3>Color: {detalle.color}</h3>
+                          <h3>
+                            Descuento:{" "}
+                            {detalle.precioDTO.descuento
+                              ? detalle.precioDTO.descuento.descuento
+                              : 0}
+                            %
+                          </h3>
+                          <div className={styles.productoAdminButtonsDiv}>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() =>
+                                handleDeleteDetalleProducto(detalle.id)
+                              }
+                            >
+                              <span className="material-symbols-outlined">
+                                delete
+                              </span>
+                            </button>
+                            <button
+                              className={styles.editButton}
+                              onClick={() => {
+                                handleCrearEditarDetalleProducto();
+                                setDetalleActivo(detalle);
+                                setPrecioActivo(detalle.precioDTO);
+                                setProductoActivo(producto);
+                              }}
+                            >
+                              <span className="material-symbols-outlined">
+                                edit
+                              </span>
+                            </button>
+                            <button
+                              className={styles.imagesButtonAdd}
+                              onClick={() => {
+                                handleCrearImagen();
+                                setDetalleActivo(detalle);
+                              }}
+                            >
+                              IMG
+                            </button>
+                          </div>
                         </React.Fragment>
                       ))}
                 </div>
-              </>
+              </React.Fragment>
             ))}
         </div>
         <div className={styles.divPaginadoBotones}>

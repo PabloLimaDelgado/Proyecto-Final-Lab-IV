@@ -100,15 +100,27 @@
 .direccionesUsuarios {
   display: flex;
   flex-direction: row;
-  justify-content: start;
+  justify-content: space-between;
   align-items: center;
-  margin-left: 0.4rem;
+  margin-left: 0.8rem;
+  margin-right: 0.8rem;
   gap: 0.8rem;
-  height: 3vh;
+  height: 8vh;
   overflow: hidden;
 }
 
-.direccionesUsuarios label {
+.direccionesUsuarios div {
+  display: flex;
+  flex-direction: row;
+  gap: 0.4rem;
+}
+.direccionesUsuarios div h2 {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2rem;
+  color: black;
+}
+
+.direccionesUsuarios div label {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -195,7 +207,7 @@
   width: 10vw;
 }
 
-.divComprarProductos button:hover{
+.divComprarProductos button:hover {
   cursor: pointer;
 }
 
@@ -273,7 +285,7 @@
   margin-top: 0.1rem;
 }
 
-.PPrecio span{
+.PPrecio span {
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -311,7 +323,7 @@
   justify-content: center;
   width: 2vw;
   height: 2vw;
-  color:  black;
+  color: black;
   background-color: white;
   border: white;
 }

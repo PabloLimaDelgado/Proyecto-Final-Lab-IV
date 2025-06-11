@@ -6,4 +6,6 @@ export interface IOrdenCompraDetalle {
   ordenCompra: IOrdenCompra;
   detalle: IDetalle;
   cantidad: number;
+  subtotal: number;
+  estado: boolean
 }

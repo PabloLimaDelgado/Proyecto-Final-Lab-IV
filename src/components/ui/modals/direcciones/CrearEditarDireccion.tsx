@@ -3,6 +3,7 @@ import { IDireccion } from "../../../../types/IDireccion";
 import { IUsuario } from "../../../../types/IUsuario";
 import styles from "./crearEditarDireccion.module.css";
 import { usuarioStore } from "../../../../store/usuarioStore";
+import Swal from "sweetalert2";
 
 interface ICrearEditarDireccion {
   close: () => void;
@@ -36,24 +37,39 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (direccion) {
-      const direccionEditada: IDireccion = {
-        id: direccion.id,
-        localidad: values.localidad,
-        estado: true,
-        pais: values.pais,
-        provincia: values.provincia,
-        departamento: values.departamento,
-        codigoPostal: values.codigoPostal,
-        usuarios: direccion.usuarios,
-      };
+    // Validaciones básicas
+    if (
+      !values.localidad ||
+      !values.pais ||
+      !values.provincia ||
+      !values.departamento ||
+      !values.codigoPostal
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos incompletos",
+        text: "Por favor, complete todos los campos de la dirección.",
+      });
+      return;
+    }
 
-      console.log(direccionEditada);
+    const token = localStorage.getItem("token");
 
-      try {
-        const token = localStorage.getItem("token");
+    try {
+      if (direccion) {
+        // Editar dirección
+        const direccionEditada: IDireccion = {
+          id: direccion.id,
+          localidad: values.localidad,
+          estado: true,
+          pais: values.pais,
+          provincia: values.provincia,
+          departamento: values.departamento,
+          codigoPostal: values.codigoPostal,
+          usuarios: direccion.usuarios,
+        };
 
-        const responseDireccion: Response = await fetch(
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/direccion/${direccion.id}`,
           {
             method: "PUT",
@@ -65,35 +81,40 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
           }
         );
 
-        const data: IDireccion = await responseDireccion.json();
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
+        const data: IDireccion = await response.json();
+
         const usuarioActualizado: IUsuario = {
           ...usuario,
-          direcciones: usuario.direcciones.map((direccion) =>
-            direccion.id === data.id ? data : direccion
+          direcciones: usuario.direcciones?.map((d) =>
+            d.id === data.id ? data : d
           ),
         };
 
         updateUsuario(usuarioActualizado);
         setUsuarioActivo(usuarioActualizado);
-      } catch (error) {
-        console.error("Error en editarla direccion del usuario", error);
-      }
-    } else {
-      const direccionCreada: IDireccion = {
-        localidad: values.localidad,
-        estado: initialForm.estado,
-        pais: values.pais,
-        provincia: values.provincia,
-        departamento: values.departamento,
-        codigoPostal: values.codigoPostal,
-      };
 
-      try {
-        const token = localStorage.getItem("token");
+        Swal.fire({
+          icon: "success",
+          title: "Dirección actualizada",
+          text: "La dirección fue editada correctamente.",
+        });
+      } else {
+        // Crear dirección
+        const direccionCreada: IDireccion = {
+          localidad: values.localidad,
+          estado: true,
+          pais: values.pais,
+          provincia: values.provincia,
+          departamento: values.departamento,
+          codigoPostal: values.codigoPostal,
+        };
 
-        console.log(direccionCreada);
-
-        const responseDireccion: Response = await fetch(
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/direccion/post`,
           {
             method: "POST",
@@ -105,21 +126,44 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
           }
         );
 
-        const data: IDireccion = await responseDireccion.json();
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
+        const data: IDireccion = await response.json();
 
         const usuarioActualizado: IUsuario = {
           ...usuario,
-          direcciones: [...usuario.direcciones, data],
+          direcciones:
+            usuario.direcciones && usuario.direcciones.length > 0
+              ? [...usuario.direcciones, data]
+              : [data],
         };
 
         updateUsuario(usuarioActualizado);
         setUsuarioActivo(usuarioActualizado);
-      } catch (error) {
-        console.error("Error en añadir direccion a usuario", error);
-      }
-    }
+        localStorage.setItem(
+          "usuarioActivo",
+          JSON.stringify(usuarioActualizado)
+        );
 
-    close();
+        Swal.fire({
+          icon: "success",
+          title: "Dirección guardada",
+          text: "La nueva dirección fue añadida correctamente.",
+        });
+      }
+
+      close();
+    } catch (error) {
+      console.error("Error en la operación de dirección", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un problema al guardar la dirección. Inténtelo de nuevo.",
+      });
+    }
   };
 
   return (

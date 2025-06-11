@@ -23,16 +23,6 @@ export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
     },
   });
 
-  const handleCheckboxChange = (section: "precio" | "orden", key: string) => {
-    setFiltros((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [key]: !prev[section][key as keyof (typeof prev)[typeof section]],
-      },
-    }));
-  };
-
   const handleSelect = (tipo: string, genero: string) => {
     navigate(`/vistaShop?tipo=${tipo}&genero=${genero}`);
   };
@@ -59,45 +49,6 @@ export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
               </li>
             ))}
           </ul>
-        </div>
-
-        <div className={styles.filterPrecio}>
-          <h2>Ordenar por precio: </h2>
-          <label>
-            Más barato:
-            <input
-              type="checkbox"
-              checked={filtros.precio.masBarato}
-              onChange={() => handleCheckboxChange("precio", "masBarato")}
-            />
-          </label>
-          <label>
-            Más caro:
-            <input
-              type="checkbox"
-              checked={filtros.precio.masCaro}
-              onChange={() => handleCheckboxChange("precio", "masCaro")}
-            />
-          </label>
-        </div>
-        <div className={styles.filterMasVendido}>
-          <label>
-            Más vendido:
-            <input
-              type="checkbox"
-              checked={filtros.orden.masVendido}
-              onChange={() => handleCheckboxChange("orden", "masVendido")}
-            />
-          </label>
-
-          <label>
-            Nuevo:
-            <input
-              type="checkbox"
-              checked={filtros.orden.nuevo}
-              onChange={() => handleCheckboxChange("orden", "nuevo")}
-            />
-          </label>
         </div>
       </div>
     </>

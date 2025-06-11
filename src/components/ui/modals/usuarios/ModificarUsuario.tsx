@@ -2,6 +2,7 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { IUsuario } from "../../../../types/IUsuario";
 import { usuarioStore } from "../../../../store/usuarioStore";
 import styles from "./modificarUsuario.module.css";
+import Swal from "sweetalert2";
 
 interface IModificarUsuario {
   close: () => void;
@@ -22,8 +23,26 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  console.log(usuario);
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    // Validación de campos requeridos
+    if (
+      !values.nombre.trim() ||
+      !values.mail.trim() ||
+      !values.dni.trim() ||
+      !values.password.trim() ||
+      !values.rol
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos requeridos",
+        text: "Por favor complete todos los campos obligatorios.",
+      });
+      return;
+    }
 
     const usuarioEditado: IUsuario = {
       nombre: values.nombre,
@@ -39,7 +58,7 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
       const token = localStorage.getItem("token");
 
       const responseUsuario: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/${usuario.id}`,
+        `${import.meta.env.VITE_BASE_URL}/usuario/update/${usuario.id}`,
         {
           method: "PUT",
           headers: {
@@ -50,18 +69,33 @@ export const ModificarUsuario: FC<IModificarUsuario> = ({
         }
       );
 
-      const data: IUsuario = await responseUsuario.json();
+      if (!responseUsuario.ok) {
+        const errorText = await responseUsuario.text();
+        throw new Error(errorText);
+      }
 
-      console.log(data);
+      const data: IUsuario = await responseUsuario.json();
 
       updateUsuario(data);
       setUsuarioActivo(data);
+
+      Swal.fire({
+        icon: "success",
+        title: "Usuario actualizado",
+        text: "Los datos del usuario fueron actualizados correctamente.",
+      });
+
+      close();
     } catch (error) {
       console.error("Error en editar usuario", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el usuario. Intente nuevamente.",
+      });
     }
-
-    close();
   };
+
   return (
     <>
       <div className={styles.formModificarUsuarioContainer}>

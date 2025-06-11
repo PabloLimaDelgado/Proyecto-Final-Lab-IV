@@ -4,3 +4,19 @@
   width: 100vw;
   min-height: 100vh;
 }
+
+.buttonLanding {
+  position: absolute;
+  top: 0;
+  right: 0; /* <-- Este es el cambio importante */
+  margin: 1rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  overflow: hidden;
+}
+
+.buttonLanding span {
+  overflow: hidden;
+}

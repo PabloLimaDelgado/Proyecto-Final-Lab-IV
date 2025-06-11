@@ -6,6 +6,7 @@ import { ISexo } from "../../../../types/enums/ISexo";
 import styles from "./editarCrearProducto.module.css";
 import { productoStore } from "../../../../store/productoStore";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import Swal from "sweetalert2";
 
 interface IEditarCrearProducto {
   close: () => void;
@@ -73,20 +74,36 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (producto && producto.id) {
-      const productoEditado: IProducto = {
-        id: producto.id,
-        estado: true,
-        categoria: values.categoria,
-        nombre: values.nombre,
-        tipoProducto: values.tipoProducto,
-        sexo: values.sexo,
-      };
+    // Validación de campos obligatorios
+    if (
+      !values.nombre ||
+      !values.categoria ||
+      !values.tipoProducto ||
+      !values.sexo
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos incompletos",
+        text: "Por favor complete todos los campos obligatorios del producto.",
+      });
+      return;
+    }
 
-      try {
-        const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-        const response: Response = await fetch(
+    try {
+      if (producto && producto.id) {
+        // Editar producto
+        const productoEditado: IProducto = {
+          id: producto.id,
+          estado: true,
+          categoria: values.categoria,
+          nombre: values.nombre,
+          tipoProducto: values.tipoProducto,
+          sexo: values.sexo,
+        };
+
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/producto/${productoEditado.id}`,
           {
             method: "PUT",
@@ -97,24 +114,31 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
             body: JSON.stringify(productoEditado),
           }
         );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
         const data: IProducto = await response.json();
         updateProducto(data);
-      } catch (error) {
-        console.error("Error en editar producto", error);
-      }
-    } else {
-      const productoCreado: IProducto = {
-        estado: true,
-        categoria: values.categoria,
-        nombre: values.nombre,
-        tipoProducto: values.tipoProducto,
-        sexo: values.sexo,
-      };
 
-      try {
-        const token = localStorage.getItem("token");
+        Swal.fire({
+          icon: "success",
+          title: "Producto actualizado",
+          text: "El producto fue editado correctamente.",
+        });
+      } else {
+        // Crear producto
+        const productoCreado: IProducto = {
+          estado: true,
+          categoria: values.categoria,
+          nombre: values.nombre,
+          tipoProducto: values.tipoProducto,
+          sexo: values.sexo,
+        };
 
-        const response: Response = await fetch(
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/producto`,
           {
             method: "POST",
@@ -126,15 +150,31 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
           }
         );
 
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
         const data: IProducto = await response.json();
         postProducto(data);
-      } catch (error) {
-        console.error("Error en crear producto", error);
-      }
-    }
 
-    setProductoActivo(null);
-    close();
+        Swal.fire({
+          icon: "success",
+          title: "Producto creado",
+          text: "El producto fue creado correctamente.",
+        });
+      }
+
+      setProductoActivo(null);
+      close();
+    } catch (error) {
+      console.error("Error al crear/editar el producto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al guardar el producto. Intente nuevamente.",
+      });
+    }
   };
 
   return (

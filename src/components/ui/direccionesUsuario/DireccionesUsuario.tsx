@@ -36,19 +36,17 @@ export const DireccionesUsuario: FC<IDireccionesUsuario> = ({
   const [paginasTotales, setPaginasTotales] = useState<number>(1);
 
   useEffect(() => {
-    const direccionesFiltrados = direcciones.filter(
-      (direccion) => direccion.estado !== false
-    );
 
     const totalPaginas = Math.max(
       1,
-      Math.ceil(direccionesFiltrados.length / ITEMS_POR_PAGINA)
+      Math.ceil(direcciones.length / ITEMS_POR_PAGINA)
     );
     setPaginasTotales(totalPaginas);
 
     if (paginaActual > totalPaginas) {
       setPaginaActual(totalPaginas);
     }
+    
   }, [direcciones]);
 
   const handleAvanzarPagina = () => {
@@ -67,14 +65,19 @@ export const DireccionesUsuario: FC<IDireccionesUsuario> = ({
     (paginaActual - 1) * ITEMS_POR_PAGINA,
     paginaActual * ITEMS_POR_PAGINA
   );
-
+  
   const handleDeleteDireccion = async (idDireccion?: number) => {
     try {
+      const token = localStorage.getItem("token");
+
       const response: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/direccion/${idDireccion}`,
         {
           method: "DELETE",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -85,7 +88,7 @@ export const DireccionesUsuario: FC<IDireccionesUsuario> = ({
             (direccion) => direccion.id !== idDireccion
           ),
         };
-        
+
         updateUsuario(usuarioNuevo);
         setUsuarioActivo(usuarioNuevo);
       } else {

@@ -9,6 +9,6 @@ export interface IUsuario {
   estado: boolean;
   rol: IRol;
   mail: string;
-  direcciones: IDireccion[];
+  direcciones?: IDireccion[];
   token?: string;
 }

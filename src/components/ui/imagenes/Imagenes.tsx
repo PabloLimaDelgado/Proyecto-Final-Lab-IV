@@ -1,8 +1,9 @@
-import React, { ChangeEvent, FC, FormEvent, useState } from "react";
+import { ChangeEvent, FC, FormEvent, useEffect, useState } from "react";
 import { IDetalle } from "../../../types/IDetalle";
 import styles from "./imagenes.module.css";
 import { IImagen } from "../../../types/IImagen";
 import { detalleProductoStore } from "../../../store/detalleProductoStore";
+import Swal from "sweetalert2";
 
 interface IImagenes {
   detalle: IDetalle;
@@ -28,12 +29,15 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
 
   const handleDeleteImage = async (idImagen?: number) => {
     try {
+      const token = localStorage.getItem("token");
+
       const response: Response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/imagen/${idImagen}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -49,6 +53,15 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!values.url.trim() || !values.alt.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos requeridos",
+        text: "Debe completar el campo URL y el texto alternativo.",
+      });
+      return;
+    }
+
     const imagenCreada: IImagen = {
       url: values.url,
       alt: values.alt,
@@ -62,28 +75,48 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
       estado: true,
     };
 
-    detalle.imagenList.push(imagenZustand);
-
-    const token = localStorage.getItem("token");
-
-    const response: Response = await fetch(
-      `${import.meta.env.VITE_BASE_URL}/imagen`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(imagenCreada),
-      }
-    );
-    updateDetalle(detalle);
-
     try {
+      const token = localStorage.getItem("token");
+
+      const response: Response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/imagen`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(imagenCreada),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+
+      detalle.imagenList.push(imagenZustand);
+      updateDetalle(detalle);
+
+      Swal.fire({
+        icon: "success",
+        title: "Imagen agregada",
+        text: "La imagen se agregó correctamente al detalle.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.error("Error en crear imagen", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo agregar la imagen. Intente más tarde.",
+      });
     }
   };
+
+  console.log(detalle);
+
   return (
     <>
       <div className={styles.imagenContainer}>

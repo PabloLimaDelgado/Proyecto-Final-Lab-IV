@@ -1,4 +1,5 @@
 import { IImagen } from "./IImagen";
+import { IPrecio } from "./IPrecio";
 import { IProducto } from "./IProducto";
 import { ITalle } from "./ITalle";
 
@@ -10,4 +11,5 @@ export interface IDetalle {
   producto: IProducto;
   imagenList: IImagen[];
   stock: number | string;
+  precioDTO: IPrecio
 }

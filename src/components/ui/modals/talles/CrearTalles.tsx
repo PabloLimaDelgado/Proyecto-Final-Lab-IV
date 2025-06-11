@@ -1,6 +1,7 @@
 import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { ITalle } from "../../../../types/ITalle";
 import styles from "./crearTalle.module.css";
+import Swal from "sweetalert2";
 
 interface ICrearTalles {
   close: () => void;
@@ -26,9 +27,19 @@ export const CrearTalles: FC<ICrearTalles> = ({ close }) => {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // Validar que el campo no esté vacío
+    if (!values.talle.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campo requerido",
+        text: "Debe ingresar un valor para el talle.",
+      });
+      return;
+    }
+
     const talle: ITalle = {
       estado: true,
-      talle: values.talle,
+      talle: values.talle.trim(),
     };
 
     try {
@@ -45,12 +56,28 @@ export const CrearTalles: FC<ICrearTalles> = ({ close }) => {
           body: JSON.stringify(talle),
         }
       );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText);
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Talle creado",
+        text: "El talle fue creado correctamente.",
+      });
+
+      resetForm();
+      close();
     } catch (error) {
       console.error("Error en crear talle", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error al crear el talle. Intente nuevamente.",
+      });
     }
-
-    resetForm();
-    close();
   };
 
   return (

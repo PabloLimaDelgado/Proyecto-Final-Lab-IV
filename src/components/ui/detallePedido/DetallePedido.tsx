@@ -4,11 +4,6 @@ import { precioStore } from "../../../store/precioStore";
 import { IPrecio } from "../../../types/IPrecio";
 import styles from "./detallePedido.module.css";
 import { IOrdenCompra } from "../../../types/IOrdenCompra";
-import {
-  agruparDetalles,
-  calcularSubtotal,
-  calcularTotalConDescuento,
-} from "../../../hooks/agruparDetalles";
 
 interface IDetallePedido {
   detallesPedido: IOrdenCompraDetalle[];
@@ -21,7 +16,7 @@ export const DetallePedido: FC<IDetallePedido> = ({
   close,
   ordenCompra,
 }) => {
-  const { setArrayPrecio, precios } = precioStore();
+  const { setArrayPrecio } = precioStore();
 
   useEffect(() => {
     const fetchPrecio = async () => {
@@ -38,14 +33,6 @@ export const DetallePedido: FC<IDetallePedido> = ({
 
     fetchPrecio();
   }, []);
-
-  const detallePrecio = agruparDetalles(
-    detallesPedido.map((detalle) => detalle.detalle)
-  );
-
-  const subtotal = calcularSubtotal(detallePrecio, precios);
-
-  const totalConDescuento = calcularTotalConDescuento(detallePrecio, precios);
 
   return (
     <>
@@ -78,7 +65,30 @@ export const DetallePedido: FC<IDetallePedido> = ({
                     <td>{detallePedido.detalle.talle.talle}</td>
                     <td>{detallePedido.detalle.color}</td>
                     <td>{detallePedido.cantidad}</td>
-                    <td>$ {totalConDescuento}</td>
+                    <td>
+                      $
+                      {(() => {
+                        const precioBase =
+                          detallePedido.detalle.precioDTO.precioVenta ?? 0;
+                        const descuento =
+                          detallePedido.detalle.precioDTO.descuento;
+                        const hoy = new Date();
+                        let precioFinal = Number(precioBase);
+
+                        if (
+                          descuento &&
+                          new Date(descuento.fechaInicio) <= hoy &&
+                          hoy <= new Date(descuento.fechaFin)
+                        ) {
+                          precioFinal -=
+                            (precioFinal * descuento.descuento) / 100;
+                        }
+
+                        return (precioFinal * detallePedido.cantidad).toFixed(
+                          2
+                        );
+                      })()}
+                    </td>
                   </tr>
                 ))}
               </tbody>

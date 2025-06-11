@@ -4,6 +4,7 @@ import { IOrdenCompra } from "../types/IOrdenCompra";
 import { carritoStore } from "../store/carritoStore";
 import { ordenCompraStore } from "../store/ordenCompraStore";
 import { IDetalle } from "../types/IDetalle";
+import { IOrdenCompraDetalle } from "../types/IOrdenCompraDetalle";
 
 export const useOrdenCompra = () => {
   const { carritoActivo } = carritoStore();
@@ -16,15 +17,15 @@ export const useOrdenCompra = () => {
     total: number
   ) => {
     const ordenPayload = {
-      usuario: usuario,
-      direccion: direccion,
+      usuario,
+      direccion,
       direccionUsuario: usarDireccionUsuario,
       estado: true,
       fecha: new Date().toISOString().split("T")[0],
       total,
     };
 
-    console.log(ordenPayload);
+    //console.log(ordenPayload);
 
     let ordenCompra: IOrdenCompra;
 
@@ -49,6 +50,8 @@ export const useOrdenCompra = () => {
       }
 
       ordenCompra = await responseOrdenCompra.json();
+      console.log(ordenCompra);
+
       postOrdenCompra(ordenCompra);
       setOrdenCompraActivo(ordenCompra);
     } catch (err) {
@@ -73,10 +76,20 @@ export const useOrdenCompra = () => {
 
     for (const idDetlle in detallesCarrito) {
       const { detalle, cantidad } = detallesCarrito[idDetlle];
-      const ordenCompraDetalle = {
+
+      const precio = Number(detalle.precioDTO?.precioVenta) ?? 0;
+
+      const descuento = Number(detalle.precioDTO?.descuento?.descuento) ?? 0;
+      const precioFinal = descuento
+        ? (precio - (precio * descuento) / 100).toFixed(2)
+        : precio.toFixed(2);
+
+      const ordenCompraDetalle: IOrdenCompraDetalle = {
         ordenCompra: ordenCompra,
         detalle: detalle,
         cantidad,
+        subtotal: Number(precioFinal),
+        estado: true,
       };
 
       try {

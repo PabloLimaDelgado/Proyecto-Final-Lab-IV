@@ -10,6 +10,7 @@ export const DescuentosAdmin = () => {
     descuentos,
     setDescuentoActivo,
     descuentoActivo,
+    deleteDescuento,
   } = descuentoStore();
   const [editarCrearDescuento, setCrearEditarDescuento] =
     useState<boolean>(false);
@@ -71,6 +72,29 @@ export const DescuentosAdmin = () => {
     paginaActual * ITEMS_POR_PAGINA
   );
 
+  const handleDeleteDescuento = async (idDescuento?: number) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response: Response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/descuento/${idDescuento}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (idDescuento) {
+        deleteDescuento(idDescuento);
+      }
+    } catch (error) {
+      console.error("Error en crear producto", error);
+    }
+  };
+
   return (
     <>
       <div className={styles.descuentosAdminContainer}>
@@ -98,7 +122,10 @@ export const DescuentosAdmin = () => {
                   >
                     <span className="material-symbols-outlined">edit</span>
                   </button>
-                  <button className={styles.deleteButton}>
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteDescuento(descuento.id)}
+                  >
                     <span className="material-symbols-outlined">delete</span>
                   </button>
                 </div>

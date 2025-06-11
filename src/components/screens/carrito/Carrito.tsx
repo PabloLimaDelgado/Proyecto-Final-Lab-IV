@@ -1,51 +1,41 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import zapatoLogoBlanco from "../../../images/logoblanco.png";
 import { usuarioStore } from "../../../store/usuarioStore";
-import { CarritoDireccion } from "../../ui/carritoDireccion/CarritoDireccion";
 import styles from "./carrito.module.css";
 import { carritoStore } from "../../../store/carritoStore";
-import { IPrecio } from "../../../types/IPrecio";
-import { precioStore } from "../../../store/precioStore";
 import { useOrdenCompra } from "../../../hooks/useOrdenCompra";
 import { direccionStore } from "../../../store/domiciliStore";
 import { useNavigate } from "react-router-dom";
 import { IDetalle } from "../../../types/IDetalle";
 import { ICarrito } from "../../../types/ICarrito";
 import { IDireccion } from "../../../types/IDireccion";
-import { IUsuario } from "../../../types/IUsuario";
 import {
   agruparDetalles,
   calcularSubtotal,
   calcularTotalConDescuento,
 } from "../../../hooks/agruparDetalles";
+import Swal from "sweetalert2";
 
 export const Carrito = () => {
-  const { usuarioActivo, setUsuarioActivo } = usuarioStore();
+  const { usuarioActivo } = usuarioStore();
   const { carritoActivo, updateCarrito, setCarritoActivo } = carritoStore();
-  const { setDireccionActiva, direccionActiva, postDireccion } =
-    direccionStore();
-  const { setArrayPrecio, precios } = precioStore();
+  const { setDireccionActiva, direccionActiva } = direccionStore();
   const { añadirOrden } = useOrdenCompra();
   const navigate = useNavigate();
-
-  const [usarDireccionUsuario, setUsarDireccionUsuario] =
-    useState<boolean>(false);
-
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUsarDireccionUsuario(event.target.checked);
-  };
 
   const handleNavigate = () => {
     navigate(-1);
   };
 
+  const [medioPagoSeleccionado, setMedioPagoSeleccionado] =
+    useState<string>("");
+
   const detallesAgrupados = agruparDetalles(carritoActivo?.detallesProductos);
 
-  const subtotal = calcularSubtotal(detallesAgrupados, precios);
-  const totalConDescuento = calcularTotalConDescuento(
-    detallesAgrupados,
-    precios
-  );
+  const subtotal = calcularSubtotal(detallesAgrupados);
+  console.log(detallesAgrupados);
+  
+  const totalConDescuento = calcularTotalConDescuento(detallesAgrupados);
 
   const handleEliminarProducto = (idDetalle: number) => {
     if (!carritoActivo) return;
@@ -63,81 +53,7 @@ export const Carrito = () => {
     setCarritoActivo(carritoActualizado);
   };
 
-  useEffect(() => {
-    const fetchPrecio = async () => {
-      try {
-        const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/precio`
-        );
-        const data: IPrecio[] = await response.json();
-
-        setArrayPrecio(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchPrecio();
-  }, []);
-
-  const initialForm: IDireccion = {
-    localidad: "",
-    estado: true,
-    pais: "",
-    provincia: "",
-    departamento: "",
-    codigoPostal: "",
-    usuarios: usuarioActivo ? [usuarioActivo] : [],
-  };
-
-  const [direccionFormulario, setDireccionFormulario] =
-    useState<IDireccion>(initialForm);
-
-  const handleChangeDireccion = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setDireccionFormulario((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmitDireccion = async (): Promise<IDireccion | null> => {
-    try {
-      const direccionConUsuario = {
-        ...direccionFormulario,
-        usuarios: usuarioActivo ? [usuarioActivo] : [],
-      };
-
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/direccion`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(direccionConUsuario),
-        }
-      );
-
-      const nuevaDireccion: IDireccion = await response.json();
-
-      if (!response.ok) throw new Error("Error al crear dirección");
-
-      postDireccion(nuevaDireccion);
-      setDireccionActiva(nuevaDireccion);
-
-      const usuarioActualizado: IUsuario = {
-        ...usuarioActivo!,
-        direcciones: [
-          ...(usuarioActivo?.direcciones ?? []),
-          direccionConUsuario,
-        ],
-      };
-
-      setUsuarioActivo(usuarioActualizado);
-      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActualizado));
-
-      return direccionConUsuario;
-    } catch (error) {
-      console.error("Error al crear dirección:", error);
-      return null;
-    }
-  };
+  const handleNavigateLanding = () => navigate("/VistaLanding");
 
   useEffect(() => {
     if (carritoActivo) {
@@ -172,26 +88,27 @@ export const Carrito = () => {
                   <h2>
                     <p>Precio: </p>
                     {(() => {
-                      const precio = precios.find(
-                        (precio) => precio.detalle.id === detalle.id
-                      );
+                      const precio = detalle.precioDTO.precioVenta;
 
                       if (!precio) return "N/A";
 
-                      const { precioVenta, descuento } = precio;
                       const hoy = new Date();
 
                       if (
-                        descuento &&
-                        descuento.fechaInicio &&
-                        descuento.fechaFin &&
-                        new Date(descuento.fechaInicio) <= hoy &&
-                        hoy <= new Date(descuento.fechaFin)
+                        detalle.precioDTO.descuento &&
+                        detalle.precioDTO.descuento.fechaInicio &&
+                        detalle.precioDTO.descuento.fechaFin &&
+                        new Date(detalle.precioDTO.descuento.fechaInicio) <=
+                          hoy &&
+                        hoy <= new Date(detalle.precioDTO.descuento.fechaFin)
                       ) {
-                        const porcentaje = descuento.descuento;
+                        const porcentaje = Number(
+                          detalle.precioDTO.descuento.descuento
+                        );
                         const precioConDescuento =
-                          Number(precioVenta) -
-                          (Number(precioVenta) * porcentaje) / 100;
+                          Number(detalle.precioDTO.precioVenta) -
+                          (Number(detalle.precioDTO.precioVenta) * porcentaje) /
+                            100;
                         return (
                           <>
                             <p className={styles.PPrecio}>
@@ -201,7 +118,7 @@ export const Carrito = () => {
                                   color: "gray",
                                 }}
                               >
-                                ${precioVenta}
+                                ${detalle.precioDTO.precioVenta}
                               </span>
                               <span style={{ color: "black" }}>
                                 ${precioConDescuento.toFixed(2)}
@@ -211,7 +128,7 @@ export const Carrito = () => {
                         );
                       }
 
-                      return `$${precioVenta}`;
+                      return `$${detalle.precioDTO.precioVenta}`;
                     })()}
                   </h2>
                   <h2>Cantidad: {cantidad}</h2>
@@ -227,79 +144,110 @@ export const Carrito = () => {
 
         <footer className={styles.footer}>
           <div className={styles.divEleccionCarrito}>
-            <div>
-              <p>¿Usar Direcciones Usuario? </p>
-              <input
-                type="checkbox"
-                checked={usarDireccionUsuario}
-                onChange={handleCheckboxChange}
-              />
-            </div>
+            <div className={styles.divSelectPago}></div>
+          </div>
 
-            <div className={styles.divSelectPago}>
+          <div className={styles.divUsuarioCheck}>
+            <div className={styles.direccionesUsuarios}>
+              <div>
+                <h2>Direciones: </h2>
+                {usuarioActivo?.direcciones &&
+                  usuarioActivo?.direcciones
+                    .filter((direccion) => direccion.estado !== false)
+                    .map((direccion) => (
+                      <label key={direccion.id}>
+                        <p>
+                          {direccion.departamento} - {direccion.localidad}
+                        </p>
+                        <input
+                          type="radio"
+                          name="direccion" // mismo nombre para agrupar radios
+                          checked={direccionActiva?.id === direccion.id} // marcado si es la activa
+                          onChange={() => setDireccionActiva(direccion)} // cambiar la dirección activa
+                        />
+                      </label>
+                    ))}
+              </div>
+
               <select
-                name=""
-                id=""
-                defaultValue=""
+                value={medioPagoSeleccionado}
+                onChange={(e) => setMedioPagoSeleccionado(e.target.value)}
                 className={styles.selectCarrito}
               >
                 <option value="" disabled hidden>
                   Medios de pago
                 </option>
+                <option value="debito">Débito</option>
+                <option value="credito">Crédito</option>
+                <option value="mercado_pago">Mercado Pago</option>
               </select>
             </div>
-          </div>
-
-          <div className={styles.divUsuarioCheck}>
-            {!usarDireccionUsuario ? (
-              <CarritoDireccion
-                values={direccionFormulario}
-                onChange={handleChangeDireccion}
-              />
-            ) : (
-              <div className={styles.direccionesUsuarios}>
-                {usuarioActivo?.direcciones
-                  .filter((direcccion) => direcccion.estado !== false)
-                  .map((direccion) => (
-                    <label key={direccion.id}>
-                      <p>
-                        {direccion.departamento} - {direccion.localidad}
-                      </p>
-                      <input
-                        type="checkbox"
-                        onClick={() => setDireccionActiva(direccion)}
-                      />
-                    </label>
-                  ))}
-              </div>
-            )}
           </div>
 
           <div className={styles.divComprarProductos}>
             <button
               onClick={async () => {
-                if (!usarDireccionUsuario) {
-                  const nueva = await handleSubmitDireccion();
-                  if (usuarioActivo && nueva) {
-                    añadirOrden(
-                      usuarioActivo,
-                      nueva,
-                      usarDireccionUsuario,
-                      totalConDescuento
-                    );
-                  }
-                } else if (usuarioActivo && direccionActiva) {
-                  añadirOrden(
-                    usuarioActivo,
-                    direccionActiva,
-                    usarDireccionUsuario,
-                    totalConDescuento
-                  );
+                let direccionAUsar: IDireccion | null = direccionActiva;
+
+                if (!usuarioActivo || !direccionAUsar) {
+                  Swal.fire({
+                    title: "Error",
+                    text: "Por favor, selecciona una dirección antes de comprar.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                  });
+                  return;
                 }
+
+                if (!medioPagoSeleccionado) {
+                  Swal.fire({
+                    title: "Error",
+                    text: "Por favor, selecciona un medio de pago antes de comprar.",
+                    icon: "error",
+                    confirmButtonText: "Aceptar",
+                  });
+                  return;
+                }
+
+                await añadirOrden(
+                  usuarioActivo,
+                  direccionAUsar,
+                  true,
+                  Number(totalConDescuento.toFixed(2))
+                );
+
+                const diasEntrega = Math.floor(Math.random() * 5) + 2;
+
+                Swal.fire({
+                  title: "¡Compra realizada!",
+                  text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
+                  confirmButtonText: "Aceptar",
+                  customClass: {
+                    popup: "swal-custom-popup",
+                    icon: "swal-custom-icon",
+                    title: "swal-custom-title",
+                    confirmButton: "swal-custom-button",
+                  },
+                });
+
+                const carritoVacio: ICarrito = {
+                  ...carritoActivo!,
+                  detallesProductos: [],
+                };
+
+                updateCarrito(carritoVacio);
+                setCarritoActivo(carritoVacio);
+                localStorage.setItem(
+                  "carritoActivo",
+                  JSON.stringify(carritoVacio)
+                );
+
+                handleNavigateLanding();
               }}
             >
               Comprar
             </button>
+
             <h3>Subtotal: ${subtotal}</h3>
             <h2>Total: ${totalConDescuento.toFixed(2)}</h2>
           </div>

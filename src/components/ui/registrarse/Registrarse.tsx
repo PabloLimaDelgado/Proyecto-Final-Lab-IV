@@ -4,6 +4,7 @@ import { IUsuario } from "../../../types/IUsuario";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { useNavigate } from "react-router-dom";
 import { IRol } from "../../../types/enums/IRol.";
+import Swal from "sweetalert2";
 
 interface IRegistrarse {
   handleIniciarSesion: () => void;
@@ -31,46 +32,94 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  event.preventDefault();
 
-    const usuarioCreado: IUsuario = {
-      nombre: values.nombre,
-      password: values.password,
-      dni: values.dni,
-      mail: values.mail,
-      estado: initialForm.estado,
-      rol: initialForm.rol,
-      direcciones: [],
-    };
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const dniRegex = /^\d+$/;
 
-    try {
-      const responseUsuario: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/registrarUsuario`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(usuarioCreado),
-        }
-      );
-      const data: IUsuario = await responseUsuario.json();
+  // Validaciones básicas
+  if (!values.nombre.trim() || !values.mail.trim() || !values.dni.trim() || !values.password.trim()) {
+    Swal.fire({
+      icon: "warning",
+      title: "Campos requeridos",
+      text: "Por favor complete todos los campos obligatorios.",
+    });
+    return;
+  }
 
-      console.log(data);
+  if (!emailRegex.test(values.mail)) {
+    Swal.fire({
+      icon: "error",
+      title: "Email inválido",
+      text: "Por favor ingrese un email válido.",
+    });
+    return;
+  }
 
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+  if (!dniRegex.test(values.dni)) {
+    Swal.fire({
+      icon: "error",
+      title: "DNI inválido",
+      text: "El DNI debe contener solo números.",
+    });
+    return;
+  }
+
+  const usuarioCreado: IUsuario = {
+    nombre: values.nombre,
+    password: values.password,
+    dni: values.dni,
+    mail: values.mail,
+    estado: initialForm.estado,
+    rol: initialForm.rol,
+    direcciones: [],
+  };
+
+  try {
+    const responseUsuario: Response = await fetch(
+      `${import.meta.env.VITE_BASE_URL}/usuario/registrarUsuario`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(usuarioCreado),
       }
+    );
 
-      postusuario(data);
-      setUsuarioActivo(data);
-      localStorage.setItem("usuarioActivo", JSON.stringify(data));
-    } catch (error) {
-      console.error("Error en crear usuario", error);
+    if (!responseUsuario.ok) {
+      const errorText = await responseUsuario.text();
+      throw new Error(errorText);
     }
 
+    const data: IUsuario = await responseUsuario.json();
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
+
+    postusuario(data);
+    setUsuarioActivo(data);
+    localStorage.setItem("usuarioActivo", JSON.stringify(data));
+
+    Swal.fire({
+      icon: "success",
+      title: "Usuario creado",
+      text: "Se registró el usuario correctamente.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
     navigate("/vistaLanding");
-  };
+  } catch (error) {
+    console.error("Error en crear usuario", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al crear el usuario",
+      text: "Verifique los datos ingresados o intente más tarde.",
+    });
+  }
+};
 
   return (
     <main className={styles.registrarseContainer}>

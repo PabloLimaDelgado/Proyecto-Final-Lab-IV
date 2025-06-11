@@ -25,36 +25,34 @@ export const agruparDetalles = (
   return Object.values(agrupado);
 };
 
-export const calcularSubtotal = (
-  agrupados: DetalleConCantidad[],
-  precios: IPrecio[]
-): number => {
+export const calcularSubtotal = (agrupados: DetalleConCantidad[]): number => {
   return agrupados.reduce((acc, { detalle, cantidad }) => {
-    const precio = precios.find((p) => p.detalle.id === detalle.id);
-    return precio ? acc + Number(precio.precioVenta) * cantidad : acc;
+    const precio = Number(detalle.precioDTO?.precioVenta);
+    return precio
+      ? acc + Number(detalle.precioDTO.precioVenta) * cantidad
+      : acc;
   }, 0);
 };
 
 export const calcularTotalConDescuento = (
-  agrupados: DetalleConCantidad[],
-  precios: IPrecio[]
+  agrupados: DetalleConCantidad[]
 ): number => {
   return agrupados.reduce((acc, { detalle, cantidad }) => {
-    const precio = precios.find((p) => p.detalle.id === detalle.id);
+    const precio = detalle.precioDTO.precioVenta;
     if (!precio) return acc;
 
     const hoy = new Date();
-    const { precioVenta, descuento } = precio;
-    let precioFinal = Number(precioVenta);
+    let precioFinal = Number(detalle.precioDTO.precioVenta);
 
     if (
-      descuento &&
-      descuento.fechaInicio &&
-      descuento.fechaFin &&
-      new Date(descuento.fechaInicio) <= hoy &&
-      hoy <= new Date(descuento.fechaFin)
+      detalle.precioDTO.descuento &&
+      detalle.precioDTO.descuento.fechaInicio &&
+      detalle.precioDTO.descuento.fechaFin &&
+      new Date(detalle.precioDTO.descuento.fechaInicio) <= hoy &&
+      hoy <= new Date(detalle.precioDTO.descuento.fechaFin)
     ) {
-      precioFinal -= (precioFinal * descuento.descuento) / 100;
+      precioFinal -=
+        (precioFinal * detalle.precioDTO.descuento.descuento) / 100;
     }
 
     return acc + precioFinal * cantidad;

@@ -12,6 +12,8 @@ export const Landing = () => {
     const fetchDetalle = async () => {
       try {
         const today = new Date().toISOString().split("T")[0];
+        console.log(today);
+
         const response: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/precio/fechaDescuento/${today}`
         );
@@ -58,8 +60,14 @@ export const Landing = () => {
             {precios &&
               precios.map((precio) => (
                 <div key={precio.id}>
-                  <img src={precio.detalle.imagenList[0].url} alt="" />
-                  <h4>{precio.detalle.producto.nombre}</h4>
+                  <img
+                    src={precio.detalleDescuentoDTO?.imagenList[0]?.url}
+                    alt={
+                      precio.detalleDescuentoDTO?.imagenList[0]?.alt ||
+                      "Imagen producto"
+                    }
+                  />
+                  <h4>{precio.detalleDescuentoDTO?.producto.nombre}</h4>
                   <div className={styles.divPrecio}>
                     <h4
                       style={{
@@ -67,13 +75,13 @@ export const Landing = () => {
                         color: "gray",
                       }}
                     >
-                      $ {precio.precioVenta}
+                      $ {precio?.precioVenta}
                     </h4>
                     <h4>
                       {precio.descuento
                         ? `$${(
-                            Number(precio.precioVenta) -
-                            (Number(precio.precioVenta) *
+                            Number(precio?.precioVenta) -
+                            (Number(precio?.precioVenta) *
                               precio.descuento.descuento) /
                               100
                           ).toFixed(2)}`
@@ -84,7 +92,9 @@ export const Landing = () => {
                   <div className={styles.divButtonProducto}>
                     <button
                       onClick={() =>
-                        handleNavigate(precio.detalle.producto.id ?? null)
+                        handleNavigate(
+                          precio.detalleDescuentoDTO?.producto.id ?? null
+                        )
                       }
                     >
                       Ver más

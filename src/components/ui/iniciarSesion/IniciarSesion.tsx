@@ -80,10 +80,7 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
       setUsuarioActivo(usuarioEncontrado);
       localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
 
-      if (
-        usuario.mail === "admin@gmail.com" &&
-        usuario.nombre.toLowerCase() === "admin"
-      ) {
+      if (usuario.rol === "ADMIN") {
         navigate("/VistaAdmin");
       } else {
         navigate("/VistaLanding");

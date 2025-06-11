@@ -9,7 +9,7 @@
 .divLanding {
   position: absolute;
   top: 0;
-  right: 0; /* <-- Este es el cambio importante */
+  right: 0;
   margin: 1rem;
   display: flex;
   flex-direction: row;
@@ -24,6 +24,7 @@
   cursor: pointer;
   font-size: 1.5rem;
   overflow: hidden;
+  z-index: 500;
 }
 
 .divLanding button span {
@@ -33,7 +34,6 @@
 .crearUsuarioAdmin {
   display: flex;
   flex-direction: column;
-  z-index: 100;
 }
 
 .crearUsuarioAdmin button {

@@ -4,7 +4,6 @@ import { IOrdenCompra } from "../types/IOrdenCompra";
 import { carritoStore } from "../store/carritoStore";
 import { ordenCompraStore } from "../store/ordenCompraStore";
 import { IDetalle } from "../types/IDetalle";
-import { IOrdenCompraDetalle } from "../types/IOrdenCompraDetalle";
 
 export const useOrdenCompra = () => {
   const { carritoActivo } = carritoStore();
@@ -18,15 +17,17 @@ export const useOrdenCompra = () => {
   ) => {
     // Payload principal para crear la ordenCompra
     const ordenPayload = {
-      usuario,
-      direccion,
+      usuario: { id: usuario.id, rol: usuario.rol },
+      direccion: { id: direccion.id },
       direccionUsuario: usarDireccionUsuario,
-      estado: true,
+      total: total,
       fecha: new Date().toISOString().split("T")[0], // solo fecha YYYY-MM-DD
-      total,
+      estado: true,
     };
 
     let ordenCompra: IOrdenCompra;
+
+    console.log(ordenPayload);
 
     try {
       // Obtiene token para autenticación
@@ -34,7 +35,7 @@ export const useOrdenCompra = () => {
 
       // Crea la ordenCompra en el backend
       const responseOrdenCompra = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/ordenCompra`,
+        `${import.meta.env.VITE_BASE_URL}/ordenCompra/post`,
         {
           method: "POST",
           headers: {
@@ -90,11 +91,10 @@ export const useOrdenCompra = () => {
         ? precio - (precio * descuento) / 100
         : precio;
 
-      const ordenCompraDetalle: IOrdenCompraDetalle = {
-        ordenCompra,
-        detalle,
+      const ordenCompraDetalle = {
+        ordenCompra: { id: ordenCompra.id },
+        detalle: { id: detalle.id },
         cantidad,
-        subtotal: Number(precioFinal.toFixed(2)), // subtotal por detalle (precio final * cantidad)
         estado: true,
       };
 

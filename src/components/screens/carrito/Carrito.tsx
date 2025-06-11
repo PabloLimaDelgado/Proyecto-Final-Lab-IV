@@ -206,36 +206,37 @@ export const Carrito = () => {
 
         <div className={styles.divUsuarioCheck}>
           <div className={styles.direccionesUsuarios}>
-            <h2>Direcciones:</h2>
-            {usuarioActivo?.direcciones
-              ?.filter((direccion) => direccion.estado !== false)
-              .map((direccion) => (
-                <label key={direccion.id}>
-                  <p>
-                    {direccion.departamento} - {direccion.localidad}
-                  </p>
-                  <input
-                    type="radio"
-                    name="direccion"
-                    checked={direccionActiva?.id === direccion.id}
-                    onChange={() => setDireccionActiva(direccion)}
-                  />
-                </label>
-              ))}
+            <div>
+              <h2>Direcciones:</h2>
+              {usuarioActivo?.direcciones
+                ?.filter((direccion) => direccion.estado !== false)
+                .map((direccion) => (
+                  <label key={direccion.id}>
+                    <p>
+                      {direccion.departamento} - {direccion.localidad}
+                    </p>
+                    <input
+                      type="radio"
+                      name="direccion"
+                      checked={direccionActiva?.id === direccion.id}
+                      onChange={() => setDireccionActiva(direccion)}
+                    />
+                  </label>
+                ))}
+            </div>
+            <select
+              value={medioPagoSeleccionado}
+              onChange={(e) => setMedioPagoSeleccionado(e.target.value)}
+              className={styles.selectCarrito}
+            >
+              <option value="" disabled hidden>
+                Medios de pago
+              </option>
+              <option value="debito">Débito</option>
+              <option value="credito">Crédito</option>
+              <option value="mercado_pago">Mercado Pago</option>
+            </select>
           </div>
-
-          <select
-            value={medioPagoSeleccionado}
-            onChange={(e) => setMedioPagoSeleccionado(e.target.value)}
-            className={styles.selectCarrito}
-          >
-            <option value="" disabled hidden>
-              Medios de pago
-            </option>
-            <option value="debito">Débito</option>
-            <option value="credito">Crédito</option>
-            <option value="mercado_pago">Mercado Pago</option>
-          </select>
         </div>
 
         <div className={styles.divComprarProductos}>

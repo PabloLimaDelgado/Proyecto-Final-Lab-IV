@@ -79,7 +79,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
   });
 
   const [valuesPrecio, setValuesPrecio] = useState<IPrecio>({
-    id: precio?.id,
+    id: detalleProducto?.precioDTO.id,
     precioVenta: precio?.precioVenta ?? "",
     precioCompra: precio?.precioCompra ?? "",
     estado: true,
@@ -148,7 +148,9 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           descuento: valuesPrecio.descuento,
         };
 
-        const detalleEditado: IDetalle = {
+        console.log(precioEditado);
+
+        const detalleEditado = {
           id: detalleProducto.id,
           talle: valuesDetalle.talle,
           estado: true,
@@ -156,11 +158,11 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           producto: detalleProducto.producto,
           imagenList: detalleProducto.imagenList,
           stock: Number(valuesDetalle.stock),
-          precioDTO: precioEditado,
+          precio: precioEditado, // Cambié precioDTO a precio para coincidir con el backend
         };
 
-        const res = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle/update`,
+        const responseDetalle = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/detalle/${detalleEditado.id}`,
           {
             method: "PUT",
             headers: {
@@ -171,9 +173,11 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           }
         );
 
-        if (!res.ok) throw new Error(await res.text());
+        if (!responseDetalle.ok) throw new Error(await responseDetalle.text());
 
-        const detalleGuardado: IDetalle = await res.json();
+        const detalleGuardado: IDetalle = await responseDetalle.json();
+
+        console.log(detalleGuardado);
 
         updateDetalle(detalleGuardado);
         updatePrecio(precioEditado);
@@ -204,8 +208,8 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
         const detalleParaBackend = { ...detalleNuevo, precio: precioNuevo };
 
-        const res = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle/post`,
+        const responseDetalle = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/detalle`,
           {
             method: "POST",
             headers: {
@@ -216,9 +220,9 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           }
         );
 
-        if (!res.ok) throw new Error(await res.text());
+        if (!responseDetalle.ok) throw new Error(await responseDetalle.text());
 
-        const detalleCreado: IDetalle = await res.json();
+        const detalleCreado: IDetalle = await responseDetalle.json();
 
         postDetalle(detalleCreado);
         postPrecio(precioNuevo);
@@ -284,11 +288,19 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         <select
           name="descuento"
           value={valuesPrecio.descuento?.id?.toString() ?? ""}
-          onChange={handleChangePrecio}
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            const selectedDescuento = descuentos.find(
+              (d) => d.id && d.id.toString() === selectedId
+            );
+            setValuesPrecio((prev) => ({
+              ...prev,
+              descuento: selectedId === "" ? null : selectedDescuento ?? null,
+            }));
+          }}
         >
-          <option value="" disabled hidden>
-            Seleccione un Descuento
-          </option>
+          <option value="">Sin descuento</option>{" "}
+          {/* Opción para dejarlo en null */}
           {descuentos.map((d) => (
             <option key={d.id} value={String(d.id)}>
               {d.descuento}%

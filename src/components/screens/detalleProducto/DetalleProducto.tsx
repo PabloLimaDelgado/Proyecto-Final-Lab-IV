@@ -124,7 +124,6 @@ export const DetalleProducto = () => {
 
     return detallesFiltrados;
   };
-  
   /*AÑADIR DETALLE SELECCIONADO AL CARRITO*/
   const handleAñadirAlCarrito = () => {
     if (!carritoActivo) return;

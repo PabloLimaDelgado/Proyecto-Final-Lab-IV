@@ -290,7 +290,7 @@ export const ProductosAdmin = () => {
                           <h2>Detalle id: {detalle.id}</h2>
                           <h3>Talle: {detalle.talle.talle}</h3>
                           <h3>
-                            Precio compra: {detalle.precioDTO.precioCompra}
+                            Precio compra: {detalle.precioDTO.precioCompra ?? 0}
                           </h3>
                           <h3>Precio venta: {detalle.precioDTO.precioVenta}</h3>
                           <h3>Stock: {detalle.stock}</h3>

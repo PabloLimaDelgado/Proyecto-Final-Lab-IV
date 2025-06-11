@@ -130,7 +130,6 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
       <h1>Iniciar Sesion</h1>
       <span className="material-symbols-outlined">account_circle</span>
       <form onSubmit={onSubmit}>
-        <label htmlFor="nombre">Nombre y apellido</label>
         <input
           id="nombre"
           type="text"
@@ -140,7 +139,6 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
           name="nombre"
         />
 
-        <label htmlFor="dni">DNI</label>
         <input
           id="dni"
           type="text"
@@ -151,7 +149,6 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
           maxLength={8}
         />
 
-        <label htmlFor="password">Contraseña</label>
         <input
           id="password"
           type="password"
@@ -161,7 +158,6 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
           name="password"
         />
 
-        <label htmlFor="mail">Mail</label>
         <input
           id="mail"
           type="text"

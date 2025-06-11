@@ -20,8 +20,6 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
           `${import.meta.env.VITE_BASE_URL}/detalle`
         );
         const data: IDetalle[] = await response.json();
-
-        console.log(data);
         
         setArrayDetalle(data);
       } catch (error) {
@@ -86,11 +84,9 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
                   }
                   return acc;
                 }, {} as Record<number, IDetalle>)
-            )
-              .filter((detalle) => detalle.estado == true)
-              .map((detalle) => (
+            ).map((detalle) => (
                 <div key={detalle.producto.id} className={styles.divProducto}>
-                  <img src={detalle.imagenList[0]?.url} alt="" />
+                  <img src={detalle.imagenList[0]?.url} alt={detalle.imagenList[0].alt} />
                   <h5>{detalle.producto.nombre}</h5>
                   <div className={styles.divButtonProducto}>
                     <button

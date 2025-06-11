@@ -56,7 +56,7 @@ export const DetalleProducto = () => {
       }
     };
 
-    const fetchPrecio = async () => {
+/*     const fetchPrecio = async () => {
       try {
         const response: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/precio`
@@ -72,9 +72,9 @@ export const DetalleProducto = () => {
         console.log("Error al traer detalles:", error);
       }
     };
-
+  fetchPrecio(); */
     fetchDetalle();
-    fetchPrecio();
+  
 
     const carritoGuardado = localStorage.getItem("carritoActivo");
 

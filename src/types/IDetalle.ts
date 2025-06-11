@@ -1,6 +1,7 @@
 import { IImagen } from "./IImagen";
 import { IProducto } from "./IProducto";
 import { ITalle } from "./ITalle";
+import { PrecioDTO } from "./PrecioDTO";
 
 export interface IDetalle {
   id?: number;
@@ -10,4 +11,5 @@ export interface IDetalle {
   producto: IProducto;
   imagenList: IImagen[];
   stock: number | string;
+  precioDTO: PrecioDTO
 }

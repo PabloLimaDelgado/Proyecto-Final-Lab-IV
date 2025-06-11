@@ -23,73 +23,52 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
     const { value, name } = event.target;
     setValues((prev) => ({ ...prev, [name]: value }));
   };
+const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  console.log("BASE_URL:", import.meta.env.VITE_BASE_URL);
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  try {
+    console.log("Credenciales:", values.mail, values.contraseña);
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            mail: values.mail,
-            password: values.contraseña,
-          }),
-        }
-      );
+    const loginResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/usuario/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mail: values.mail,
+        password: values.contraseña,
+      }),
+    });
 
-      if (!response.ok) throw new Error("Login fallido");
-
-      const usuario: IUsuario = await response.json();
-
-      if (usuario.token) {
-        localStorage.setItem("token", usuario.token);
-      }
-
-      const token = localStorage.getItem("token");
-
-      const getResponse = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/get`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!getResponse.ok) {
-        throw new Error(`Error al traer usuarios: ${getResponse.status}`);
-      } else {
-        console.log("Entro bien");
-      }
-
-      const usuarios: IUsuario[] = await getResponse.json();
-      const usuarioEncontrado = usuarios.find((u) => u.mail === usuario.mail);
-
-      if (!usuarioEncontrado) throw new Error("Usuario no encontrado");
-
-      setUsuarioActivo(usuarioEncontrado);
-      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
-
-      if (
-        usuario.mail === "admin@gmail.com" &&
-        usuario.nombre.toLowerCase() === "admin"
-      ) {
-        navigate("/VistaAdmin");
-      } else {
-        navigate("/VistaLanding");
-      }
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
-      alert("Credenciales inválidas");
+    if (!loginResponse.ok) {
+      throw new Error(`Login fallido: ${loginResponse.status}`);
     }
-  };
+
+    const usuario: IUsuario = await loginResponse.json();
+    console.log("Usuario logueado:", usuario);
+    if (usuario.token) {
+      localStorage.setItem("token", usuario.token);
+    } else {
+      throw new Error("Token no recibido");
+    }
+
+
+
+    const usuarioEncontrado = usuario;
+
+    if (!usuarioEncontrado) throw new Error("Usuario no encontrado");
+
+    setUsuarioActivo(usuarioEncontrado);
+    localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
+    navigate("/VistaLanding");
+
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error);
+    alert("Credenciales inválidas");
+  }
+};
+
 
   return (
     <>

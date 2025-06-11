@@ -38,8 +38,7 @@ export const ProductosAdmin = () => {
     setDetalleActivo,
     deleteDetalle,
   } = detalleProductoStore();
-  const { setPrecioActivo, precioActivo } =
-    precioStore();
+  const { setPrecioActivo, precioActivo } = precioStore();
 
   const searchValue = {
     nombreProducto: "",
@@ -209,7 +208,6 @@ export const ProductosAdmin = () => {
       console.error("Error en crear producto", error);
     }
   };
-
   return (
     <>
       <div className={styles.productosAdminContainer}>

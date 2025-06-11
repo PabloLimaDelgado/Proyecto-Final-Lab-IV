@@ -3,132 +3,130 @@ import { IDetalle } from "../../../../types/IDetalle";
 import { ITalle } from "../../../../types/ITalle";
 import { IPrecio } from "../../../../types/IPrecio";
 import { IProducto } from "../../../../types/IProducto";
+import { IDescuento } from "../../../../types/IDescuento";
 import styles from "./editarCrearDetalleProducto.module.css";
+
+// Stores
 import { talleStore } from "../../../../store/talleStore";
 import { detalleProductoStore } from "../../../../store/detalleProductoStore";
 import { precioStore } from "../../../../store/precioStore";
 import { productoStore } from "../../../../store/productoStore";
-import { IDescuento } from "../../../../types/IDescuento";
 import { descuentoStore } from "../../../../store/descuentoStore";
+
 import Swal from "sweetalert2";
 
+// Props del componente
 interface IEditarCrearDetalleProducto {
   close: () => void;
   producto: IProducto;
   detalleProducto?: IDetalle;
   precio?: IPrecio;
 }
+
 export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
   close,
   detalleProducto,
   precio,
   producto,
 }) => {
+  // Stores
   const { setArrayTalle, talles } = talleStore();
   const { postDetalle, updateDetalle, setDetalleActivo } =
     detalleProductoStore();
   const { postPrecio, updatePrecio, setPrecioActivo } = precioStore();
   const { setProductoActivo } = productoStore();
   const { setArrayDescuentos, descuentos } = descuentoStore();
+
+  // Carga inicial de talles y descuentos
   useEffect(() => {
-    const fetchTalle = async () => {
+    const fetchData = async () => {
       try {
-        const responseTalle: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/talle`
-        );
-        const data: ITalle[] = await responseTalle.json();
-        setArrayTalle(data);
+        const [resTalle, resDescuento] = await Promise.all([
+          fetch(`${import.meta.env.VITE_BASE_URL}/talle`),
+          fetch(`${import.meta.env.VITE_BASE_URL}/descuento`),
+        ]);
+
+        const dataTalle: ITalle[] = await resTalle.json();
+        const dataDescuento: IDescuento[] = await resDescuento.json();
+
+        setArrayTalle(dataTalle);
+        setArrayDescuentos(dataDescuento);
       } catch (error) {
-        console.error(error);
+        console.error("Error al cargar datos iniciales", error);
       }
     };
 
-    const fetchDescuento = async () => {
-      try {
-        const responseDescuento: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/descuento`
-        );
-        const data: IDescuento[] = await responseDescuento.json();
-        setArrayDescuentos(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchTalle();
-    fetchDescuento();
+    fetchData();
   }, []);
 
+  // Valores iniciales
   const emptyTalle: ITalle = { talle: "", estado: true };
-  const empyPrecio: IPrecio = { precioVenta: 0, precioCompra: 0, estado: true };
-
-  const initialFormDetalle: IDetalle = {
-    id: detalleProducto ? detalleProducto.id : undefined,
-    talle: detalleProducto ? detalleProducto.talle : emptyTalle,
-    estado: true,
-    color: detalleProducto ? detalleProducto.color : "",
-    producto: detalleProducto ? detalleProducto.producto : producto,
-    stock: detalleProducto ? detalleProducto.stock : "",
-    imagenList: detalleProducto ? detalleProducto.imagenList : [],
-    precioDTO: detalleProducto ? detalleProducto.precioDTO : empyPrecio,
-  };
-
-  const [valuesDetalle, setValuesDetalle] =
-    useState<IDetalle>(initialFormDetalle);
-
-  const initialFormPrecio: IPrecio = {
-    id: precio ? precio.id : undefined,
-    precioVenta: precio ? precio.precioVenta : "",
-    precioCompra: precio ? precio.precioCompra : "",
+  const emptyPrecio: IPrecio = {
+    precioVenta: 0,
+    precioCompra: 0,
     estado: true,
   };
 
-  const [valuesPrecio, setValuesPrecio] = useState<IPrecio>(initialFormPrecio);
+  const [valuesDetalle, setValuesDetalle] = useState<IDetalle>({
+    id: detalleProducto?.id,
+    talle: detalleProducto?.talle ?? emptyTalle,
+    estado: true,
+    color: detalleProducto?.color ?? "",
+    producto: detalleProducto?.producto ?? producto,
+    stock: detalleProducto?.stock ?? "",
+    imagenList: detalleProducto?.imagenList ?? [],
+    precioDTO: detalleProducto?.precioDTO ?? emptyPrecio,
+  });
 
+  const [valuesPrecio, setValuesPrecio] = useState<IPrecio>({
+    id: precio?.id,
+    precioVenta: precio?.precioVenta ?? "",
+    precioCompra: precio?.precioCompra ?? "",
+    estado: true,
+    descuento: precio?.descuento,
+  });
+
+  // Manejo de cambios en el formulario del detalle
   const handleChangeDetalle = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
+    const { name, value } = e.target;
 
-    setValuesDetalle((prev) => {
-      if (name === "talle") {
-        const talleSeleccionado = talles?.find(
-          (talle) => talle.talle === value
-        );
-        return { ...prev, talle: talleSeleccionado ?? emptyTalle };
-      }
-      return { ...prev, [name]: value };
-    });
+    setValuesDetalle((prev) => ({
+      ...prev,
+      ...(name === "talle"
+        ? { talle: talles?.find((t) => t.talle === value) ?? emptyTalle }
+        : { [name]: value }),
+    }));
   };
 
+  // Manejo de cambios en el formulario del precio
   const handleChangePrecio = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
-    setValuesPrecio((prev) => {
-      if (name === "descuento") {
-        const descuentoSeleccionado = descuentos.find(
-          (descuento) => String(descuento.id) === value
-        );
-        return { ...prev, descuento: descuentoSeleccionado ?? undefined };
-      }
+    const { name, value } = e.target;
 
-      return { ...prev, [name]: value };
-    });
+    setValuesPrecio((prev) => ({
+      ...prev,
+      ...(name === "descuento"
+        ? { descuento: descuentos.find((d) => String(d.id) === value) }
+        : { [name]: value }),
+    }));
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // Envío del formulario
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    // Validaciones básicas
-    if (
-      !valuesDetalle.talle ||
-      !valuesDetalle.color ||
-      !valuesDetalle.producto ||
-      isNaN(Number(valuesDetalle.stock)) ||
-      isNaN(Number(valuesPrecio.precioCompra)) ||
-      isNaN(Number(valuesPrecio.precioVenta))
-    ) {
+    // Validaciones
+    const fieldsValid =
+      valuesDetalle.color.trim() !== "" &&
+      valuesDetalle.talle &&
+      !isNaN(Number(valuesDetalle.stock)) &&
+      !isNaN(Number(valuesPrecio.precioVenta)) &&
+      !isNaN(Number(valuesPrecio.precioCompra));
+
+    if (!fieldsValid) {
       Swal.fire({
         icon: "error",
         title: "Campos inválidos",
@@ -141,7 +139,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
     try {
       if (detalleProducto && precio) {
-        // Modo edición
+        // EDICIÓN
         const precioEditado: IPrecio = {
           id: precio.id,
           precioVenta: Number(valuesPrecio.precioVenta),
@@ -161,9 +159,7 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           precioDTO: precioEditado,
         };
 
-        console.log(detalleEditado);
-
-        const responseDetalle = await fetch(
+        const res = await fetch(
           `${import.meta.env.VITE_BASE_URL}/detalle/update`,
           {
             method: "PUT",
@@ -175,13 +171,9 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           }
         );
 
-        if (!responseDetalle.ok) {
-          const errorText = await responseDetalle.text();
-          throw new Error(errorText);
-        }
+        if (!res.ok) throw new Error(await res.text());
 
-        const detalleGuardado: IDetalle = await responseDetalle.json();
-        console.log(detalleGuardado);
+        const detalleGuardado: IDetalle = await res.json();
 
         updateDetalle(detalleGuardado);
         updatePrecio(precioEditado);
@@ -192,30 +184,27 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           text: "El detalle y precio se actualizaron correctamente.",
         });
       } else {
-        // Modo creación
-        const precioCreado: IPrecio = {
+        // CREACIÓN
+        const precioNuevo: IPrecio = {
           precioVenta: Number(valuesPrecio.precioVenta),
           precioCompra: Number(valuesPrecio.precioCompra),
           estado: true,
           descuento: valuesPrecio.descuento ?? null,
         };
 
-        const detalleCreado: IDetalle = {
+        const detalleNuevo: IDetalle = {
           talle: valuesDetalle.talle,
           estado: true,
           color: valuesDetalle.color,
           producto: valuesDetalle.producto,
           imagenList: [],
           stock: Number(valuesDetalle.stock),
-          precioDTO: precioCreado,
+          precioDTO: precioNuevo,
         };
 
-        const detalleParaBackend = {
-          ...detalleCreado,
-          precio: detalleCreado.precioDTO,
-        };
+        const detalleParaBackend = { ...detalleNuevo, precio: precioNuevo };
 
-        const responseDetalle = await fetch(
+        const res = await fetch(
           `${import.meta.env.VITE_BASE_URL}/detalle/post`,
           {
             method: "POST",
@@ -227,14 +216,12 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
           }
         );
 
-        if (!responseDetalle.ok) {
-          const errorText = await responseDetalle.text();
-          throw new Error(errorText);
-        }
+        if (!res.ok) throw new Error(await res.text());
 
-        const data: IDetalle = await responseDetalle.json();
-        postDetalle(data);
-        postPrecio(precioCreado);
+        const detalleCreado: IDetalle = await res.json();
+
+        postDetalle(detalleCreado);
+        postPrecio(precioNuevo);
 
         Swal.fire({
           icon: "success",
@@ -243,11 +230,13 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
         });
       }
 
+      // Reset de estados
       setDetalleActivo(null);
       setPrecioActivo(null);
+      setProductoActivo(null);
       close();
     } catch (error) {
-      console.error("Error en crear o editar detalle/precio", error);
+      console.error("Error en guardar detalle/precio", error);
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -257,88 +246,91 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
   };
 
   return (
-    <>
-      <div className={styles.formDetalleProductoContainer}>
-        <form className={styles.formDetalleProductoForm} onSubmit={onSubmit}>
-          <h1>{detalleProducto ? "Editar" : "Crear"} Detalle Producto</h1>
-          <input
-            type="text"
-            placeholder="Ingrese un color"
-            onChange={handleChangeDetalle}
-            value={valuesDetalle.color}
-            name="color"
-          />
-          <input
-            type="number"
-            placeholder="Stock"
-            onChange={handleChangeDetalle}
-            value={valuesDetalle.stock}
-            name="stock"
-          />
-          <select
-            name="talle"
-            value={valuesDetalle.talle.talle || ""}
-            onChange={handleChangeDetalle}
-          >
-            <option value="" disabled hidden>
-              Seleccione un Talle
-            </option>
-            {talles &&
-              talles.map((talle) => (
-                <option key={talle.id} value={talle.talle}>
-                  {talle.talle}
-                </option>
-              ))}
-          </select>
+    <div className={styles.formDetalleProductoContainer}>
+      <form className={styles.formDetalleProductoForm} onSubmit={onSubmit}>
+        <h1>{detalleProducto ? "Editar" : "Crear"} Detalle Producto</h1>
 
-          <select
-            name="descuento"
-            value={
-              valuesPrecio.descuento ? String(valuesPrecio.descuento.id) : ""
-            }
-            onChange={handleChangePrecio}
-          >
-            <option value="" disabled hidden>
-              Seleccione un Descuento
+        <input
+          type="text"
+          name="color"
+          placeholder="Ingrese un color"
+          value={valuesDetalle.color}
+          onChange={handleChangeDetalle}
+        />
+
+        <input
+          type="number"
+          name="stock"
+          placeholder="Stock"
+          value={valuesDetalle.stock}
+          onChange={handleChangeDetalle}
+        />
+
+        <select
+          name="talle"
+          value={valuesDetalle.talle.talle || ""}
+          onChange={handleChangeDetalle}
+        >
+          <option value="" disabled hidden>
+            Seleccione un Talle
+          </option>
+          {talles?.map((t) => (
+            <option key={t.id} value={t.talle}>
+              {t.talle}
             </option>
-            {descuentos.map((descuento) => (
-              <option key={descuento.id} value={String(descuento.id)}>
-                {descuento.descuento}%
-              </option>
-            ))}
-          </select>
-          <input
-            type="number"
-            placeholder="Ingrese precio venta"
-            value={valuesPrecio.precioVenta ?? ""}
-            onChange={handleChangePrecio}
-            name="precioVenta"
-          />
-          <input
-            type="number"
-            placeholder="Ingrese precio compra"
-            onChange={handleChangePrecio}
-            value={valuesPrecio.precioCompra ?? ""}
-            name="precioCompra"
-          />
-          <div>
-            <button
-              onClick={() => {
-                close();
-                setDetalleActivo(null);
-                setPrecioActivo(null);
-                setProductoActivo(null);
-              }}
-              className={styles.buttonConcelar}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              {detalleProducto ? "Editar" : "Crear"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+          ))}
+        </select>
+
+        <select
+          name="descuento"
+          value={valuesPrecio.descuento?.id?.toString() ?? ""}
+          onChange={handleChangePrecio}
+        >
+          <option value="" disabled hidden>
+            Seleccione un Descuento
+          </option>
+          {descuentos.map((d) => (
+            <option key={d.id} value={String(d.id)}>
+              {d.descuento}%
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          name="precioVenta"
+          placeholder="Ingrese precio venta"
+          value={valuesPrecio.precioVenta}
+          onChange={handleChangePrecio}
+        />
+
+        <input
+          type="number"
+          name="precioCompra"
+          placeholder="Ingrese precio compra"
+          value={Number(valuesPrecio.precioCompra)}
+          onChange={handleChangePrecio}
+        />
+
+        <div>
+          <button
+            type="button"
+            className={styles.buttonConcelar}
+            onClick={() => {
+              setDetalleActivo(null);
+              setPrecioActivo(null);
+              setProductoActivo(null);
+              close();
+            }}
+          >
+            Cancelar
+          </button>
+
+          <button type="submit" className={styles.buttonSubmit}>
+            {detalleProducto ? "Editar" : "Crear"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

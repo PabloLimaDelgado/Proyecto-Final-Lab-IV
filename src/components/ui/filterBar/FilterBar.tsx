@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 import logo from "../../../images/logoblanco.png";
 import styles from "./filterBar.module.css";
 import { useNavigate } from "react-router-dom";
@@ -11,17 +11,6 @@ interface IFilterBar {
 export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
   const navigate = useNavigate();
   const prendas = ["Buzo", "Pantalon", "Campera", "Remera", "Calzado"];
-
-  const [filtros, setFiltros] = useState({
-    precio: {
-      masBarato: false,
-      masCaro: false,
-    },
-    orden: {
-      masVendido: false,
-      nuevo: false,
-    },
-  });
 
   const handleSelect = (tipo: string, genero: string) => {
     navigate(`/vistaShop?tipo=${tipo}&genero=${genero}`);

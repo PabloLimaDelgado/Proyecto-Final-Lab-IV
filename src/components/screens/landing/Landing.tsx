@@ -6,27 +6,30 @@ import { useNavigate } from "react-router-dom";
 
 export const Landing = () => {
   const [precios, setPrecios] = useState<null | IPrecio[]>(null);
+
   const navigate = useNavigate();
 
+  /*MONTAR EL COMPONENTE*/
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
         const today = new Date().toISOString().split("T")[0];
-        console.log(today);
+        console.log("Fecha de hoy:", today);
 
         const response: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/precio/fechaDescuento/${today}`
         );
+
         const data: IPrecio[] = await response.json();
 
-        // Mezcla aleatoria
+        /*MEZCLAR ALEATORIAMENTE LOS PRECIOS PARA QUE CAMBIEN EN CADA CARGA*/
         const shuffled = data.sort(() => 0.5 - Math.random());
-        // Obtiene solo 5
-        const selected = shuffled.slice(0, 5);
 
+        /*SELECCIONA SOLO LOS PRIMEROS 5 DESCUENTOS*/
+        const selected = shuffled.slice(0, 5);
         setPrecios(selected);
       } catch (error) {
-        console.log(error);
+        console.log("Error al traer precios con descuento:", error);
       }
     };
 
@@ -38,12 +41,14 @@ export const Landing = () => {
   };
 
   const handleNavigate = (idProducto: number | null) => {
+    if (idProducto === null) return;
     navigate(`/vistaDetalleProducto?idProducto=${idProducto}`);
   };
 
   return (
     <>
       <HeaderShop />
+
       <div className={styles.landingContainer}>
         <div className={styles.landingInfo}>
           <h2>¿Quienes somos?</h2>
@@ -54,12 +59,13 @@ export const Landing = () => {
             garantizada y una experiencia de compra simple y segura.
           </p>
         </div>
+
         <div className={styles.landingDescuentos}>
           <h3>Descuentos</h3>
           <div className={styles.containerDescuentos}>
             {precios &&
               precios.map((precio) => (
-                <div key={precio.id}>
+                <div key={precio.id} className={styles.productoDescuento}>
                   <img
                     src={precio.detalleDescuentoDTO?.imagenList[0]?.url}
                     alt={
@@ -67,7 +73,9 @@ export const Landing = () => {
                       "Imagen producto"
                     }
                   />
+
                   <h4>{precio.detalleDescuentoDTO?.producto.nombre}</h4>
+
                   <div className={styles.divPrecio}>
                     <h4
                       style={{

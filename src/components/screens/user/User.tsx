@@ -1,21 +1,25 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import zapatoLogoBlanco from "../../../images/logoblanco.png";
 import { usuarioStore } from "../../../store/usuarioStore";
 import styles from "./user.module.css";
-import { useEffect, useState } from "react";
 import { ModificarUsuario } from "../../ui/modals/usuarios/ModificarUsuario";
 import { CrearEditarDireccion } from "../../ui/modals/direcciones/CrearEditarDireccion";
 import { DireccionesUsuario } from "../../ui/direccionesUsuario/DireccionesUsuario";
 
 export const User = () => {
+  /*ESTADOS PARA MANEJAR MODALES Y QUÉ CAMPO MODIFICAR*/
   const [editarUsuario, setEditarUsuario] = useState<boolean>(false);
   const [añadirDireccion, setAñadirDireccion] = useState<boolean>(false);
-  const [campoAModificar, setCampoAModificar] = useState<string>("");
   const [verDirecciones, setVerDirecciones] = useState<boolean>(false);
+  const [campoAModificar, setCampoAModificar] = useState<string>("");
 
+  /*ESTADO GLOBAL DE USUARIO ACTIVO Y FUNCIÓN PARA ACTUALIZARLO*/
   const { usuarioActivo, setUsuarioActivo } = usuarioStore();
+
   const navigate = useNavigate();
 
+  /* FUNCIONES DE NAVEGACIÓN Y MODALES */
   const handleNavigate = () => {
     navigate(-1);
   };
@@ -38,6 +42,7 @@ export const User = () => {
     navigate("/");
   };
 
+  /* GUARDA EL USUARIO ACTIVO EN LOCALSTORAGE AL CAMBIAR */
   useEffect(() => {
     if (usuarioActivo) {
       localStorage.setItem("usuarioActivo", JSON.stringify(usuarioActivo));
@@ -47,7 +52,7 @@ export const User = () => {
   return (
     <>
       <header className={styles.header}>
-        <img src={zapatoLogoBlanco} alt="" />
+        <img src={zapatoLogoBlanco} alt="Logo SneakShop" />
         <h1>SNEAKSHOP - User</h1>
       </header>
 
@@ -55,6 +60,7 @@ export const User = () => {
         <button className={styles.goBack} onClick={handleNavigate}>
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
+
         <div className={styles.divUserInfo}>
           <div className={styles.divAtributoEdit}>
             <h2>Nombre</h2>
@@ -70,13 +76,16 @@ export const User = () => {
               </button>
             </div>
           </div>
+
           <div className={styles.divContraseña}>
             <h2>Contraseña</h2>
           </div>
+
           <div className={styles.divDNI}>
             <h2>DNI</h2>
             <h3>{usuarioActivo?.dni}</h3>
           </div>
+
           <div className={styles.divAtributoEdit}>
             <h2>Mail</h2>
             <div>
@@ -91,6 +100,7 @@ export const User = () => {
               </button>
             </div>
           </div>
+
           <div className={styles.divDirecciones}>
             <h2>Direcciones</h2>
             <div>
@@ -109,6 +119,7 @@ export const User = () => {
             </div>
           </div>
         </div>
+
         <div className={styles.divButtons}>
           <button onClick={handleCerrarSesion}>Cerrar Sesion</button>
           <button>Eliminar Cuenta</button>
@@ -130,7 +141,7 @@ export const User = () => {
         />
       )}
 
-      {verDirecciones && usuarioActivo && (
+      {verDirecciones && usuarioActivo?.direcciones && (
         <DireccionesUsuario
           direcciones={usuarioActivo.direcciones}
           close={handeVerDirecciones}

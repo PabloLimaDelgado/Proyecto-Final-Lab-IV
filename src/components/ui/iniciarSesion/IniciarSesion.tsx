@@ -2,7 +2,7 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import styles from "./iniciarSesion.module.css";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { IUsuario } from "../../../types/IUsuario";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface IIniciarSesion {
   handleRegistarse: () => void;
@@ -10,13 +10,14 @@ interface IIniciarSesion {
 
 export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
   const { setUsuarioActivo } = usuarioStore();
+
   const navigate = useNavigate();
 
+  /*FORM*/
   const initialForm = {
     mail: "",
     contraseña: "",
   };
-
   const [values, setValues] = useState(initialForm);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +53,7 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
 
       const token = localStorage.getItem("token");
 
+      /*TRAER TODOS LOS USUARIOS Y MARCAR EL CORRESPONDIENTE*/
       const getResponse = await fetch(
         `${import.meta.env.VITE_BASE_URL}/usuario/get`,
         {
@@ -65,15 +67,16 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
 
       if (!getResponse.ok) {
         throw new Error(`Error al traer usuarios: ${getResponse.status}`);
-      } else {
-        console.log("Entro bien");
       }
 
       const usuarios: IUsuario[] = await getResponse.json();
       const usuarioEncontrado = usuarios.find((u) => u.mail === usuario.mail);
 
-      if (!usuarioEncontrado) throw new Error("Usuario no encontrado");
+      if (!usuarioEncontrado) {
+        throw new Error("Usuario no encontrado");
+      }
 
+      /*ESTABLECER EL USUARIO ACTIVO Y GUARDARLO EN EL LOCAL STORAGE*/
       setUsuarioActivo(usuarioEncontrado);
       localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
 
@@ -87,36 +90,39 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
       }
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
-      alert("Credenciales inválidas");
+      alert("Credenciales inválidas. Verifique su correo y contraseña.");
     }
   };
 
   return (
-    <>
-      <main className={styles.iniciarSesionContainer}>
-        <h1>Iniciar Sesion</h1>
-        <span className="material-symbols-outlined">account_circle</span>
-        <form onSubmit={onSubmit}>
-          <input
-            type="text"
-            placeholder="Correo electrónico"
-            onChange={handleChange}
-            value={values.mail}
-            name="mail"
-          />
-          <input
-            type="text"
-            placeholder="Contraseña"
-            onChange={handleChange}
-            value={values.contraseña}
-            name="contraseña"
-          />
-          <div>
-            <button type="submit">Ingresar Usuario</button>
-            <button onClick={handleRegistarse}>Registrarse</button>
-          </div>
-        </form>
-      </main>
-    </>
+    <main className={styles.iniciarSesionContainer}>
+      <h1>Iniciar Sesión</h1>
+      <span className="material-symbols-outlined">account_circle</span>
+
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          placeholder="Correo electrónico"
+          onChange={handleChange}
+          value={values.mail}
+          name="mail"
+          aria-label="Correo electrónico"
+        />
+        <input
+          type="password"
+          placeholder="Contraseña"
+          onChange={handleChange}
+          value={values.contraseña}
+          name="contraseña"
+          aria-label="Contraseña"
+        />
+        <div>
+          <button type="submit">Ingresar Usuario</button>
+          <button type="button" onClick={handleRegistarse}>
+            Registrarse
+          </button>
+        </div>
+      </form>
+    </main>
   );
 };

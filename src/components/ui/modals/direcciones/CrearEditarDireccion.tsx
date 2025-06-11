@@ -6,10 +6,11 @@ import { usuarioStore } from "../../../../store/usuarioStore";
 import Swal from "sweetalert2";
 
 interface ICrearEditarDireccion {
-  close: () => void;
-  direccion?: IDireccion;
-  usuario: IUsuario;
+  close: () => void; // Función para cerrar el modal o componente
+  direccion?: IDireccion; // Si existe, se edita. Si no, se crea una nueva.
+  usuario: IUsuario; // Usuario actual, para actualizar sus direcciones
 }
+
 export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
   close,
   direccion,
@@ -17,6 +18,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
 }) => {
   const { updateUsuario, setUsuarioActivo } = usuarioStore();
 
+  // Estado inicial del formulario. Si viene una dirección, se usa para edición.
   const initialForm: IDireccion = {
     localidad: direccion ? direccion.localidad : "",
     estado: direccion ? direccion.estado : true,
@@ -24,20 +26,22 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
     provincia: direccion ? direccion.provincia : "",
     departamento: direccion ? direccion.departamento : "",
     codigoPostal: direccion ? direccion.codigoPostal : "",
-    usuarios: direccion ? direccion.usuarios : [],
+    usuarios: direccion ? [...(direccion.usuarios ?? [])] : [], // Se clona el array por precaución
   };
 
   const [values, setValues] = useState<IDireccion>(initialForm);
 
+  // Manejador de cambios de inputs
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Manejador de envío del formulario
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Validaciones básicas
+    // Validación de campos requeridos
     if (
       !values.localidad ||
       !values.pais ||
@@ -57,7 +61,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
 
     try {
       if (direccion) {
-        // Editar dirección
+        // Si se está editando una dirección existente
         const direccionEditada: IDireccion = {
           id: direccion.id,
           localidad: values.localidad,
@@ -66,7 +70,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
           provincia: values.provincia,
           departamento: values.departamento,
           codigoPostal: values.codigoPostal,
-          usuarios: direccion.usuarios,
+          usuarios: direccion ? [...(direccion.usuarios ?? [])] : [], // Clon defensivo
         };
 
         const response = await fetch(
@@ -88,6 +92,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
 
         const data: IDireccion = await response.json();
 
+        // Se reemplaza la dirección editada en la lista del usuario
         const usuarioActualizado: IUsuario = {
           ...usuario,
           direcciones: usuario.direcciones?.map((d) =>
@@ -104,7 +109,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
           text: "La dirección fue editada correctamente.",
         });
       } else {
-        // Crear dirección
+        // Si se está creando una nueva dirección
         const direccionCreada: IDireccion = {
           localidad: values.localidad,
           estado: true,
@@ -143,6 +148,8 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
 
         updateUsuario(usuarioActualizado);
         setUsuarioActivo(usuarioActualizado);
+
+        // Se guarda en localStorage solo al crear (puede omitirse si no hace falta)
         localStorage.setItem(
           "usuarioActivo",
           JSON.stringify(usuarioActualizado)
@@ -155,6 +162,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
         });
       }
 
+      // Cierra el modal o formulario al terminar
       close();
     } catch (error) {
       console.error("Error en la operación de dirección", error);
@@ -167,55 +175,61 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
   };
 
   return (
-    <>
-      <div className={styles.formDireccionesContainer}>
-        <form onSubmit={onSubmit} className={styles.formDirecciones}>
-          <h1>{direccion ? "Editar" : "Crear"} direccion</h1>
-          <input
-            type="text"
-            placeholder="Ingrese un pais"
-            onChange={handleChange}
-            value={values.pais}
-            name="pais"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese una provincia"
-            onChange={handleChange}
-            value={values.provincia}
-            name="provincia"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese un departamento"
-            onChange={handleChange}
-            value={values.departamento}
-            name="departamento"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese un codigo postal"
-            onChange={handleChange}
-            value={values.codigoPostal}
-            name="codigoPostal"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese una localidad"
-            onChange={handleChange}
-            value={values.localidad}
-            name="localidad"
-          />
-          <div>
-            <button onClick={() => close()} className={styles.buttonConcelar}>
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              {direccion ? "Editar" : "Crear"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+    <div className={styles.formDireccionesContainer}>
+      <form onSubmit={onSubmit} className={styles.formDirecciones}>
+        <h1>{direccion ? "Editar" : "Crear"} dirección</h1>
+
+        {/* Inputs controlados */}
+        <input
+          type="text"
+          placeholder="Ingrese un país"
+          onChange={handleChange}
+          value={values.pais}
+          name="pais"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese una provincia"
+          onChange={handleChange}
+          value={values.provincia}
+          name="provincia"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese un departamento"
+          onChange={handleChange}
+          value={values.departamento}
+          name="departamento"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese un código postal"
+          onChange={handleChange}
+          value={values.codigoPostal}
+          name="codigoPostal"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese una localidad"
+          onChange={handleChange}
+          value={values.localidad}
+          name="localidad"
+        />
+
+        {/* Botones */}
+        <div>
+          <button
+            type="button" // Evita que dispare un submit
+            onClick={close}
+            className={styles.buttonConcelar}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className={styles.buttonSubmit}>
+            {direccion ? "Editar" : "Crear"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

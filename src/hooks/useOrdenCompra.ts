@@ -16,23 +16,24 @@ export const useOrdenCompra = () => {
     usarDireccionUsuario: boolean,
     total: number
   ) => {
+    // Payload principal para crear la ordenCompra
     const ordenPayload = {
       usuario,
       direccion,
       direccionUsuario: usarDireccionUsuario,
       estado: true,
-      fecha: new Date().toISOString().split("T")[0],
+      fecha: new Date().toISOString().split("T")[0], // solo fecha YYYY-MM-DD
       total,
     };
-
-    //console.log(ordenPayload);
 
     let ordenCompra: IOrdenCompra;
 
     try {
+      // Obtiene token para autenticación
       const token = localStorage.getItem("token");
 
-      const responseOrdenCompra: Response = await fetch(
+      // Crea la ordenCompra en el backend
+      const responseOrdenCompra = await fetch(
         `${import.meta.env.VITE_BASE_URL}/ordenCompra`,
         {
           method: "POST",
@@ -45,57 +46,63 @@ export const useOrdenCompra = () => {
       );
 
       if (!responseOrdenCompra.ok) {
+        // Si falla la creación, lanza error con mensaje
         const errorText = await responseOrdenCompra.text();
         throw new Error(`Error ${responseOrdenCompra.status}: ${errorText}`);
       }
 
       ordenCompra = await responseOrdenCompra.json();
-      console.log(ordenCompra);
 
+      // Actualiza estado global con la orden creada
       postOrdenCompra(ordenCompra);
       setOrdenCompraActivo(ordenCompra);
     } catch (err) {
       console.error("Error creando OrdenCompra:", err);
-      return;
+      return; // termina función si falla la orden principal
     }
 
-    const detallesCarrito: Record<
+    // Agrupar detalles por id para sumar cantidades
+    const detallesAgrupados: Record<
       number,
       { detalle: IDetalle; cantidad: number }
     > = {};
 
     carritoActivo?.detallesProductos.forEach((detalle) => {
       if (!detalle.id) return;
-      detallesCarrito[detalle.id] = detallesCarrito[detalle.id]
-        ? {
-            detalle: detalle,
-            cantidad: detallesCarrito[detalle.id].cantidad + 1,
-          }
-        : { detalle: detalle, cantidad: 1 };
+
+      if (detallesAgrupados[detalle.id]) {
+        detallesAgrupados[detalle.id].cantidad += 1;
+      } else {
+        detallesAgrupados[detalle.id] = { detalle, cantidad: 1 };
+      }
     });
 
-    for (const idDetlle in detallesCarrito) {
-      const { detalle, cantidad } = detallesCarrito[idDetlle];
+    // Por cada detalle agrupado, crear ordenCompraDetalle en backend
+    for (const idDetalle in detallesAgrupados) {
+      const { detalle, cantidad } = detallesAgrupados[idDetalle];
 
-      const precio = Number(detalle.precioDTO?.precioVenta) ?? 0;
+      // Obtiene precio y descuento
+      const precio = Number(detalle.precioDTO?.precioVenta ?? 0);
+      const descuento = Number(detalle.precioDTO?.descuento?.descuento ?? 0);
 
-      const descuento = Number(detalle.precioDTO?.descuento?.descuento) ?? 0;
+      // Calcula precio final con descuento (si aplica)
       const precioFinal = descuento
-        ? (precio - (precio * descuento) / 100).toFixed(2)
-        : precio.toFixed(2);
+        ? precio - (precio * descuento) / 100
+        : precio;
 
       const ordenCompraDetalle: IOrdenCompraDetalle = {
-        ordenCompra: ordenCompra,
-        detalle: detalle,
+        ordenCompra,
+        detalle,
         cantidad,
-        subtotal: Number(precioFinal),
+        subtotal: Number(precioFinal.toFixed(2)), // subtotal por detalle (precio final * cantidad)
         estado: true,
       };
 
       try {
         const token = localStorage.getItem("token");
 
-        const responseOrdenCompraDetalle: Response = await fetch(
+        // Enviar detalle al backend
+        const responseDetalle = await fetch(
           `${import.meta.env.VITE_BASE_URL}/ordenCompraDetalle`,
           {
             method: "POST",
@@ -107,10 +114,10 @@ export const useOrdenCompra = () => {
           }
         );
 
-        if (!responseOrdenCompraDetalle.ok) {
-          const txt = await responseOrdenCompraDetalle.text();
+        if (!responseDetalle.ok) {
+          const errorText = await responseDetalle.text();
           console.error(
-            `Error ${responseOrdenCompraDetalle.status} creando detalle: ${txt}`
+            `Error ${responseDetalle.status} creando detalle: ${errorText}`
           );
         }
       } catch (err) {

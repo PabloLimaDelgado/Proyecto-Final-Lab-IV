@@ -18,6 +18,7 @@ export const DetallePedido: FC<IDetallePedido> = ({
 }) => {
   const { setArrayPrecio } = precioStore();
 
+  /* USE EFFECT */
   useEffect(() => {
     const fetchPrecio = async () => {
       try {
@@ -27,12 +28,29 @@ export const DetallePedido: FC<IDetallePedido> = ({
         const data: IPrecio[] = await response.json();
         setArrayPrecio(data);
       } catch (error) {
-        console.log(error);
+        console.log("Error al traer precios:", error);
       }
     };
 
     fetchPrecio();
   }, []);
+
+  /* FUNCION PARA CALCULAR PRECIO FINAL CONSIDERANDO DESCUENTO VIGENTE */
+  const calcularPrecioFinal = (detalle: IOrdenCompraDetalle): string => {
+    const precioBase = detalle.detalle.precioDTO.precioVenta ?? 0;
+    const descuento = detalle.detalle.precioDTO.descuento;
+    const hoy = new Date();
+    let precioFinal = Number(precioBase);
+
+    if (
+      descuento &&
+      new Date(descuento.fechaInicio) <= hoy &&
+      hoy <= new Date(descuento.fechaFin)
+    ) {
+      precioFinal -= (precioFinal * descuento.descuento) / 100;
+    }
+    return (precioFinal * detalle.cantidad).toFixed(2);
+  };
 
   return (
     <>
@@ -65,30 +83,7 @@ export const DetallePedido: FC<IDetallePedido> = ({
                     <td>{detallePedido.detalle.talle.talle}</td>
                     <td>{detallePedido.detalle.color}</td>
                     <td>{detallePedido.cantidad}</td>
-                    <td>
-                      $
-                      {(() => {
-                        const precioBase =
-                          detallePedido.detalle.precioDTO.precioVenta ?? 0;
-                        const descuento =
-                          detallePedido.detalle.precioDTO.descuento;
-                        const hoy = new Date();
-                        let precioFinal = Number(precioBase);
-
-                        if (
-                          descuento &&
-                          new Date(descuento.fechaInicio) <= hoy &&
-                          hoy <= new Date(descuento.fechaFin)
-                        ) {
-                          precioFinal -=
-                            (precioFinal * descuento.descuento) / 100;
-                        }
-
-                        return (precioFinal * detallePedido.cantidad).toFixed(
-                          2
-                        );
-                      })()}
-                    </td>
+                    <td>${calcularPrecioFinal(detallePedido)}</td>
                   </tr>
                 ))}
               </tbody>

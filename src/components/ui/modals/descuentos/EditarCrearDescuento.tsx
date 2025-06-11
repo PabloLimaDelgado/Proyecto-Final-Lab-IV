@@ -17,18 +17,21 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
     descuentoStore();
 
   const initialForm: IDescuento = {
-    id: descuento ? descuento.id : undefined,
-    estado: descuento ? descuento.estado : true,
-    fechaInicio: descuento ? descuento.fechaInicio : "",
-    fechaFin: descuento ? descuento.fechaFin : "",
-    descuento: descuento ? descuento.descuento : 0,
+    id: descuento?.id,
+    estado: descuento?.estado ?? true,
+    fechaInicio: descuento?.fechaInicio ?? "",
+    fechaFin: descuento?.fechaFin ?? "",
+    descuento: descuento?.descuento ?? 0,
   };
 
   const [values, setValues] = useState<IDescuento>(initialForm);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
+    setValues((prev) => ({
+      ...prev,
+      [name]: name === "descuento" ? Number(value) : value,
+    }));
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -43,14 +46,13 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
       return;
     }
 
-    try {
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
+    try {
       if (descuento) {
-        // Editar
         const descuentoEditado: IDescuento = {
-          id: initialForm.id,
-          estado: initialForm.estado,
+          ...initialForm,
           fechaInicio: values.fechaInicio,
           fechaFin: values.fechaFin,
           descuento: values.descuento,
@@ -79,9 +81,8 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
           text: "El descuento fue editado correctamente.",
         });
       } else {
-        // Crear
         const descuentoCreado: IDescuento = {
-          estado: initialForm.estado,
+          estado: true,
           fechaInicio: values.fechaInicio,
           fechaFin: values.fechaFin,
           descuento: values.descuento,
@@ -124,50 +125,51 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
   };
 
   return (
-    <>
-      <div className={styles.formDescuentoContainer}>
-        <form className={styles.formDescuentoContainerForm} onSubmit={onSubmit}>
-          <h1>{descuento ? "Editar" : "Crear"} descuento</h1>
-          <input
-            type="date"
-            name="fechaInicio"
-            onChange={handleChange}
-            value={values.fechaInicio}
-            placeholder="Ingrese una fecha inicio"
-          />
+    <div className={styles.formDescuentoContainer}>
+      <form className={styles.formDescuentoContainerForm} onSubmit={onSubmit}>
+        <h1>{descuento ? "Editar" : "Crear"} descuento</h1>
 
-          <input
-            type="date"
-            name="fechaFin"
-            onChange={handleChange}
-            value={values.fechaFin}
-            placeholder="Ingrese una fecha fin"
-          />
+        <input
+          type="date"
+          name="fechaInicio"
+          onChange={handleChange}
+          value={values.fechaInicio}
+          placeholder="Ingrese una fecha inicio"
+        />
 
-          <input
-            type="text"
-            name="descuento"
-            onChange={handleChange}
-            value={values.descuento === 0 ? "" : values.descuento}
-            placeholder="Ingrese un porcenaje de descuento"
-          />
+        <input
+          type="date"
+          name="fechaFin"
+          onChange={handleChange}
+          value={values.fechaFin}
+          placeholder="Ingrese una fecha fin"
+        />
 
-          <div>
-            <button
-              className={styles.buttonConcelar}
-              onClick={() => {
-                close();
-                setDescuentoActivo(null);
-              }}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              {descuento ? "Editar" : "Crear"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+        <input
+          type="number"
+          name="descuento"
+          onChange={handleChange}
+          value={values.descuento === 0 ? "" : values.descuento}
+          placeholder="Ingrese un porcentaje de descuento"
+          min="1"
+        />
+
+        <div>
+          <button
+            type="button"
+            className={styles.buttonConcelar}
+            onClick={() => {
+              close();
+              setDescuentoActivo(null);
+            }}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className={styles.buttonSubmit}>
+            {descuento ? "Editar" : "Crear"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

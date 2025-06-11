@@ -1,5 +1,4 @@
 import { IDetalle } from "../types/IDetalle";
-import { IPrecio } from "../types/IPrecio";
 
 export type DetalleConCantidad = {
   detalle: IDetalle;
@@ -14,7 +13,9 @@ export const agruparDetalles = (
   const agrupado: { [id: number]: DetalleConCantidad } = {};
 
   detalles.forEach((detalle) => {
-    const id = detalle.id!;
+    const id = detalle.id;
+    if (!id) return; // ignorar detalles sin id
+
     if (agrupado[id]) {
       agrupado[id].cantidad += 1;
     } else {
@@ -27,32 +28,32 @@ export const agruparDetalles = (
 
 export const calcularSubtotal = (agrupados: DetalleConCantidad[]): number => {
   return agrupados.reduce((acc, { detalle, cantidad }) => {
-    const precio = Number(detalle.precioDTO?.precioVenta);
-    return precio
-      ? acc + Number(detalle.precioDTO.precioVenta) * cantidad
-      : acc;
+    const precioVenta = Number(detalle.precioDTO?.precioVenta ?? 0);
+    return acc + precioVenta * cantidad;
   }, 0);
 };
 
 export const calcularTotalConDescuento = (
   agrupados: DetalleConCantidad[]
 ): number => {
-  return agrupados.reduce((acc, { detalle, cantidad }) => {
-    const precio = detalle.precioDTO.precioVenta;
-    if (!precio) return acc;
+  const hoy = new Date();
 
-    const hoy = new Date();
-    let precioFinal = Number(detalle.precioDTO.precioVenta);
+  return agrupados.reduce((acc, { detalle, cantidad }) => {
+    const precioVenta = Number(detalle.precioDTO?.precioVenta ?? 0);
+    const descuento = detalle.precioDTO?.descuento;
+
+    if (!precioVenta) return acc;
+
+    let precioFinal = precioVenta;
 
     if (
-      detalle.precioDTO.descuento &&
-      detalle.precioDTO.descuento.fechaInicio &&
-      detalle.precioDTO.descuento.fechaFin &&
-      new Date(detalle.precioDTO.descuento.fechaInicio) <= hoy &&
-      hoy <= new Date(detalle.precioDTO.descuento.fechaFin)
+      descuento &&
+      descuento.fechaInicio &&
+      descuento.fechaFin &&
+      new Date(descuento.fechaInicio) <= hoy &&
+      hoy <= new Date(descuento.fechaFin)
     ) {
-      precioFinal -=
-        (precioFinal * detalle.precioDTO.descuento.descuento) / 100;
+      precioFinal -= (precioFinal * descuento.descuento) / 100;
     }
 
     return acc + precioFinal * cantidad;

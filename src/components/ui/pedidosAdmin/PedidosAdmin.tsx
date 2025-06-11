@@ -22,9 +22,11 @@ export const PedidosAdmin = () => {
     setOrdenCompraActivo,
     ordenCompraActivo,
   } = ordenCompraStore();
+
   const { setArrayOrdenCompraDetalle, ordenesCompraDetalle } =
     ordenCompraDetalleStore();
 
+  // Carga inicial de datos de órdenes y detalles desde backend
   useEffect(() => {
     const fethOrdenCompra = async () => {
       try {
@@ -42,14 +44,13 @@ export const PedidosAdmin = () => {
         const data: IOrdenCompra[] = await responseOrdenCompra.json();
         setArrayOrdenCompra(data);
       } catch (error) {
-        console.log("Error en traer ordenes compra");
+        console.log("Error en traer ordenes compra", error);
       }
     };
 
     const fethOrdenCompraDetalle = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const responseOrdenCompraDetalle: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/ordenCompraDetalle/get`,
           {
@@ -64,7 +65,7 @@ export const PedidosAdmin = () => {
           await responseOrdenCompraDetalle.json();
         setArrayOrdenCompraDetalle(data);
       } catch (error) {
-        console.log("Error en traer ordenes compra detalle");
+        console.log("Error en traer ordenes compra detalle", error);
       }
     };
 
@@ -72,6 +73,7 @@ export const PedidosAdmin = () => {
     fethOrdenCompraDetalle();
   }, []);
 
+  // Maneja cambios en filtros de fecha
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setInitialValue((prev) => ({ ...prev, [name]: value }));
@@ -82,13 +84,13 @@ export const PedidosAdmin = () => {
   };
 
   const ITEMS_POR_PAGINA = 6;
-
   const [paginaActual, setPaginaActual] = useState<number>(1);
   const [paginasTotales, setPaginasTotales] = useState<number>(1);
 
+  // Actualiza la cantidad total de páginas cuando cambian las órdenes
   useEffect(() => {
     const ordenesCompraFiltrados = ordenesCompra.filter(
-      (ordenCompra) => ordenCompra.estado === true
+      (orden) => orden.estado === true
     );
     const totalPaginas = Math.max(
       1,
@@ -96,10 +98,11 @@ export const PedidosAdmin = () => {
     );
     setPaginasTotales(totalPaginas);
 
+    // Ajusta la página actual si quedó fuera de rango
     if (paginaActual > totalPaginas) {
       setPaginaActual(totalPaginas);
     }
-  }, [ordenesCompra]);
+  }, [ordenesCompra, paginaActual]);
 
   const handleAvanzarPagina = () => {
     setPaginaActual((prev) => (prev < paginasTotales ? prev + 1 : prev));
@@ -109,10 +112,12 @@ export const PedidosAdmin = () => {
     setPaginaActual((prev) => (prev > 1 ? prev - 1 : prev));
   };
 
+  // Filtra solo las órdenes activas
   const ordenesComprasFiltrados = ordenesCompra.filter(
-    (ordenCompra) => ordenCompra.estado === true
+    (orden) => orden.estado === true
   );
 
+  // Aplica paginado
   const ordenesComprasPaginado = ordenesComprasFiltrados.slice(
     (paginaActual - 1) * ITEMS_POR_PAGINA,
     paginaActual * ITEMS_POR_PAGINA
@@ -122,13 +127,14 @@ export const PedidosAdmin = () => {
     <>
       <div className={styles.pedidosAdminContainer}>
         <h1>SneakAdmin - Pedidos</h1>
+
         <div className={styles.pedidosAdminButton}>
           <div>
             <label>Desde: </label>
             <input
               type="date"
               onChange={handleChange}
-              value={initialValue?.fechaInicio}
+              value={initialValue.fechaInicio}
               name="fechaInicio"
             />
           </div>
@@ -138,11 +144,12 @@ export const PedidosAdmin = () => {
             <input
               type="date"
               onChange={handleChange}
-              value={initialValue?.fechaFin}
+              value={initialValue.fechaFin}
               name="fechaFin"
             />
           </div>
         </div>
+
         <div className={styles.pedidosMapAdminContainer}>
           {ordenesComprasPaginado
             .filter((ordenCompra) => {
@@ -165,31 +172,28 @@ export const PedidosAdmin = () => {
               return true;
             })
             .map((ordenCompra) => (
-              <>
-                <div key={ordenCompra.id}>
-                  <h1>Pedido id: {ordenCompra.id}</h1>
-                  <h2>Usuario: {ordenCompra.usuario.nombre}</h2>
-                  <h2>Total: {ordenCompra.total}</h2>
-                  <h2>Fecha: {ordenCompra.fecha}</h2>
-                  <button
-                    onClick={() => {
-                      const detallesPedido: IOrdenCompraDetalle[] =
-                        ordenesCompraDetalle.filter(
-                          (compraDetalle) =>
-                            compraDetalle.ordenCompra.id === ordenCompra.id
-                        );
+              <div key={ordenCompra.id}>
+                <h1>Pedido id: {ordenCompra.id}</h1>
+                <h2>Usuario: {ordenCompra.usuario.nombre}</h2>
+                <h2>Total: {ordenCompra.total}</h2>
+                <h2>Fecha: {ordenCompra.fecha}</h2>
+                <button
+                  onClick={() => {
+                    // Filtra los detalles que corresponden a la orden seleccionada
+                    const detallesPedido: IOrdenCompraDetalle[] =
+                      ordenesCompraDetalle.filter(
+                        (detalle) => detalle.ordenCompra.id === ordenCompra.id
+                      );
 
-                      setDetallesSeleccionados(detallesPedido);
-                      setOrdenCompraActivo(ordenCompra);
-                      handleVerDetallePedido();
-                    }}
-                  >
-                    <span className="material-symbols-outlined">
-                      visibility
-                    </span>
-                  </button>
-                </div>
-              </>
+                    setDetallesSeleccionados(detallesPedido);
+                    setOrdenCompraActivo(ordenCompra);
+                    handleVerDetallePedido();
+                  }}
+                  aria-label={`Ver detalles del pedido ${ordenCompra.id}`}
+                >
+                  <span className="material-symbols-outlined">visibility</span>
+                </button>
+              </div>
             ))}
         </div>
 
@@ -216,6 +220,7 @@ export const PedidosAdmin = () => {
         </div>
       </div>
 
+      {/* Modal o sección para mostrar el detalle del pedido */}
       {verDetallePedido && ordenCompraActivo && (
         <DetallePedido
           detallesPedido={detallesSeleccionados}

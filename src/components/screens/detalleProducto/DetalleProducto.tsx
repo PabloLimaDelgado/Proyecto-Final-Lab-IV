@@ -61,7 +61,6 @@ export const DetalleProducto = () => {
         console.error("Error al traer detalles:", error);
       }
     };
-
     fetchDetalle();
 
     /*CARGAR CARRITO DESDE LOCALSTORAGE O CREAR UNO NUEVO*/

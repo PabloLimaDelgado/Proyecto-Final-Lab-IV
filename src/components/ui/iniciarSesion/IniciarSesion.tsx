@@ -24,28 +24,27 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
     const { value, name } = event.target;
     setValues((prev) => ({ ...prev, [name]: value }));
   };
+const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+  console.log("BASE_URL:", import.meta.env.VITE_BASE_URL);
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  try {
+    console.log("Credenciales:", values.mail, values.contraseña);
 
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            mail: values.mail,
-            password: values.contraseña,
-          }),
-        }
-      );
+    const loginResponse = await fetch(`${import.meta.env.VITE_BASE_URL}/usuario/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mail: values.mail,
+        password: values.contraseña,
+      }),
+    });
 
-      if (!response.ok) throw new Error("Login fallido");
+      if (!loginResponse.ok) throw new Error("Login fallido");
 
-      const usuario: IUsuario = await response.json();
+      const usuario: IUsuario = await loginResponse.json();
 
       if (usuario.token) {
         localStorage.setItem("token", usuario.token);
@@ -69,8 +68,9 @@ export const IniciarSesion: FC<IIniciarSesion> = ({ handleRegistarse }) => {
         throw new Error(`Error al traer usuarios: ${getResponse.status}`);
       }
 
-      const usuarios: IUsuario[] = await getResponse.json();
-      const usuarioEncontrado = usuarios.find((u) => u.mail === usuario.mail);
+
+
+    const usuarioEncontrado = usuario;
 
       if (!usuarioEncontrado) {
         throw new Error("Usuario no encontrado");

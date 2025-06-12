@@ -4,7 +4,6 @@ import { IDireccion } from "./IDireccion";
 export interface IUsuario {
   id?: number;
   nombre: string;
-  password: string;
   dni: string;
   estado: boolean;
   rol: IRol;

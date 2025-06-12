@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -18,6 +18,8 @@ import {
 import { IDetalle } from "../../../types/IDetalle";
 import { ICarrito } from "../../../types/ICarrito";
 import styles from "./carrito.module.css";
+import { CarritoDireccion } from "../../ui/carritoDireccion/CarritoDireccion";
+import { IDireccion } from "../../../types/IDireccion";
 
 export const Carrito = () => {
   /*STORES Y HOOKS*/
@@ -25,6 +27,19 @@ export const Carrito = () => {
   const { carritoActivo, updateCarrito, setCarritoActivo } = carritoStore();
   const { direccionActiva, setDireccionActiva } = direccionStore();
   const { añadirOrden } = useOrdenCompra();
+  const [usarDireccionNueva, setUsarDireccionNueva] = useState(false);
+  const [nuevaDireccion, setNuevaDireccion] = useState<IDireccion>({
+  localidad: "",
+  pais: "",
+  estado:true,
+  provincia: "",
+  departamento: "",
+  codigoPostal: "",
+  });
+  const handleDireccionChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
+  setNuevaDireccion((prev) => ({ ...prev, [name]: value }));
+};
 
   /*USE STATE*/
   const [medioPagoSeleccionado, setMedioPagoSeleccionado] =
@@ -66,7 +81,7 @@ export const Carrito = () => {
 
   /*FUNCION PARA MANEJAR LA COMPRA*/
   const handleComprar = async () => {
-    if (!usuarioActivo || !direccionActiva) {
+ /*   if (!usuarioActivo || !direccionActiva) {
       Swal.fire({
         title: "Error",
         text: "Por favor, selecciona una dirección antes de comprar.",
@@ -84,14 +99,30 @@ export const Carrito = () => {
         confirmButtonText: "Aceptar",
       });
       return;
+        }*/
+      if (
+      usarDireccionNueva &&
+      nuevaDireccion &&
+      nuevaDireccion.pais !== "" &&
+      nuevaDireccion.provincia !== "" &&
+      nuevaDireccion.departamento !== "" &&
+      nuevaDireccion.codigoPostal !== "" &&
+      nuevaDireccion.localidad !== ""
+    ) {
+      await añadirOrden(nuevaDireccion, false);
+      return;
+    } else if (direccionActiva && !usarDireccionNueva) {
+      await añadirOrden(direccionActiva, true);
+      return;
+    } else {
+      Swal.fire({
+        title: "Error",
+        text: "Por favor ingresa todos los campos de la dirección.",
+        icon: "error",
+        confirmButtonText: "Aceptar",
+      });
     }
 
-    await añadirOrden(
-      usuarioActivo,
-      direccionActiva,
-      true,
-      Number(totalConDescuento.toFixed(2))
-    );
 
     const diasEntrega = Math.floor(Math.random() * 5) + 2;
 
@@ -135,10 +166,12 @@ export const Carrito = () => {
           {carritoActivo &&
             detallesAgrupados.map(({ detalle, cantidad }) => (
               <div key={detalle.id} className={styles.productCard}>
-                <img
-                  src={detalle.imagenList[0].url}
-                  alt={detalle.imagenList[0].alt}
-                />
+                {
+                  detalle.imagenList && detalle.imagenList.length > 0 ? (
+                    <img 
+                      src={detalle.imagenList[0].url} 
+                      alt={detalle.imagenList[0].alt || "Imagen del producto"}></img>) : null
+                }
                 <h2>Nombre: {detalle.producto.nombre}</h2>
                 <h2>Talle: {detalle.talle.talle}</h2>
                 <h2>Color: {detalle.color}</h2>
@@ -206,23 +239,42 @@ export const Carrito = () => {
 
         <div className={styles.divUsuarioCheck}>
           <div className={styles.direccionesUsuarios}>
-            <div>
-              <h2>Direcciones:</h2>
-              {usuarioActivo?.direcciones
-                ?.filter((direccion) => direccion.estado !== false)
-                .map((direccion) => (
-                  <label key={direccion.id}>
-                    <p>
-                      {direccion.departamento} - {direccion.localidad}
-                    </p>
-                    <input
-                      type="radio"
-                      name="direccion"
-                      checked={direccionActiva?.id === direccion.id}
-                      onChange={() => setDireccionActiva(direccion)}
-                    />
-                  </label>
-                ))}
+            <div className={styles.divDireccion}>
+              <label>
+              <input
+                type="checkbox"
+                checked={usarDireccionNueva}
+                onChange={() => setUsarDireccionNueva((prev) => !prev)}
+              />
+              Usar una nueva dirección
+            </label>
+
+            {usarDireccionNueva ? (
+              <CarritoDireccion
+                values={nuevaDireccion}
+                onChange={handleDireccionChange}
+              />
+            ) : (
+              <>
+                <h2>Direcciones guardadas:</h2>
+                {usuarioActivo?.direcciones
+                  ?.filter((direccion) => direccion.estado !== false)
+                  .map((direccion) => (
+                    <label key={direccion.id}>
+                      <p>
+                        {direccion.departamento} - {direccion.localidad}
+                      </p>
+                      <input
+                        type="radio"
+                        name="direccion"
+                        checked={direccionActiva?.id === direccion.id}
+                        onChange={() => setDireccionActiva(direccion)}
+                      />
+                    </label>
+                  ))}
+              </>
+            )}
+              
             </div>
             <select
               value={medioPagoSeleccionado}

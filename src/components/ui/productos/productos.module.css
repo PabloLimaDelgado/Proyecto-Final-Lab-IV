@@ -5,6 +5,7 @@
   justify-content: start;
   width: 100%;
   overflow-y: auto;
+  background-color: #383d42;
 }
 
 .buscador {
@@ -52,7 +53,9 @@
   grid-template-columns: repeat(4, 1fr);
   margin: 0.4rem;
   gap: 1rem;
-  width: 90%;
+  background-color: rgb(30, 137, 230);
+  width: 100%;
+  height: 90%;
   overflow-y: hidden;
 }
 
@@ -66,6 +69,9 @@
 }
 
 .divProducto {
+  width: 16vw;
+  height: 16vw;
+  background-color: aqua;
   display: flex;
   flex-direction: column;
   position: relative;

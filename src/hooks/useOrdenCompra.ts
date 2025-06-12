@@ -68,6 +68,9 @@ export const useOrdenCompra = () => {
       { detalle: IDetalle; cantidad: number }
     > = {};
 
+    console.log(detallesAgrupados);
+    
+
     carritoActivo?.detallesProductos.forEach((detalle) => {
       if (!detalle.id) return;
 

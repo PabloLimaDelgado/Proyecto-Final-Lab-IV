@@ -1,5 +1,4 @@
 import { IDetalle } from "../types/IDetalle";
-import { IPrecio } from "../types/IPrecio";
 
 export type DetalleConCantidad = {
   detalle: IDetalle;
@@ -14,7 +13,9 @@ export const agruparDetalles = (
   const agrupado: { [id: number]: DetalleConCantidad } = {};
 
   detalles.forEach((detalle) => {
-    const id = detalle.id!;
+    const id = detalle.id;
+    if (!id) return; // ignorar detalles sin id
+
     if (agrupado[id]) {
       agrupado[id].cantidad += 1;
     } else {
@@ -25,27 +26,25 @@ export const agruparDetalles = (
   return Object.values(agrupado);
 };
 
-export const calcularSubtotal = (
-  agrupados: DetalleConCantidad[],
-  precios: IPrecio[]
-): number => {
+export const calcularSubtotal = (agrupados: DetalleConCantidad[]): number => {
   return agrupados.reduce((acc, { detalle, cantidad }) => {
-    const precio = precios.find((p) => p.detalle.id === detalle.id);
-    return precio ? acc + Number(precio.precioVenta) * cantidad : acc;
+    const precioVenta = Number(detalle.precioDTO?.precioVenta ?? 0);
+    return acc + precioVenta * cantidad;
   }, 0);
 };
 
 export const calcularTotalConDescuento = (
-  agrupados: DetalleConCantidad[],
-  precios: IPrecio[]
+  agrupados: DetalleConCantidad[]
 ): number => {
-  return agrupados.reduce((acc, { detalle, cantidad }) => {
-    const precio = precios.find((p) => p.detalle.id === detalle.id);
-    if (!precio) return acc;
+  const hoy = new Date();
 
-    const hoy = new Date();
-    const { precioVenta, descuento } = precio;
-    let precioFinal = Number(precioVenta);
+  return agrupados.reduce((acc, { detalle, cantidad }) => {
+    const precioVenta = Number(detalle.precioDTO?.precioVenta ?? 0);
+    const descuento = detalle.precioDTO?.descuento;
+
+    if (!precioVenta) return acc;
+
+    let precioFinal = precioVenta;
 
     if (
       descuento &&

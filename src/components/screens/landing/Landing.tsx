@@ -6,27 +6,39 @@ import { IDetalle } from "../../../types/IDetalle";
 
 export const Landing = () => {
   const [detalles, setDetalles] = useState<null | IDetalle[]>(null);
+
   const navigate = useNavigate();
 
+  /*MONTAR EL COMPONENTE*/
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
         const today = new Date().toISOString().split("T")[0];
-        console.log(today);
+        console.log("Fecha de hoy:", today);
+
+        const token = localStorage.getItem("token");
 
         const response: Response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/detalle/conDescuento/${today}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+
         const data: IDetalle[] = await response.json();
 
-        // Mezcla aleatoria
+        /*MEZCLAR ALEATORIAMENTE LOS PRECIOS PARA QUE CAMBIEN EN CADA CARGA*/
         const shuffled = data.sort(() => 0.5 - Math.random());
-        // Obtiene solo 5
-        const selected = shuffled.slice(0, 5);
 
+        /*SELECCIONA SOLO LOS PRIMEROS 5 DESCUENTOS*/
+        const selected = shuffled.slice(0, 5);
         setDetalles(selected);
       } catch (error) {
-        console.log(error);
+        console.log("Error al traer precios con descuento:", error);
       }
     };
 
@@ -38,12 +50,16 @@ export const Landing = () => {
   };
 
   const handleNavigate = (idProducto: number | null) => {
+    if (idProducto === null) return;
     navigate(`/vistaDetalleProducto?idProducto=${idProducto}`);
   };
+
+  console.log(detalles);
 
   return (
     <>
       <HeaderShop />
+
       <div className={styles.landingContainer}>
         <div className={styles.landingInfo}>
           <h2>¿Quienes somos?</h2>
@@ -54,14 +70,22 @@ export const Landing = () => {
             garantizada y una experiencia de compra simple y segura.
           </p>
         </div>
+
         <div className={styles.landingDescuentos}>
           <h3>Descuentos</h3>
           <div className={styles.containerDescuentos}>
             {detalles &&
-              detalles.map((detalle) => (
-                <div key={detalle.id}>
-                  <img src={detalle.imagenList[0].url} alt="" />
-                  <h4>{detalle.producto.nombre}</h4>
+              detalles.map((detalles) => (
+                <div key={detalles.id} className={styles.productoDescuento}>
+                  <img
+                    src={detalles.imagenList[0]?.url}
+                    alt={detalles.imagenList[0]?.alt || "Imagen producto"}
+                  />
+
+                  <h4>
+                    {detalles.precioDTO.detalleDescuentoDTO?.producto.nombre}
+                  </h4>
+
                   <div className={styles.divPrecio}>
                     <h4
                       style={{
@@ -69,24 +93,29 @@ export const Landing = () => {
                         color: "gray",
                       }}
                     >
-                      $ {detalle.precioDTO.precioVenta}
+                      $ {detalles.precioDTO?.precioVenta}
                     </h4>
                     <h4>
-                      {detalle.precioDTO.descuento
+                      {detalles.precioDTO.descuento
                         ? `$${(
-                            Number(detalle.precioDTO.precioVenta) -
-                            (Number(detalle.precioDTO.precioVenta) *
-                              detalle.precioDTO.descuento.descuento) /
+                            Number(detalles.precioDTO?.precioVenta) -
+                            (Number(detalles.precioDTO?.precioVenta) *
+                              detalles.precioDTO.descuento.descuento) /
                               100
                           ).toFixed(2)}`
-                        : `$${Number(detalle.precioDTO.precioVenta).toFixed(2)}`}
+                        : `$${Number(detalles.precioDTO.precioVenta).toFixed(
+                            2
+                          )}`}
                     </h4>
                   </div>
 
                   <div className={styles.divButtonProducto}>
                     <button
                       onClick={() =>
-                        handleNavigate(detalle.producto.id ?? null)
+                        handleNavigate(
+                          detalles.producto.id ??
+                            null
+                        )
                       }
                     >
                       Ver más

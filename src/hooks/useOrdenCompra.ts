@@ -1,38 +1,59 @@
 import { IDireccion } from "../types/IDireccion";
-import { IUsuario } from "../types/IUsuario";
-import { IOrdenCompra } from "../types/IOrdenCompra";
 import { carritoStore } from "../store/carritoStore";
 import { ordenCompraStore } from "../store/ordenCompraStore";
 import { IDetalle } from "../types/IDetalle";
+import { IDetallePost, IOrdenPost } from "../types/IOrdenPost";
 
 export const useOrdenCompra = () => {
   const { carritoActivo } = carritoStore();
   const { postOrdenCompra, setOrdenCompraActivo } = ordenCompraStore();
 
   const añadirOrden = async (
-    usuario: IUsuario,
     direccion: IDireccion,
-    usarDireccionUsuario: boolean,
-    total: number
+    usarDireccionUsuario: boolean
   ) => {
-    const ordenPayload = {
-      usuario: { id: usuario.id },
-      direccion: { id: direccion.id },
-      direccionUsuario: usarDireccionUsuario,
-      estado: true,
-      fecha: new Date().toISOString().split("T")[0],
-      total,
-    };
+    const detallesAgrupados: Record<number, { detalle: IDetalle; cantidad: number }> = {};
 
+    carritoActivo?.detallesProductos.forEach((detalle) => {
+      if (!detalle.id) return;
+
+      if (detallesAgrupados[detalle.id]) {
+        detallesAgrupados[detalle.id].cantidad += 1;
+      } else {
+        detallesAgrupados[detalle.id] = { detalle, cantidad: 1 };
+      }
+    });
+    const detallesParaPayload: IDetallePost = Object.values(detallesAgrupados).map(({ detalle, cantidad }) => ({
+      detalle: { id: detalle.id },
+      cantidad,
+    }));
+    let ordenPayload: IOrdenPost;  
+    if(usarDireccionUsuario && direccion.id){
+     ordenPayload = {
+      direccion: { id: direccion.id  },
+      direccionUsuario: usarDireccionUsuario,
+      detalles: detallesParaPayload,
+      estado: true,
+    };
+    }else{
+       ordenPayload = {
+        direccion: direccion,
+        direccionUsuario: usarDireccionUsuario,
+        detalles: detallesParaPayload,
+        estado:true
+      }
+    }
+
+    console.log(detallesAgrupados);
     console.log(ordenPayload);
 
-    let ordenCompra: IOrdenCompra;
-
     try {
+      // Obtiene token para autenticación
       const token = localStorage.getItem("token");
 
-      const responseOrdenCompra: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/ordenCompra`,
+      // Crea la ordenCompra en el backend
+      const responseOrdenCompra = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/ordenCompra/post`,
         {
           method: "POST",
           headers: {
@@ -44,66 +65,21 @@ export const useOrdenCompra = () => {
       );
 
       if (!responseOrdenCompra.ok) {
+        // Si falla la creación, lanza error con mensaje
         const errorText = await responseOrdenCompra.text();
         throw new Error(`Error ${responseOrdenCompra.status}: ${errorText}`);
       }
 
-      ordenCompra = await responseOrdenCompra.json();
+      const ordenCompra = await responseOrdenCompra.json();
+
+      // Actualiza estado global con la orden creada
       postOrdenCompra(ordenCompra);
       setOrdenCompraActivo(ordenCompra);
     } catch (err) {
       console.error("Error creando OrdenCompra:", err);
-      return;
+      return; // termina función si falla la orden principal
     }
 
-    const detallesCarrito: Record<
-      number,
-      { detalle: IDetalle; cantidad: number }
-    > = {};
-
-    carritoActivo?.detallesProductos.forEach((detalle) => {
-      if (!detalle.id) return;
-      detallesCarrito[detalle.id] = detallesCarrito[detalle.id]
-        ? {
-            detalle: detalle,
-            cantidad: detallesCarrito[detalle.id].cantidad + 1,
-          }
-        : { detalle: detalle, cantidad: 1 };
-    });
-
-    for (const idDetlle in detallesCarrito) {
-      const { detalle, cantidad } = detallesCarrito[idDetlle];
-      const ordenCompraDetalle = {
-        ordenCompra: { id: ordenCompra.id },
-        detalle: { id: detalle.id },
-        cantidad,
-      };
-
-      try {
-        const token = localStorage.getItem("token");
-
-        const responseOrdenCompraDetalle: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/ordenCompraDetalle`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify(ordenCompraDetalle),
-          }
-        );
-
-        if (!responseOrdenCompraDetalle.ok) {
-          const txt = await responseOrdenCompraDetalle.text();
-          console.error(
-            `Error ${responseOrdenCompraDetalle.status} creando detalle: ${txt}`
-          );
-        }
-      } catch (err) {
-        console.error("Error en OrdenCompraDetalle:", err);
-      }
-    }
   };
 
   return { añadirOrden };

@@ -6,6 +6,7 @@ import { ISexo } from "../../../../types/enums/ISexo";
 import styles from "./editarCrearProducto.module.css";
 import { productoStore } from "../../../../store/productoStore";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import Swal from "sweetalert2";
 
 interface IEditarCrearProducto {
   close: () => void;
@@ -18,6 +19,8 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
 }) => {
   const { updateProducto, postProducto, setProductoActivo } = productoStore();
   const { categorias, setArrayCategoria } = categoriaStore();
+
+  // Carga las categorías una sola vez cuando el componente monta
   useEffect(() => {
     const fetchCategoria = async () => {
       try {
@@ -28,15 +31,17 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
 
         setArrayCategoria(data);
       } catch (error) {
-        console.error(error);
+        console.error("Error cargando categorías:", error);
       }
     };
 
     fetchCategoria();
-  }, []);
+  }, [setArrayCategoria]);
 
+  // Categoria vacía por defecto para inicializar el estado cuando no hay producto
   const emptyCategoria: ICategoria = { nombre: "", estado: true };
 
+  // Inicializa el formulario, si viene producto, se usa sus datos, sino valores por defecto
   const initialForm: IProducto = {
     id: producto ? producto.id : undefined,
     estado: producto ? producto.estado : true,
@@ -46,8 +51,10 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
     sexo: producto ? producto.sexo : ("" as ISexo),
   };
 
+  // Estado local para los valores del formulario
   const [values, setValues] = useState<IProducto>(initialForm);
 
+  // Maneja cambios en inputs y selects, adaptando el tipo cuando corresponde
   const handleChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -55,38 +62,59 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
 
     setValues((prev) => {
       if (name === "sexo") {
+        // Casting porque ISexo es un enum o union de strings
         return { ...prev, sexo: value as ISexo };
       }
       if (name === "tipoProducto") {
         return { ...prev, tipoProducto: value as ITipoProducto };
       }
       if (name === "categoria") {
+        // Busca la categoria seleccionada en el listado
         const categoriaSeleccionada = categorias?.find(
           (cat) => cat.nombre === value
         );
+        // Si no se encuentra la categoría, usa emptyCategoria
         return { ...prev, categoria: categoriaSeleccionada ?? emptyCategoria };
       }
+      // Para campos texto normales
       return { ...prev, [name]: value };
     });
   };
 
+  // Enviar formulario, crear o editar según si existe producto con id
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (producto && producto.id) {
-      const productoEditado: IProducto = {
-        id: producto.id,
-        estado: true,
-        categoria: values.categoria,
-        nombre: values.nombre,
-        tipoProducto: values.tipoProducto,
-        sexo: values.sexo,
-      };
+    // Validación simple: campos obligatorios no vacíos
+    if (
+      !values.nombre ||
+      !values.categoria?.nombre || // Asegurar que categoria tiene nombre
+      !values.tipoProducto ||
+      !values.sexo
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos incompletos",
+        text: "Por favor complete todos los campos obligatorios del producto.",
+      });
+      return;
+    }
 
-      try {
-        const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
-        const response: Response = await fetch(
+    try {
+      if (producto && producto.id) {
+        // Editar producto
+        const productoEditado: IProducto = {
+          id: producto.id,
+          estado: true,
+          categoria: values.categoria,
+          nombre: values.nombre,
+          tipoProducto: values.tipoProducto,
+          sexo: values.sexo,
+        };
+
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/producto/${productoEditado.id}`,
           {
             method: "PUT",
@@ -97,24 +125,31 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
             body: JSON.stringify(productoEditado),
           }
         );
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
         const data: IProducto = await response.json();
         updateProducto(data);
-      } catch (error) {
-        console.error("Error en editar producto", error);
-      }
-    } else {
-      const productoCreado: IProducto = {
-        estado: true,
-        categoria: values.categoria,
-        nombre: values.nombre,
-        tipoProducto: values.tipoProducto,
-        sexo: values.sexo,
-      };
 
-      try {
-        const token = localStorage.getItem("token");
+        Swal.fire({
+          icon: "success",
+          title: "Producto actualizado",
+          text: "El producto fue editado correctamente.",
+        });
+      } else {
+        // Crear producto nuevo
+        const productoCreado: IProducto = {
+          estado: true,
+          categoria: values.categoria,
+          nombre: values.nombre,
+          tipoProducto: values.tipoProducto,
+          sexo: values.sexo,
+        };
 
-        const response: Response = await fetch(
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/producto`,
           {
             method: "POST",
@@ -126,91 +161,117 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
           }
         );
 
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
         const data: IProducto = await response.json();
         postProducto(data);
-      } catch (error) {
-        console.error("Error en crear producto", error);
-      }
-    }
 
-    setProductoActivo(null);
-    close();
+        Swal.fire({
+          icon: "success",
+          title: "Producto creado",
+          text: "El producto fue creado correctamente.",
+        });
+      }
+
+      // Limpiar producto activo y cerrar modal
+      setProductoActivo(null);
+      close();
+    } catch (error) {
+      console.error("Error al crear/editar el producto:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Hubo un problema al guardar el producto. Intente nuevamente.",
+      });
+    }
   };
 
   return (
-    <>
-      <div className={styles.formProductoContainer}>
-        <form className={styles.formProductoForm} onSubmit={onSubmit}>
-          <h1>{producto ? "Editar" : "Crear"} Producto</h1>
-          <input
-            type="text"
-            placeholder="Ingrese un nombre"
-            onChange={handleChange}
-            value={values.nombre}
-            name="nombre"
-          />
-          <select
-            name="sexo"
-            defaultValue=""
-            value={values.sexo}
-            onChange={handleChange}
-          >
-            <option value="" disabled hidden>
-              Seleccione un Sexo
+    <div className={styles.formProductoContainer}>
+      <form className={styles.formProductoForm} onSubmit={onSubmit}>
+        <h1>{producto ? "Editar" : "Crear"} Producto</h1>
+
+        {/* Input para nombre */}
+        <input
+          type="text"
+          placeholder="Ingrese un nombre"
+          onChange={handleChange}
+          value={values.nombre}
+          name="nombre"
+          autoComplete="off"
+        />
+
+        {/* Select para sexo */}
+        <select
+          name="sexo"
+          value={values.sexo}
+          onChange={handleChange}
+          defaultValue=""
+        >
+          <option value="" disabled hidden>
+            Seleccione un Sexo
+          </option>
+          {Object.values(ISexo).map((sexo) => (
+            <option key={sexo} value={sexo}>
+              {sexo}
             </option>
-            {Object.values(ISexo).map((sexo) => (
-              <option key={sexo} value={sexo}>
-                {sexo}
-              </option>
-            ))}
-          </select>
-          <select
-            name="categoria"
-            value={values.categoria.nombre || ""}
-            onChange={handleChange}
-            defaultValue=""
-          >
-            <option value="" disabled hidden>
-              Seleccione una Categoria
+          ))}
+        </select>
+
+        {/* Select para categoria */}
+        <select
+          name="categoria"
+          value={values.categoria?.nombre || ""}
+          onChange={handleChange}
+          defaultValue=""
+        >
+          <option value="" disabled hidden>
+            Seleccione una Categoria
+          </option>
+          {categorias?.map((categoria) => (
+            <option key={categoria.id} value={categoria.nombre}>
+              {categoria.nombre}
             </option>
-            {categorias &&
-              categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.nombre}>
-                  {categoria.nombre}
-                </option>
-              ))}
-          </select>
-          <select
-            name="tipoProducto"
-            value={values.tipoProducto}
-            onChange={handleChange}
-            defaultValue=""
-          >
-            <option value="" disabled hidden>
-              Seleccione un Tipo de Producto
+          ))}
+        </select>
+
+        {/* Select para tipo de producto */}
+        <select
+          name="tipoProducto"
+          value={values.tipoProducto}
+          onChange={handleChange}
+          defaultValue=""
+        >
+          <option value="" disabled hidden>
+            Seleccione un Tipo de Producto
+          </option>
+          {Object.values(ITipoProducto).map((tipoProducto) => (
+            <option key={tipoProducto} value={tipoProducto}>
+              {tipoProducto}
             </option>
-            {Object.values(ITipoProducto).map((tipoProducto) => (
-              <option key={tipoProducto} value={tipoProducto}>
-                {tipoProducto}
-              </option>
-            ))}
-          </select>
-          <div>
-            <button
-              onClick={() => {
-                close();
-                setProductoActivo(null);
-              }}
-              className={styles.buttonConcelar}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              Crear
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+          ))}
+        </select>
+
+        {/* Botones Cancelar y Guardar */}
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              close();
+              setProductoActivo(null);
+            }}
+            className={styles.buttonConcelar}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className={styles.buttonSubmit}>
+            {producto ? "Editar" : "Crear"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

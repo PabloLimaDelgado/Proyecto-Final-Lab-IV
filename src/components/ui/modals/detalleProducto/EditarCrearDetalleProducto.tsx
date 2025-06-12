@@ -3,325 +3,346 @@ import { IDetalle } from "../../../../types/IDetalle";
 import { ITalle } from "../../../../types/ITalle";
 import { IPrecio } from "../../../../types/IPrecio";
 import { IProducto } from "../../../../types/IProducto";
+import { IDescuento } from "../../../../types/IDescuento";
 import styles from "./editarCrearDetalleProducto.module.css";
+
+// Stores
 import { talleStore } from "../../../../store/talleStore";
 import { detalleProductoStore } from "../../../../store/detalleProductoStore";
 import { precioStore } from "../../../../store/precioStore";
 import { productoStore } from "../../../../store/productoStore";
-import { IDescuento } from "../../../../types/IDescuento";
 import { descuentoStore } from "../../../../store/descuentoStore";
 
+import Swal from "sweetalert2";
+
+// Props del componente
 interface IEditarCrearDetalleProducto {
   close: () => void;
   producto: IProducto;
   detalleProducto?: IDetalle;
   precio?: IPrecio;
 }
+
 export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
   close,
   detalleProducto,
   precio,
   producto,
 }) => {
+  // Stores
   const { setArrayTalle, talles } = talleStore();
   const { postDetalle, updateDetalle, setDetalleActivo } =
     detalleProductoStore();
   const { postPrecio, updatePrecio, setPrecioActivo } = precioStore();
   const { setProductoActivo } = productoStore();
   const { setArrayDescuentos, descuentos } = descuentoStore();
+
+  // Carga inicial de talles y descuentos
   useEffect(() => {
-    const fetchTalle = async () => {
+    const fetchData = async () => {
       try {
-        const responseTalle: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/talle`
-        );
-        const data: ITalle[] = await responseTalle.json();
-        setArrayTalle(data);
+        const [resTalle, resDescuento] = await Promise.all([
+          fetch(`${import.meta.env.VITE_BASE_URL}/talle`),
+          fetch(`${import.meta.env.VITE_BASE_URL}/descuento`),
+        ]);
+
+        const dataTalle: ITalle[] = await resTalle.json();
+        const dataDescuento: IDescuento[] = await resDescuento.json();
+
+        setArrayTalle(dataTalle);
+        setArrayDescuentos(dataDescuento);
       } catch (error) {
-        console.error(error);
+        console.error("Error al cargar datos iniciales", error);
       }
     };
 
-    const fetchDescuento = async () => {
-      try {
-        const responseDescuento: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/descuento`
-        );
-        const data: IDescuento[] = await responseDescuento.json();
-        setArrayDescuentos(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchTalle();
-    fetchDescuento();
+    fetchData();
   }, []);
 
+  // Valores iniciales
   const emptyTalle: ITalle = { talle: "", estado: true };
-
-  const initialFormDetalle: IDetalle = {
-    id: detalleProducto ? detalleProducto.id : undefined,
-    talle: detalleProducto ? detalleProducto.talle : emptyTalle,
-    estado: true,
-    color: detalleProducto ? detalleProducto.color : "",
-    producto: detalleProducto ? detalleProducto.producto : producto,
-    stock: detalleProducto ? detalleProducto.stock : "",
-    imagenList: detalleProducto ? detalleProducto.imagenList : [],
-  };
-
-  const [valuesDetalle, setValuesDetalle] =
-    useState<IDetalle>(initialFormDetalle);
-
-  const initialFormPrecio: IPrecio = {
-    id: precio ? precio.id : undefined,
-    precioVenta: precio ? precio.precioVenta : "",
-    precioCompra: precio ? precio.precioCompra : "",
-    detalle: precio?.detalle ? precio.detalle : initialFormDetalle,
+  const emptyPrecio: IPrecio = {
+    precioVenta: 0,
+    precioCompra: 0,
     estado: true,
   };
 
-  const [valuesPrecio, setValuesPrecio] = useState<IPrecio>(initialFormPrecio);
+  const [valuesDetalle, setValuesDetalle] = useState<IDetalle>({
+    id: detalleProducto?.id,
+    talle: detalleProducto?.talle ?? emptyTalle,
+    estado: true,
+    color: detalleProducto?.color ?? "",
+    producto: detalleProducto?.producto ?? producto,
+    stock: detalleProducto?.stock ?? "",
+    imagenList: detalleProducto?.imagenList ?? [],
+    precioDTO: detalleProducto?.precioDTO ?? emptyPrecio,
+  });
 
+  const [valuesPrecio, setValuesPrecio] = useState<IPrecio>({
+    id: detalleProducto?.precioDTO.id,
+    precioVenta: precio?.precioVenta ?? "",
+    precioCompra: precio?.precioCompra ?? "",
+    estado: true,
+    descuento: precio?.descuento,
+  });
+
+  // Manejo de cambios en el formulario del detalle
   const handleChangeDetalle = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
+    const { name, value } = e.target;
 
-    setValuesDetalle((prev) => {
-      if (name === "talle") {
-        const talleSeleccionado = talles?.find(
-          (talle) => talle.talle === value
-        );
-        return { ...prev, talle: talleSeleccionado ?? emptyTalle };
-      }
-      return { ...prev, [name]: value };
-    });
+    setValuesDetalle((prev) => ({
+      ...prev,
+      ...(name === "talle"
+        ? { talle: talles?.find((t) => t.talle === value) ?? emptyTalle }
+        : { [name]: value }),
+    }));
   };
 
+  // Manejo de cambios en el formulario del precio
   const handleChangePrecio = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = event.target;
-    setValuesPrecio((prev) => {
-      if (name === "descuento") {
-        const descuentoSeleccionado = descuentos.find(
-          (descuento) => String(descuento.descuento) === value
-        );
-        return { ...prev, descuento: descuentoSeleccionado ?? undefined };
-      }
-      return { ...prev, [name]: value };
-    });
+    const { name, value } = e.target;
+
+    setValuesPrecio((prev) => ({
+      ...prev,
+      ...(name === "descuento"
+        ? { descuento: descuentos.find((d) => String(d.id) === value) }
+        : { [name]: value }),
+    }));
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // Envío del formulario
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    if (detalleProducto && precio) {
-      const detalleEditado: IDetalle = {
-        id: detalleProducto.id,
-        talle: valuesDetalle.talle,
-        estado: true,
-        color: valuesDetalle.color,
-        producto: detalleProducto.producto,
-        imagenList: detalleProducto.imagenList,
-        stock: Number(valuesDetalle.stock),
-      };
+    // Validaciones
+    const fieldsValid =
+      valuesDetalle.color.trim() !== "" &&
+      valuesDetalle.talle &&
+      !isNaN(Number(valuesDetalle.stock)) &&
+      !isNaN(Number(valuesPrecio.precioVenta)) &&
+      !isNaN(Number(valuesPrecio.precioCompra));
 
-      const token = localStorage.getItem("token");
+    if (!fieldsValid) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos inválidos",
+        text: "Por favor complete todos los campos correctamente.",
+      });
+      return;
+    }
 
-      const responseDetalle: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/detalle/update`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(detalleEditado),
-        }
-      );
+    const token = localStorage.getItem("token");
 
-      const detalleGuardado: IDetalle = await responseDetalle.json();
-      if (!responseDetalle.ok) throw new Error("Error al crear detalle");
+    try {
+      if (detalleProducto && precio) {
+        // EDICIÓN
+        const precioEditado: IPrecio = {
+          id: precio.id,
+          precioVenta: Number(valuesPrecio.precioVenta),
+          precioCompra: Number(valuesPrecio.precioCompra),
+          estado: true,
+          descuento: valuesPrecio.descuento,
+        };
 
-      const precioEditado: IPrecio = {
-        id: precio.id,
-        precioVenta: Number(valuesPrecio.precioVenta),
-        precioCompra: Number(valuesPrecio.precioCompra),
-        detalle: detalleGuardado,
-        estado: true,
-        descuento: valuesPrecio.descuento,
-      };
+        console.log(precioEditado);
 
-      console.log(precioEditado);
-
-      const responsePrecio: Response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/precio/${precioEditado.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(precioEditado),
-        }
-      );
-
-      const precioGuardado: IPrecio = await responsePrecio.json();
-      if (!responsePrecio.ok) throw new Error("Error al crear precio");
-
-      updateDetalle(detalleGuardado);
-      updatePrecio(precioGuardado);
-    } else {
-      try {
-        const detalleCreado: IDetalle = {
+        const detalleEditado = {
+          id: detalleProducto.id,
           talle: valuesDetalle.talle,
           estado: true,
           color: valuesDetalle.color,
-          producto: initialFormDetalle.producto,
-          imagenList: [],
+          producto: detalleProducto.producto,
+          imagenList: detalleProducto.imagenList,
           stock: Number(valuesDetalle.stock),
+          precio: precioEditado, // Cambié precioDTO a precio para coincidir con el backend
         };
 
-        const token = localStorage.getItem("token");
-
-        const responseDetalle: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle/post`,
+        const responseDetalle = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/detalle/${detalleEditado.id}`,
           {
-            method: "POST",
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(detalleCreado),
+            body: JSON.stringify(detalleEditado),
           }
         );
+
+        if (!responseDetalle.ok) throw new Error(await responseDetalle.text());
 
         const detalleGuardado: IDetalle = await responseDetalle.json();
-        if (!responseDetalle.ok) throw new Error("Error al crear detalle");
 
-        const precioCreado: IPrecio = {
+        console.log(detalleGuardado);
+
+        updateDetalle(detalleGuardado);
+        updatePrecio(precioEditado);
+
+        Swal.fire({
+          icon: "success",
+          title: "Detalle actualizado",
+          text: "El detalle y precio se actualizaron correctamente.",
+        });
+      } else {
+        // CREACIÓN
+        const precioNuevo: IPrecio = {
           precioVenta: Number(valuesPrecio.precioVenta),
           precioCompra: Number(valuesPrecio.precioCompra),
-          detalle: detalleGuardado,
           estado: true,
-          descuento: null,
+          descuento: valuesPrecio.descuento ?? null,
         };
 
-        const responsePrecio: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/precio`,
+        const detalleNuevo: IDetalle = {
+          talle: valuesDetalle.talle,
+          estado: true,
+          color: valuesDetalle.color,
+          producto: valuesDetalle.producto,
+          imagenList: [],
+          stock: Number(valuesDetalle.stock),
+          precioDTO: precioNuevo,
+        };
+
+        const detalleParaBackend = { ...detalleNuevo, precio: precioNuevo };
+
+        const responseDetalle = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/detalle`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify(precioCreado),
+            body: JSON.stringify(detalleParaBackend),
           }
         );
 
-        const precioGuardado: IPrecio = await responsePrecio.json();
-        if (!responsePrecio.ok) throw new Error("Error al crear precio");
+        if (!responseDetalle.ok) throw new Error(await responseDetalle.text());
 
-        postDetalle(detalleGuardado);
-        postPrecio(precioGuardado);
-      } catch (error) {
-        console.error("Error en crear precio / producto", error);
+        const detalleCreado: IDetalle = await responseDetalle.json();
+
+        postDetalle(detalleCreado);
+        postPrecio(precioNuevo);
+
+        Swal.fire({
+          icon: "success",
+          title: "Detalle creado",
+          text: "El detalle y precio se guardaron correctamente.",
+        });
       }
-    }
 
-    setDetalleActivo(null);
-    setPrecioActivo(null);
-    close();
+      // Reset de estados
+      setDetalleActivo(null);
+      setPrecioActivo(null);
+      setProductoActivo(null);
+      close();
+    } catch (error) {
+      console.error("Error en guardar detalle/precio", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo guardar el detalle. Verifique los datos e intente nuevamente.",
+      });
+    }
   };
 
   return (
-    <>
-      <div className={styles.formDetalleProductoContainer}>
-        <form className={styles.formDetalleProductoForm} onSubmit={onSubmit}>
-          <h1>{detalleProducto ? "Editar" : "Crear"} Detalle Producto</h1>
-          <input
-            type="text"
-            placeholder="Ingrese un color"
-            onChange={handleChangeDetalle}
-            value={valuesDetalle.color}
-            name="color"
-          />
-          <input
-            type="number"
-            placeholder="Stock"
-            onChange={handleChangeDetalle}
-            value={valuesDetalle.stock}
-            name="stock"
-          />
-          <select
-            name="talle"
-            defaultValue=""
-            value={valuesDetalle.talle.talle}
-            onChange={handleChangeDetalle}
-          >
-            <option value="" disabled hidden>
-              Seleccione un Talle
-            </option>
-            {talles &&
-              talles.map((talle) => (
-                <option key={talle.id} value={talle.talle}>
-                  {talle.talle}
-                </option>
-              ))}
-          </select>
+    <div className={styles.formDetalleProductoContainer}>
+      <form className={styles.formDetalleProductoForm} onSubmit={onSubmit}>
+        <h1>{detalleProducto ? "Editar" : "Crear"} Detalle Producto</h1>
 
-          <select
-            name="descuento"
-            defaultValue=""
-            value={
-              valuesPrecio.descuento ? valuesPrecio.descuento.descuento : ""
-            }
-            onChange={handleChangePrecio}
-          >
-            <option value="" disabled hidden>
-              Seleccione un Descuento
+        <input
+          type="text"
+          name="color"
+          placeholder="Ingrese un color"
+          value={valuesDetalle.color}
+          onChange={handleChangeDetalle}
+        />
+
+        <input
+          type="number"
+          name="stock"
+          placeholder="Stock"
+          value={valuesDetalle.stock}
+          onChange={handleChangeDetalle}
+        />
+
+        <select
+          name="talle"
+          value={valuesDetalle.talle.talle || ""}
+          onChange={handleChangeDetalle}
+        >
+          <option value="" disabled hidden>
+            Seleccione un Talle
+          </option>
+          {talles?.map((t) => (
+            <option key={t.id} value={t.talle}>
+              {t.talle}
             </option>
-            {descuentos &&
-              descuentos.map((descuento) => (
-                <option key={descuento.id} value={descuento.descuento}>
-                  {descuento.descuento}
-                </option>
-              ))}
-          </select>
-          <input
-            type="number"
-            placeholder="Ingrese precio venta"
-            value={valuesPrecio.precioVenta ?? ""}
-            onChange={handleChangePrecio}
-            name="precioVenta"
-          />
-          <input
-            type="number"
-            placeholder="Ingrese precio compra"
-            onChange={handleChangePrecio}
-            value={valuesPrecio.precioCompra ?? ""}
-            name="precioCompra"
-          />
-          <div>
-            <button
-              onClick={() => {
-                close();
-                setDetalleActivo(null);
-                setPrecioActivo(null);
-                setProductoActivo(null);
-              }}
-              className={styles.buttonConcelar}
-            >
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              {detalleProducto ? "Editar" : "Crear"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+          ))}
+        </select>
+
+        <select
+          name="descuento"
+          value={valuesPrecio.descuento?.id?.toString() ?? ""}
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            const selectedDescuento = descuentos.find(
+              (d) => d.id && d.id.toString() === selectedId
+            );
+            setValuesPrecio((prev) => ({
+              ...prev,
+              descuento: selectedId === "" ? null : selectedDescuento ?? null,
+            }));
+          }}
+        >
+          <option value="">Sin descuento</option>{" "}
+          {/* Opción para dejarlo en null */}
+          {descuentos.map((d) => (
+            <option key={d.id} value={String(d.id)}>
+              {d.descuento}%
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="number"
+          name="precioVenta"
+          placeholder="Ingrese precio venta"
+          value={valuesPrecio.precioVenta}
+          onChange={handleChangePrecio}
+        />
+
+        <input
+          type="number"
+          name="precioCompra"
+          placeholder="Ingrese precio compra"
+          value={Number(valuesPrecio.precioCompra)}
+          onChange={handleChangePrecio}
+        />
+
+        <div>
+          <button
+            type="button"
+            className={styles.buttonConcelar}
+            onClick={() => {
+              setDetalleActivo(null);
+              setPrecioActivo(null);
+              setProductoActivo(null);
+              close();
+            }}
+          >
+            Cancelar
+          </button>
+
+          <button type="submit" className={styles.buttonSubmit}>
+            {detalleProducto ? "Editar" : "Crear"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

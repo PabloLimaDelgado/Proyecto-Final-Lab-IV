@@ -1,4 +1,4 @@
-import { IRol } from "./enums/IRol.";
+import { IRol } from "./enums/IRol";
 import { IDireccion } from "./IDireccion";
 
 export interface IUsuario {
@@ -8,6 +8,6 @@ export interface IUsuario {
   estado: boolean;
   rol: IRol;
   mail: string;
-  direcciones: IDireccion[];
-  token: string;
+  direcciones?: IDireccion[];
+  token?: string;
 }

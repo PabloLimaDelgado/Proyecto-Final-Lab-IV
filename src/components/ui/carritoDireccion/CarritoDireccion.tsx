@@ -17,6 +17,7 @@ export const CarritoDireccion: FC<ICarritoDireccion> = ({
         type="text"
         placeholder="Ingrese un país"
         name="pais"
+        required = {true}
         value={values.pais}
         onChange={onChange}
       />
@@ -25,12 +26,14 @@ export const CarritoDireccion: FC<ICarritoDireccion> = ({
         placeholder="Ingrese una provincia"
         name="provincia"
         value={values.provincia}
+        required = {true}
         onChange={onChange}
       />
       <input
         type="text"
         placeholder="Ingrese un departamento"
         name="departamento"
+        required = {true}
         value={values.departamento}
         onChange={onChange}
       />
@@ -38,6 +41,7 @@ export const CarritoDireccion: FC<ICarritoDireccion> = ({
         type="text"
         placeholder="Ingrese un código postal"
         name="codigoPostal"
+        required = {true}
         value={values.codigoPostal}
         onChange={onChange}
       />
@@ -45,6 +49,7 @@ export const CarritoDireccion: FC<ICarritoDireccion> = ({
         type="text"
         placeholder="Ingrese una localidad"
         name="localidad"
+        required = {true}
         value={values.localidad}
         onChange={onChange}
       />

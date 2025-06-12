@@ -2,18 +2,24 @@ import { ChangeEvent, FC, FormEvent, useState } from "react";
 import { ICategoria } from "../../../../types/ICategoria";
 import styles from "./crearCategorias.module.css";
 import { categoriaStore } from "../../../../store/categoriaStore";
+import Swal from "sweetalert2";
+
 interface ICrearCategorias {
   close: () => void;
 }
 
 export const CrearCategorias: FC<ICrearCategorias> = ({ close }) => {
+
+  /*ZUSTAND*/
+  const { postCategoria } = categoriaStore();
+
+  /*FORM*/
   const initialForm: ICategoria = {
     estado: true,
     nombre: "",
   };
 
   const [values, setValues] = useState<ICategoria>(initialForm);
-  const { postCategoria } = categoriaStore();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = event.target;
@@ -27,9 +33,18 @@ export const CrearCategorias: FC<ICrearCategorias> = ({ close }) => {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!values.nombre.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Campo vacío",
+        text: "Por favor ingrese un nombre de categoría.",
+      });
+      return;
+    }
+
     const categoria: ICategoria = {
       estado: initialForm.estado,
-      nombre: values.nombre,
+      nombre: values.nombre.trim(),
     };
 
     try {
@@ -46,38 +61,60 @@ export const CrearCategorias: FC<ICrearCategorias> = ({ close }) => {
           body: JSON.stringify(categoria),
         }
       );
-      const data: ICategoria = await response.json();
-      postCategoria(data);
-    } catch (error) {
-      console.error("Error en crear categoria", error);
-    }
 
-    resetForm();
-    close();
+      if (!response.ok) {
+        throw new Error("No se pudo crear la categoría");
+      }
+
+      const data: ICategoria = await response.json();
+
+      postCategoria(data);
+
+      Swal.fire({
+        icon: "success",
+        title: "Categoría creada",
+        text: `La categoría "${data.nombre}" se creó correctamente.`,
+      });
+
+      resetForm();
+      close();
+    } catch (error) {
+      console.error("Error en crear categoría", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error al crear la categoría.",
+      });
+    }
   };
 
   return (
-    <>
-      <div className={styles.formCategoriaContainer}>
-        <form onSubmit={onSubmit} className={styles.formCategoriaForm}>
-          <h1>Crear Categoria</h1>
-          <input
-            type="text"
-            placeholder="Ingrese una categoria"
-            onChange={handleChange}
-            value={values.nombre}
-            name="nombre"
-          />
-          <div>
-            <button onClick={() => close()} className={styles.buttonConcelar}>
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              Crear
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+    <div className={styles.formCategoriaContainer}>
+      <form onSubmit={onSubmit} className={styles.formCategoriaForm}>
+        <h1>Crear Categoría</h1>
+
+        <input
+          type="text"
+          placeholder="Ingrese una categoría"
+          onChange={handleChange}
+          value={values.nombre}
+          name="nombre"
+          aria-label="Nombre de la categoría"
+        />
+
+        <div>
+          <button
+            type="button"
+            onClick={close}
+            className={styles.buttonConcelar}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className={styles.buttonSubmit}>
+            Crear
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

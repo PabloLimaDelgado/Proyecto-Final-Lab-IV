@@ -3,7 +3,8 @@ import styles from "./registrarse.module.css";
 import { IUsuario } from "../../../types/IUsuario";
 import { usuarioStore } from "../../../store/usuarioStore";
 import { useNavigate } from "react-router-dom";
-import { IRol } from "../../../types/enums/IRol.";
+import { IRol } from "../../../types/enums/IRol";
+import Swal from "sweetalert2";
 
 interface IRegistrarse {
   handleIniciarSesion: () => void;
@@ -33,6 +34,41 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const dniRegex = /^\d+$/;
+
+    if (
+      !values.nombre.trim() ||
+      !values.mail.trim() ||
+      !values.dni.trim() ||
+      !values.password.trim()
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "Campos requeridos",
+        text: "Por favor complete todos los campos obligatorios.",
+      });
+      return;
+    }
+
+    if (!emailRegex.test(values.mail)) {
+      Swal.fire({
+        icon: "error",
+        title: "Email inválido",
+        text: "Por favor ingrese un email válido.",
+      });
+      return;
+    }
+
+    if (!dniRegex.test(values.dni)) {
+      Swal.fire({
+        icon: "error",
+        title: "DNI inválido",
+        text: "El DNI debe contener solo números.",
+      });
+      return;
+    }
+
     const usuarioCreado: IUsuario = {
       nombre: values.nombre,
       password: values.password,
@@ -54,22 +90,39 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
           body: JSON.stringify(usuarioCreado),
         }
       );
+
+      if (!responseUsuario.ok) {
+        const errorText = await responseUsuario.text();
+        throw new Error(errorText);
+      }
+
       const data: IUsuario = await responseUsuario.json();
 
-      console.log(data);
-
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+      if ((data as any).token) {
+        localStorage.setItem("token", (data as any).token);
       }
 
       postusuario(data);
       setUsuarioActivo(data);
       localStorage.setItem("usuarioActivo", JSON.stringify(data));
+
+      Swal.fire({
+        icon: "success",
+        title: "Usuario creado",
+        text: "Se registró el usuario correctamente.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      navigate("/vistaLanding");
     } catch (error) {
       console.error("Error en crear usuario", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error al crear el usuario",
+        text: "Verifique los datos ingresados o intente más tarde.",
+      });
     }
-
-    navigate("/vistaLanding");
   };
 
   return (
@@ -78,36 +131,47 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
       <span className="material-symbols-outlined">account_circle</span>
       <form onSubmit={onSubmit}>
         <input
+          id="nombre"
           type="text"
           placeholder="Nombre y apellido"
           value={values.nombre}
           onChange={handleChange}
           name="nombre"
         />
+
         <input
+          id="dni"
           type="text"
           placeholder="DNI"
           value={values.dni}
           onChange={handleChange}
           name="dni"
+          maxLength={8}
         />
+
         <input
-          type="text"
+          id="password"
+          type="password"
           placeholder="Contraseña"
           value={values.password}
           onChange={handleChange}
           name="password"
         />
+
         <input
+          id="mail"
           type="text"
           placeholder="Mail"
           value={values.mail}
           onChange={handleChange}
           name="mail"
         />
+
         <div>
           <button type="submit">Crear Usuario</button>
-          <button onClick={handleIniciarSesion}>Iniciar Sesion</button>
+          <button type="button" onClick={handleIniciarSesion}>
+            Iniciar Sesion
+          </button>
         </div>
       </form>
     </main>

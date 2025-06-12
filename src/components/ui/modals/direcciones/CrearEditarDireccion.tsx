@@ -3,12 +3,14 @@ import { IDireccion } from "../../../../types/IDireccion";
 import { IUsuario } from "../../../../types/IUsuario";
 import styles from "./crearEditarDireccion.module.css";
 import { usuarioStore } from "../../../../store/usuarioStore";
+import Swal from "sweetalert2";
 
 interface ICrearEditarDireccion {
-  close: () => void;
-  direccion?: IDireccion;
-  usuario: IUsuario;
+  close: () => void; // Función para cerrar el modal o componente
+  direccion?: IDireccion; // Si existe, se edita. Si no, se crea una nueva.
+  usuario: IUsuario; // Usuario actual, para actualizar sus direcciones
 }
+
 export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
   close,
   direccion,
@@ -16,6 +18,7 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
 }) => {
   const { updateUsuario, setUsuarioActivo } = usuarioStore();
 
+  // Estado inicial del formulario. Si viene una dirección, se usa para edición.
   const initialForm: IDireccion = {
     localidad: direccion ? direccion.localidad : "",
     estado: direccion ? direccion.estado : true,
@@ -23,37 +26,54 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
     provincia: direccion ? direccion.provincia : "",
     departamento: direccion ? direccion.departamento : "",
     codigoPostal: direccion ? direccion.codigoPostal : "",
-    usuarios: direccion ? direccion.usuarios : [],
+    usuarios: direccion ? [...(direccion.usuarios ?? [])] : [], // Se clona el array por precaución
   };
 
   const [values, setValues] = useState<IDireccion>(initialForm);
 
+  // Manejador de cambios de inputs
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
     setValues((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Manejador de envío del formulario
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (direccion) {
-      const direccionEditada: IDireccion = {
-        id: direccion.id,
-        localidad: values.localidad,
-        estado: true,
-        pais: values.pais,
-        provincia: values.provincia,
-        departamento: values.departamento,
-        codigoPostal: values.codigoPostal,
-        usuarios: direccion.usuarios,
-      };
+    // Validación de campos requeridos
+    if (
+      !values.localidad ||
+      !values.pais ||
+      !values.provincia ||
+      !values.departamento ||
+      !values.codigoPostal
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Campos incompletos",
+        text: "Por favor, complete todos los campos de la dirección.",
+      });
+      return;
+    }
 
-      console.log(direccionEditada);
+    const token = localStorage.getItem("token");
 
-      try {
-        const token = localStorage.getItem("token");
+    try {
+      if (direccion) {
+        // Si se está editando una dirección existente
+        const direccionEditada: IDireccion = {
+          id: direccion.id,
+          localidad: values.localidad,
+          estado: true,
+          pais: values.pais,
+          provincia: values.provincia,
+          departamento: values.departamento,
+          codigoPostal: values.codigoPostal,
+          usuarios: direccion ? [...(direccion.usuarios ?? [])] : [], // Clon defensivo
+        };
 
-        const responseDireccion: Response = await fetch(
+        const response = await fetch(
           `${import.meta.env.VITE_BASE_URL}/direccion/${direccion.id}`,
           {
             method: "PUT",
@@ -65,37 +85,42 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
           }
         );
 
-        const data: IDireccion = await responseDireccion.json();
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
+        const data: IDireccion = await response.json();
+
+        // Se reemplaza la dirección editada en la lista del usuario
         const usuarioActualizado: IUsuario = {
           ...usuario,
-          direcciones: usuario.direcciones.map((direccion) =>
-            direccion.id === data.id ? data : direccion
+          direcciones: usuario.direcciones?.map((d) =>
+            d.id === data.id ? data : d
           ),
         };
 
         updateUsuario(usuarioActualizado);
         setUsuarioActivo(usuarioActualizado);
-      } catch (error) {
-        console.error("Error en editarla direccion del usuario", error);
-      }
-    } else {
-      const direccionCreada: IDireccion = {
-        localidad: values.localidad,
-        estado: initialForm.estado,
-        pais: values.pais,
-        provincia: values.provincia,
-        departamento: values.departamento,
-        codigoPostal: values.codigoPostal,
-        usuarios: [{ id: usuario.id } as any], // ⚠️ solo id, hack para el backend
-      };
 
-      try {
-        const token = localStorage.getItem("token");
-        
-        console.log(direccionCreada);
+        Swal.fire({
+          icon: "success",
+          title: "Dirección actualizada",
+          text: "La dirección fue editada correctamente.",
+        });
+      } else {
+        // Si se está creando una nueva dirección
+        const direccionCreada: IDireccion = {
+          localidad: values.localidad,
+          estado: true,
+          pais: values.pais,
+          provincia: values.provincia,
+          departamento: values.departamento,
+          codigoPostal: values.codigoPostal,
+        };
 
-        const responseDireccion: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/direccion`,
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/direccion/post`,
           {
             method: "POST",
             headers: {
@@ -106,73 +131,105 @@ export const CrearEditarDireccion: FC<ICrearEditarDireccion> = ({
           }
         );
 
-        const data: IDireccion = await responseDireccion.json();
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(errorText);
+        }
+
+        const data: IDireccion = await response.json();
 
         const usuarioActualizado: IUsuario = {
           ...usuario,
-          direcciones: [...usuario.direcciones, data],
+          direcciones:
+            usuario.direcciones && usuario.direcciones.length > 0
+              ? [...usuario.direcciones, data]
+              : [data],
         };
 
         updateUsuario(usuarioActualizado);
         setUsuarioActivo(usuarioActualizado);
-      } catch (error) {
-        console.error("Error en añadir direccion a usuario", error);
-      }
-    }
 
-    close();
+        // Se guarda en localStorage solo al crear (puede omitirse si no hace falta)
+        localStorage.setItem(
+          "usuarioActivo",
+          JSON.stringify(usuarioActualizado)
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Dirección guardada",
+          text: "La nueva dirección fue añadida correctamente.",
+        });
+      }
+
+      // Cierra el modal o formulario al terminar
+      close();
+    } catch (error) {
+      console.error("Error en la operación de dirección", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un problema al guardar la dirección. Inténtelo de nuevo.",
+      });
+    }
   };
 
   return (
-    <>
-      <div className={styles.formDireccionesContainer}>
-        <form onSubmit={onSubmit} className={styles.formDirecciones}>
-          <h1>{direccion ? "Editar" : "Crear"} direccion</h1>
-          <input
-            type="text"
-            placeholder="Ingrese un pais"
-            onChange={handleChange}
-            value={values.pais}
-            name="pais"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese una provincia"
-            onChange={handleChange}
-            value={values.provincia}
-            name="provincia"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese un departamento"
-            onChange={handleChange}
-            value={values.departamento}
-            name="departamento"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese un codigo postal"
-            onChange={handleChange}
-            value={values.codigoPostal}
-            name="codigoPostal"
-          />
-          <input
-            type="text"
-            placeholder="Ingrese una localidad"
-            onChange={handleChange}
-            value={values.localidad}
-            name="localidad"
-          />
-          <div>
-            <button onClick={() => close()} className={styles.buttonConcelar}>
-              Cancelar
-            </button>
-            <button type="submit" className={styles.buttonSubmit}>
-              {direccion ? "Editar" : "Crear"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </>
+    <div className={styles.formDireccionesContainer}>
+      <form onSubmit={onSubmit} className={styles.formDirecciones}>
+        <h1>{direccion ? "Editar" : "Crear"} dirección</h1>
+
+        {/* Inputs controlados */}
+        <input
+          type="text"
+          placeholder="Ingrese un país"
+          onChange={handleChange}
+          value={values.pais}
+          name="pais"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese una provincia"
+          onChange={handleChange}
+          value={values.provincia}
+          name="provincia"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese un departamento"
+          onChange={handleChange}
+          value={values.departamento}
+          name="departamento"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese un código postal"
+          onChange={handleChange}
+          value={values.codigoPostal}
+          name="codigoPostal"
+        />
+        <input
+          type="text"
+          placeholder="Ingrese una localidad"
+          onChange={handleChange}
+          value={values.localidad}
+          name="localidad"
+        />
+
+        {/* Botones */}
+        <div>
+          <button
+            type="button" // Evita que dispare un submit
+            onClick={close}
+            className={styles.buttonConcelar}
+          >
+            Cancelar
+          </button>
+          <button type="submit" className={styles.buttonSubmit}>
+            {direccion ? "Editar" : "Crear"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };

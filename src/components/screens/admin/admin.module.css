@@ -3,4 +3,55 @@
   flex-direction: row;
   width: 100vw;
   min-height: 100vh;
+  position: relative;
+}
+
+.divLanding {
+  position: absolute;
+  top: 0;
+  right: 0; /* <-- Este es el cambio importante */
+  margin: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.divLanding button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  overflow: hidden;
+}
+
+.divLanding button span {
+  overflow: hidden;
+}
+
+.crearUsuarioAdmin {
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.crearUsuarioAdmin button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  overflow: hidden;
+}
+
+.crearUsuarioAdmin button span {
+  overflow: hidden;
+}
+
+.crearUsuarioAdmin h3 {
+  font-size: 0.8rem;
+}
+
+.crearUsuarioAdmin button:hover {
+  cursor: pointer;
 }

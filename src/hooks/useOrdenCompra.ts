@@ -12,7 +12,10 @@ export const useOrdenCompra = () => {
     direccion: IDireccion,
     usarDireccionUsuario: boolean
   ) => {
-    const detallesAgrupados: Record<number, { detalle: IDetalle; cantidad: number }> = {};
+    const detallesAgrupados: Record<
+      number,
+      { detalle: IDetalle; cantidad: number }
+    > = {};
 
     carritoActivo?.detallesProductos.forEach((detalle) => {
       if (!detalle.id) return;
@@ -23,25 +26,27 @@ export const useOrdenCompra = () => {
         detallesAgrupados[detalle.id] = { detalle, cantidad: 1 };
       }
     });
-    const detallesParaPayload: IDetallePost = Object.values(detallesAgrupados).map(({ detalle, cantidad }) => ({
-      detalle: { id: detalle.id },
+    const detallesParaPayload: IDetallePost[] = Object.values(
+      detallesAgrupados
+    ).map(({ detalle, cantidad }) => ({
+      detalle: { id: detalle.id! },
       cantidad,
     }));
-    let ordenPayload: IOrdenPost;  
-    if(usarDireccionUsuario && direccion.id){
-     ordenPayload = {
-      direccion: { id: direccion.id  },
-      direccionUsuario: usarDireccionUsuario,
-      detalles: detallesParaPayload,
-      estado: true,
-    };
-    }else{
-       ordenPayload = {
+    let ordenPayload: IOrdenPost;
+    if (usarDireccionUsuario && direccion.id) {
+      ordenPayload = {
+        direccion: { id: direccion.id },
+        direccionUsuario: usarDireccionUsuario,
+        detalles: detallesParaPayload,
+        estado: true,
+      };
+    } else {
+      ordenPayload = {
         direccion: direccion,
         direccionUsuario: usarDireccionUsuario,
         detalles: detallesParaPayload,
-        estado:true
-      }
+        estado: true,
+      };
     }
 
     console.log(detallesAgrupados);
@@ -79,7 +84,6 @@ export const useOrdenCompra = () => {
       console.error("Error creando OrdenCompra:", err);
       return; // termina función si falla la orden principal
     }
-
   };
 
   return { añadirOrden };

@@ -29,17 +29,17 @@ export const Carrito = () => {
   const { añadirOrden } = useOrdenCompra();
   const [usarDireccionNueva, setUsarDireccionNueva] = useState(false);
   const [nuevaDireccion, setNuevaDireccion] = useState<IDireccion>({
-  localidad: "",
-  pais: "",
-  estado:true,
-  provincia: "",
-  departamento: "",
-  codigoPostal: "",
+    localidad: "",
+    pais: "",
+    estado: true,
+    provincia: "",
+    departamento: "",
+    codigoPostal: "",
   });
   const handleDireccionChange = (e: ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
-  setNuevaDireccion((prev) => ({ ...prev, [name]: value }));
-};
+    const { name, value } = e.target;
+    setNuevaDireccion((prev) => ({ ...prev, [name]: value }));
+  };
 
   /*USE STATE*/
   const [medioPagoSeleccionado, setMedioPagoSeleccionado] =
@@ -81,7 +81,7 @@ export const Carrito = () => {
 
   /*FUNCION PARA MANEJAR LA COMPRA*/
   const handleComprar = async () => {
- /*   if (!usuarioActivo || !direccionActiva) {
+    /*   if (!usuarioActivo || !direccionActiva) {
       Swal.fire({
         title: "Error",
         text: "Por favor, selecciona una dirección antes de comprar.",
@@ -100,7 +100,7 @@ export const Carrito = () => {
       });
       return;
         }*/
-      if (
+    if (
       usarDireccionNueva &&
       nuevaDireccion &&
       nuevaDireccion.pais !== "" &&
@@ -110,8 +110,57 @@ export const Carrito = () => {
       nuevaDireccion.localidad !== ""
     ) {
       await añadirOrden(nuevaDireccion, false);
+
+      const diasEntrega = Math.floor(Math.random() * 5) + 2;
+
+      Swal.fire({
+        title: "¡Compra realizada!",
+        text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
+        confirmButtonText: "Aceptar",
+        customClass: {
+          popup: "swal-custom-popup",
+          icon: "swal-custom-icon",
+          title: "swal-custom-title",
+          confirmButton: "swal-custom-button",
+        },
+      });
+
+      const carritoVacio: ICarrito = {
+        ...carritoActivo!,
+        detallesProductos: [],
+      };
+
+      updateCarrito(carritoVacio);
+      setCarritoActivo(carritoVacio);
+      localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
+
+      handleNavigateLanding();
       return;
     } else if (direccionActiva && !usarDireccionNueva) {
+      const diasEntrega = Math.floor(Math.random() * 5) + 2;
+
+      Swal.fire({
+        title: "¡Compra realizada!",
+        text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
+        confirmButtonText: "Aceptar",
+        customClass: {
+          popup: "swal-custom-popup",
+          icon: "swal-custom-icon",
+          title: "swal-custom-title",
+          confirmButton: "swal-custom-button",
+        },
+      });
+
+      const carritoVacio: ICarrito = {
+        ...carritoActivo!,
+        detallesProductos: [],
+      };
+
+      updateCarrito(carritoVacio);
+      setCarritoActivo(carritoVacio);
+      localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
+
+      handleNavigateLanding();
       await añadirOrden(direccionActiva, true);
       return;
     } else {
@@ -122,32 +171,6 @@ export const Carrito = () => {
         confirmButtonText: "Aceptar",
       });
     }
-
-
-    const diasEntrega = Math.floor(Math.random() * 5) + 2;
-
-    Swal.fire({
-      title: "¡Compra realizada!",
-      text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
-      confirmButtonText: "Aceptar",
-      customClass: {
-        popup: "swal-custom-popup",
-        icon: "swal-custom-icon",
-        title: "swal-custom-title",
-        confirmButton: "swal-custom-button",
-      },
-    });
-
-    const carritoVacio: ICarrito = {
-      ...carritoActivo!,
-      detallesProductos: [],
-    };
-
-    updateCarrito(carritoVacio);
-    setCarritoActivo(carritoVacio);
-    localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
-
-    handleNavigateLanding();
   };
 
   return (
@@ -166,12 +189,12 @@ export const Carrito = () => {
           {carritoActivo &&
             detallesAgrupados.map(({ detalle, cantidad }) => (
               <div key={detalle.id} className={styles.productCard}>
-                {
-                  detalle.imagenList && detalle.imagenList.length > 0 ? (
-                    <img 
-                      src={detalle.imagenList[0].url} 
-                      alt={detalle.imagenList[0].alt || "Imagen del producto"}></img>) : null
-                }
+                {detalle.imagenList && detalle.imagenList.length > 0 ? (
+                  <img
+                    src={detalle.imagenList[0].url}
+                    alt={detalle.imagenList[0].alt || "Imagen del producto"}
+                  ></img>
+                ) : null}
                 <h2>Nombre: {detalle.producto.nombre}</h2>
                 <h2>Talle: {detalle.talle.talle}</h2>
                 <h2>Color: {detalle.color}</h2>
@@ -241,40 +264,39 @@ export const Carrito = () => {
           <div className={styles.direccionesUsuarios}>
             <div className={styles.divDireccion}>
               <label>
-              <input
-                type="checkbox"
-                checked={usarDireccionNueva}
-                onChange={() => setUsarDireccionNueva((prev) => !prev)}
-              />
-              Usar una nueva dirección
-            </label>
+                <input
+                  type="checkbox"
+                  checked={usarDireccionNueva}
+                  onChange={() => setUsarDireccionNueva((prev) => !prev)}
+                />
+                Usar una nueva dirección
+              </label>
 
-            {usarDireccionNueva ? (
-              <CarritoDireccion
-                values={nuevaDireccion}
-                onChange={handleDireccionChange}
-              />
-            ) : (
-              <>
-                <h2>Direcciones guardadas:</h2>
-                {usuarioActivo?.direcciones
-                  ?.filter((direccion) => direccion.estado !== false)
-                  .map((direccion) => (
-                    <label key={direccion.id}>
-                      <p>
-                        {direccion.departamento} - {direccion.localidad}
-                      </p>
-                      <input
-                        type="radio"
-                        name="direccion"
-                        checked={direccionActiva?.id === direccion.id}
-                        onChange={() => setDireccionActiva(direccion)}
-                      />
-                    </label>
-                  ))}
-              </>
-            )}
-              
+              {usarDireccionNueva ? (
+                <CarritoDireccion
+                  values={nuevaDireccion}
+                  onChange={handleDireccionChange}
+                />
+              ) : (
+                <>
+                  <h2>Direcciones guardadas:</h2>
+                  {usuarioActivo?.direcciones
+                    ?.filter((direccion) => direccion.estado !== false)
+                    .map((direccion) => (
+                      <label key={direccion.id}>
+                        <p>
+                          {direccion.departamento} - {direccion.localidad}
+                        </p>
+                        <input
+                          type="radio"
+                          name="direccion"
+                          checked={direccionActiva?.id === direccion.id}
+                          onChange={() => setDireccionActiva(direccion)}
+                        />
+                      </label>
+                    ))}
+                </>
+              )}
             </div>
             <select
               value={medioPagoSeleccionado}

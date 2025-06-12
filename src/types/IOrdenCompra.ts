@@ -1,4 +1,5 @@
 import { IDireccion } from "./IDireccion";
+import { IOrdenCompraDetalle } from "./IOrdenCompraDetalle";
 import { IUsuario } from "./IUsuario";
 
 export interface IOrdenCompra {
@@ -9,4 +10,5 @@ export interface IOrdenCompra {
   direccion: IDireccion;
   direccionUsuario: boolean;
   estado: boolean;
+  ordenCompraDetalles?: IOrdenCompraDetalle[];
 }

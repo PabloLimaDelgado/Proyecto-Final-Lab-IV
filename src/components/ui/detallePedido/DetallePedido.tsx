@@ -1,7 +1,5 @@
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { IOrdenCompraDetalle } from "../../../types/IOrdenCompraDetalle";
-import { precioStore } from "../../../store/precioStore";
-import { IPrecio } from "../../../types/IPrecio";
 import styles from "./detallePedido.module.css";
 import { IOrdenCompra } from "../../../types/IOrdenCompra";
 
@@ -16,25 +14,6 @@ export const DetallePedido: FC<IDetallePedido> = ({
   close,
   ordenCompra,
 }) => {
-  const { setArrayPrecio } = precioStore();
-
-  /* USE EFFECT */
-  useEffect(() => {
-    const fetchPrecio = async () => {
-      try {
-        const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/precio`
-        );
-        const data: IPrecio[] = await response.json();
-        setArrayPrecio(data);
-      } catch (error) {
-        console.log("Error al traer precios:", error);
-      }
-    };
-
-    fetchPrecio();
-  }, []);
-
   /* FUNCION PARA CALCULAR PRECIO FINAL CONSIDERANDO DESCUENTO VIGENTE */
   const calcularPrecioFinal = (detalle: IOrdenCompraDetalle): string => {
     const precioBase = detalle.detalle.precioDTO.precioVenta ?? 0;

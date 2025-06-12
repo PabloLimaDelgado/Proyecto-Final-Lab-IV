@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../../../images/logonegro.png";
 import styles from "./headerShop.module.css";
 import { FiltrosHeader } from "../filtrosHeader/FiltrosHeader";
 import { useNavigate } from "react-router-dom";
+import { carritoStore } from "../../../store/carritoStore";
 
 export const HeaderShop = () => {
   const [hoverShop, setHoverShop] = useState<boolean>(false);
@@ -46,6 +47,17 @@ export const HeaderShop = () => {
     navigate("/VistaCarrito");
   };
 
+  const { carritoActivo } = carritoStore();
+  let cantidadProductos = carritoActivo?.detallesProductos.length;
+
+  console.log(carritoActivo);
+
+  useEffect(() => {
+    if (carritoActivo) {
+      localStorage.setItem("carritoActivo", JSON.stringify(carritoActivo));
+    }
+  }, [carritoActivo]);
+
   return (
     <>
       <header className={styles.headerContainer}>
@@ -87,9 +99,14 @@ export const HeaderShop = () => {
               </div>
             )}
           </div>
-          <span className="material-symbols-outlined" onClick={handleCarrito}>
-            shopping_cart
-          </span>
+
+          <div className={styles.divCarrito}>
+            <span className="material-symbols-outlined" onClick={handleCarrito}>
+              shopping_cart
+            </span>
+
+            <p>{cantidadProductos}</p>
+          </div>
         </div>
       </header>
 

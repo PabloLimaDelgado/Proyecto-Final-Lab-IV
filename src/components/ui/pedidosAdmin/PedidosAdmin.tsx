@@ -23,7 +23,7 @@ export const PedidosAdmin = () => {
     ordenCompraActivo,
   } = ordenCompraStore();
 
-  const { setArrayOrdenCompraDetalle, ordenesCompraDetalle } =
+  const { setArrayOrdenCompraDetalle } =
     ordenCompraDetalleStore();
 
   // Carga inicial de datos de órdenes y detalles desde backend
@@ -42,6 +42,7 @@ export const PedidosAdmin = () => {
           }
         );
         const data: IOrdenCompra[] = await responseOrdenCompra.json();
+
         setArrayOrdenCompra(data);
       } catch (error) {
         console.log("Error en traer ordenes compra", error);
@@ -63,6 +64,7 @@ export const PedidosAdmin = () => {
         );
         const data: IOrdenCompraDetalle[] =
           await responseOrdenCompraDetalle.json();
+
         setArrayOrdenCompraDetalle(data);
       } catch (error) {
         console.log("Error en traer ordenes compra detalle", error);
@@ -123,6 +125,8 @@ export const PedidosAdmin = () => {
     paginaActual * ITEMS_POR_PAGINA
   );
 
+  console.log(ordenesComprasPaginado);
+
   return (
     <>
       <div className={styles.pedidosAdminContainer}>
@@ -179,15 +183,12 @@ export const PedidosAdmin = () => {
                 <h2>Fecha: {ordenCompra.fecha}</h2>
                 <button
                   onClick={() => {
-                    // Filtra los detalles que corresponden a la orden seleccionada
-                    const detallesPedido: IOrdenCompraDetalle[] =
-                      ordenesCompraDetalle.filter(
-                        (detalle) => detalle.ordenCompra.id === ordenCompra.id
-                      );
 
-                    setDetallesSeleccionados(detallesPedido);
-                    setOrdenCompraActivo(ordenCompra);
-                    handleVerDetallePedido();
+                    if (ordenCompra.ordenCompraDetalles) {
+                      setDetallesSeleccionados(ordenCompra.ordenCompraDetalles);
+                      setOrdenCompraActivo(ordenCompra);
+                      handleVerDetallePedido();
+                    }
                   }}
                   aria-label={`Ver detalles del pedido ${ordenCompra.id}`}
                 >

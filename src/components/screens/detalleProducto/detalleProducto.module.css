@@ -181,7 +181,7 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.carritoContainer button {
+.carritoContainerButton {
   margin: 0.4rem;
   padding: 0.5rem;
   font-family: "Bebas Neue", sans-serif;
@@ -191,8 +191,19 @@
   background-color: white;
 }
 
-.carritoContainer button:hover {
+.carritoContainerButton:hover {
   cursor: pointer;
+}
+
+.carritoContainerButtonSinStock {
+  background-color: #ccc;
+  color: #666;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  cursor: not-allowed;
+  transition: background-color 0.2s ease;
 }
 
 .liActivo {
@@ -211,7 +222,7 @@
   justify-content: center;
   width: 2vw;
   height: 2vw;
-  color:  black;
+  color: black;
   background-color: white;
   border: white;
   z-index: 999;

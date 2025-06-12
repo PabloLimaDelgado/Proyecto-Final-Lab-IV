@@ -6,9 +6,9 @@ import { useEffect, useState } from "react";
 import { detalleProductoStore } from "../../../store/detalleProductoStore";
 import { carritoStore } from "../../../store/carritoStore";
 import { ICarrito } from "../../../types/ICarrito";
+import Swal from "sweetalert2";
 
 export const DetalleProducto = () => {
-
   /*PARAMS Y USE STATE*/
   const { search } = useLocation();
   const params = new URLSearchParams(search);
@@ -136,12 +136,51 @@ export const DetalleProducto = () => {
       ],
     };
 
+    const cantidadActual = carritoActivo.detallesProductos.filter(
+      (detalle) => detalle.id === detalleSeleccionado.id
+    ).length;
+    const stockDisponible = Number(detalleSeleccionado.stock);
+
+    if (cantidadActual >= stockDisponible) {
+      setStockSuperior(false);
+
+      Swal.fire({
+        icon: "error",
+        title: "Stock agotado",
+        text: "Ya agregaste la cantidad máxima disponible de este producto.",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "Aceptar",
+      });
+
+      return;
+    }
+
     updateCarrito(carritoActualizado);
     setCarritoActivo(carritoActualizado);
     localStorage.setItem("carritoActivo", JSON.stringify(carritoActualizado));
+    setStockSuperior(true);
   };
 
   const detallesFiltradosOrdenados = obtenerDetallesFiltradosOrdenados();
+
+  const [stockSuperior, setStockSuperior] = useState<boolean>(true);
+
+  useEffect(() => {
+    verificarStockDisponible();
+  }, [detalleIndex, carritoActivo]);
+
+  const verificarStockDisponible = () => {
+    const detalle = detalles[detalleIndex];
+    const idDetalle = detalle?.id;
+    if (!idDetalle || !carritoActivo) return;
+
+    const cantidadEnCarrito = carritoActivo.detallesProductos.filter(
+      (d) => d.id === idDetalle
+    ).length;
+
+    const stock = Number(detalle.stock);
+    setStockSuperior(cantidadEnCarrito < stock);
+  };
 
   return (
     <>
@@ -285,8 +324,16 @@ export const DetalleProducto = () => {
                     </div>
                   ))}
               </div>
-
-              <button onClick={handleAñadirAlCarrito}>Añadir al Carrito</button>
+              <button
+                className={
+                  stockSuperior
+                    ? styles.carritoContainerButton
+                    : styles.carritoContainerButtonSinStock
+                }
+                onClick={handleAñadirAlCarrito}
+              >
+                Añadir al Carrito
+              </button>
             </div>
           </>
         )}

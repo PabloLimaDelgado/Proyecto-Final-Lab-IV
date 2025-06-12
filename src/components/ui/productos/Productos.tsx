@@ -18,7 +18,9 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
     const fetchDetalle = async () => {
       try {
         const response: Response = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/detalle/get`
+          `${
+            import.meta.env.VITE_BASE_URL
+          }/unicos/filtros?sexo=${genero}&tipo=${tipo.toUpperCase()}`
         );
         const data: IDetalle[] = await response.json();
         setArrayDetalle(data);

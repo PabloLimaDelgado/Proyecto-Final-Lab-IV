@@ -36,6 +36,14 @@ export const FilterBarAdmin: FC<IFilterBarAdmin> = ({
             onClick={() => useHandleTabla("descuentos")}
           >
             Descuentos
+
+          </button>
+
+                    <button
+            className={tabla === "admins" ? styles.activeButton : ""}
+            onClick={() => useHandleTabla("admins")}
+          >
+            Admins
           </button>
         </div>
       </div>

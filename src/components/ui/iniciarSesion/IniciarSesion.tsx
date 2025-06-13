@@ -52,33 +52,13 @@ const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
 
       const token = localStorage.getItem("token");
 
-      /*TRAER TODOS LOS USUARIOS Y MARCAR EL CORRESPONDIENTE*/
-      const getResponse = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/get`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!getResponse.ok) {
-        throw new Error(`Error al traer usuarios: ${getResponse.status}`);
-      }
 
 
 
-    const usuarioEncontrado = usuario;
-
-      if (!usuarioEncontrado) {
-        throw new Error("Usuario no encontrado");
-      }
 
       /*ESTABLECER EL USUARIO ACTIVO Y GUARDARLO EN EL LOCAL STORAGE*/
-      setUsuarioActivo(usuarioEncontrado);
-      localStorage.setItem("usuarioActivo", JSON.stringify(usuarioEncontrado));
+      setUsuarioActivo(usuario);
+      localStorage.setItem("usuarioActivo", JSON.stringify(usuario));
 
       if (usuario.rol === "ADMIN") {
         navigate("/VistaAdmin");

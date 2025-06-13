@@ -1,0 +1,53 @@
+.buscadorContainer {
+  position: relative;
+  width: 100%;
+}
+
+.inputBusqueda {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.dropdownResultados {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: rgba(255, 255, 255, 0.97);
+  border: 1px solid #000;
+  border-radius: 8px;
+  z-index: 1000;
+  padding: 0.5rem;
+  gap: 3px;
+}
+
+.productoNombre {
+  font-weight: bold;
+  margin: 0.5rem 0 0.2rem;
+  padding-left: 0.3rem;
+  color: #222;
+}
+
+.detalleItem {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: white;
+}
+
+.detalleItem:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}

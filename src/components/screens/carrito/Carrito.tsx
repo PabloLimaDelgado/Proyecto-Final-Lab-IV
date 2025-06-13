@@ -81,25 +81,7 @@ export const Carrito = () => {
 
   /*FUNCION PARA MANEJAR LA COMPRA*/
   const handleComprar = async () => {
-    /*   if (!usuarioActivo || !direccionActiva) {
-      Swal.fire({
-        title: "Error",
-        text: "Por favor, selecciona una dirección antes de comprar.",
-        icon: "error",
-        confirmButtonText: "Aceptar",
-      });
-      return;
-    }
 
-    if (!medioPagoSeleccionado) {
-      Swal.fire({
-        title: "Error",
-        text: "Por favor, selecciona un medio de pago antes de comprar.",
-        icon: "error",
-        confirmButtonText: "Aceptar",
-      });
-      return;
-        }*/
     if (
       usarDireccionNueva &&
       nuevaDireccion &&

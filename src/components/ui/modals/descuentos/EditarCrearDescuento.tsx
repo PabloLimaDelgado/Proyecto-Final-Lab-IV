@@ -99,7 +99,7 @@ export const EditarCrearDescuento: FC<IEditarCrearDescuento> = ({
             body: JSON.stringify(descuentoCreado),
           }
         );
-
+console.log(descuentoCreado)
         if (!response.ok) throw new Error("Error al crear descuento");
 
         const data: IDescuento = await response.json();

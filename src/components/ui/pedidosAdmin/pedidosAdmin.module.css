@@ -5,7 +5,10 @@
   width: 80vw;
   height: 100vh;
 }
-
+.editButton {
+  color: #f6ad24;
+  border: 1px solid #f6ad24;
+}
 .pedidosAdminContainer h1 {
   font-size: 3rem;
   color: black;

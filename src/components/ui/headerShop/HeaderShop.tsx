@@ -8,6 +8,19 @@ import { carritoStore } from "../../../store/carritoStore";
 export const HeaderShop = () => {
   const [hoverShop, setHoverShop] = useState<boolean>(false);
   const [hoverAccount, setHoverAccount] = useState<boolean>(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const usuarioStr = localStorage.getItem("usuarioActivo");
+  const usuario = usuarioStr ? JSON.parse(usuarioStr) : null;
+
+  useEffect(() => {
+    if (usuario && usuario.rol === "ADMIN") {
+      setIsAdmin(true);
+      console.log(isAdmin)
+    }else{
+      setIsAdmin(false);
+      console.log(isAdmin)  
+    }
+  }, [usuario]);
 
   const navigate = useNavigate();
 
@@ -18,7 +31,7 @@ export const HeaderShop = () => {
   const handleHoverLeave = () => {
     setTimeout(() => {
       setHoverShop(false);
-    }, 1500);
+    }, 400);
   };
 
   const handleHoverAccountEnter = () => {
@@ -28,7 +41,7 @@ export const HeaderShop = () => {
   const handleHoverAccountLeave = () => {
     setTimeout(() => {
       setHoverAccount(false);
-    }, 1500);
+    }, 400);
   };
 
   const handleHome = () => {
@@ -57,6 +70,10 @@ export const HeaderShop = () => {
       localStorage.setItem("carritoActivo", JSON.stringify(carritoActivo));
     }
   }, [carritoActivo]);
+  const handlePedidos = () => {
+    navigate("/vistaPedidos");
+  }
+
 
   return (
     <>
@@ -72,6 +89,23 @@ export const HeaderShop = () => {
                 Home
               </a>
             </li>
+            <li>
+              <a href="" onClick={handlePedidos}>
+                Mis Pedidos
+              </a>
+            </li>
+          {
+              isAdmin ? (
+                <li>
+                  <a
+                    href=""
+                    onClick={() => navigate("/vistaAdmin")}
+                  >
+                    Admin
+                  </a>
+                </li>
+              ) : null
+          }
             <li>
               <a
                 href=""

@@ -5,9 +5,8 @@ import { FilterBarAdmin } from "../../ui/filterBarAdmin/FilterBarAdmin";
 import { ProductosAdmin } from "../../ui/productosAdmin/ProductosAdmin";
 import { DescuentosAdmin } from "../../ui/descuentosAdmin/DescuentosAdmin";
 import { PedidosAdmin } from "../../ui/pedidosAdmin/PedidosAdmin";
-
 import styles from "./admin.module.css";
-import { CrearUsuarioAdmin } from "../../ui/modals/usuarioAdmin/CrearUsuarioAdmin";
+import { Admins } from "../../ui/Admins/Admins";
 
 export const Admin = () => {
   /*NAVIGATE*/
@@ -23,7 +22,7 @@ export const Admin = () => {
   };
 
   const handleNavigateToLogin = () => {
-    navigate("/vistaLogin");
+    navigate("/VistaLanding");
   };
 
   const handleCrearAdmin = () => {
@@ -38,15 +37,6 @@ export const Admin = () => {
         <button onClick={handleNavigateToLogin}>
           <span className="material-symbols-outlined">home</span>
         </button>
-
-        <div className={styles.crearUsuarioAdmin}>
-          <button onClick={handleCrearAdmin}>
-            <span>
-              <span className="material-symbols-outlined">person_add</span>
-            </span>
-          </button>
-          <h3>Añadir admin</h3>
-        </div>
       </div>
 
       <div className={styles.adminContainer}>
@@ -54,9 +44,8 @@ export const Admin = () => {
         {tabla === "productos" && <ProductosAdmin />}
         {tabla === "descuentos" && <DescuentosAdmin />}
         {tabla === "pedidos" && <PedidosAdmin />}
+        {tabla === "admins" && <Admins />}
       </div>
-
-      {crearAdmin && <CrearUsuarioAdmin close={handleCrearAdmin} />}
     </>
   );
 };

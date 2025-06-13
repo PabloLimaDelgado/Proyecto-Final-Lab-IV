@@ -3,6 +3,7 @@
   flex-direction: column;
   background-color: #383d42;
   width: 15vw;
+  overflow-y: auto;
 }
 
 .filterLogoContainer {
@@ -27,6 +28,7 @@
 .filterUlContainer {
   display: flex;
   width: 100%;
+  flex-direction: column;
   align-items: center;
   justify-content: start;
   margin-left: 0.4rem;
@@ -53,104 +55,4 @@
 
 .filterUlContainerSelected:hover {
   cursor: pointer;
-}
-
-.filterPrecio {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  align-items: end;
-  justify-content: center;
-}
-
-.filterPrecio h2 {
-  width: 95%;
-  text-align: start;
-  font-family: "Roboto", sans-serif;
-  font-size: 1.2rem;
-  color: white;
-  font-weight: 400;
-}
-
-.filterPrecio label {
-  margin: 0.4rem;
-  color: white;
-  font-family: "Roboto", sans-serif;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.filterPrecio label input {
-  font-size: 1.2rem;
-  appearance: none;
-  border: 2px solid black;
-  border-radius: 5px;
-  background-color: white;
-  width: 1.5rem;
-  height: 1.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.filterPrecio input:checked {
-  background-color: black;
-}
-
-.filterPrecio input:checked::after {
-  content: "✓";
-  position: absolute;
-  top: 0;
-  left: 3px;
-  font-size: 1rem;
-  color: white;
-  font-weight: bolder;
-}
-
-.filterMasVendido {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  align-items: start;
-  justify-content: center;
-}
-
-.filterMasVendido label {
-  margin: 0.4rem;
-  margin-left: 1.2rem;
-  color: white;
-  font-family: "Roboto", sans-serif;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: start;
-  justify-content: start;
-  gap: 0.4rem;
-}
-
-.filterMasVendido label input {
-  font-size: 1.2rem;
-  appearance: none;
-  border: 2px solid black;
-  border-radius: 5px;
-  background-color: white;
-  width: 1.5rem;
-  height: 1.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.filterMasVendido input:checked {
-  background-color: black;
-}
-
-.filterMasVendido input:checked::after {
-  content: "✓";
-  position: absolute;
-  top: 0;
-  left: 3px;
-  font-size: 1rem;
-  color: white;
-  font-weight: bolder;
 }

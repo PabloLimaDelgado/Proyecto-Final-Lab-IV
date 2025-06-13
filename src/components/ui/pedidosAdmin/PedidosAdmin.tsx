@@ -8,6 +8,7 @@ import { DetallePedido } from "../detallePedido/DetallePedido";
 
 export const PedidosAdmin = () => {
   const [verDetallePedido, setVerDetallePedido] = useState<boolean>(false);
+  const [editDetalle, setEditDetalle] = useState<boolean>(false);
   const [detallesSeleccionados, setDetallesSeleccionados] = useState<
     IOrdenCompraDetalle[]
   >([]);
@@ -25,10 +26,7 @@ export const PedidosAdmin = () => {
 
   const { setArrayOrdenCompraDetalle } =
     ordenCompraDetalleStore();
-
-  // Carga inicial de datos de órdenes y detalles desde backend
-  useEffect(() => {
-    const fethOrdenCompra = async () => {
+ const fethOrdenCompra = async () => {
       try {
         const token = localStorage.getItem("token");
         const responseOrdenCompra: Response = await fetch(
@@ -70,7 +68,7 @@ export const PedidosAdmin = () => {
         console.log("Error en traer ordenes compra detalle", error);
       }
     };
-
+  useEffect(() => {
     fethOrdenCompra();
     fethOrdenCompraDetalle();
   }, []);
@@ -84,12 +82,18 @@ export const PedidosAdmin = () => {
   const handleVerDetallePedido = () => {
     setVerDetallePedido(!verDetallePedido);
   };
+  const handleSetDetallePedido = () => {
+    setEditDetalle(!editDetalle);
+  };
 
+  const handleUpdate = ()=>{
+    fethOrdenCompra();
+    fethOrdenCompraDetalle();
+  }
   const ITEMS_POR_PAGINA = 6;
   const [paginaActual, setPaginaActual] = useState<number>(1);
   const [paginasTotales, setPaginasTotales] = useState<number>(1);
 
-  // Actualiza la cantidad total de páginas cuando cambian las órdenes
   useEffect(() => {
     const ordenesCompraFiltrados = ordenesCompra.filter(
       (orden) => orden.estado === true
@@ -124,8 +128,6 @@ export const PedidosAdmin = () => {
     (paginaActual - 1) * ITEMS_POR_PAGINA,
     paginaActual * ITEMS_POR_PAGINA
   );
-
-  console.log(ordenesComprasPaginado);
 
   return (
     <>
@@ -194,6 +196,20 @@ export const PedidosAdmin = () => {
                 >
                   <span className="material-symbols-outlined">visibility</span>
                 </button>
+                <button
+                  onClick={() => {
+
+                    if (ordenCompra.ordenCompraDetalles) {
+                      setDetallesSeleccionados(ordenCompra.ordenCompraDetalles);
+                      setOrdenCompraActivo(ordenCompra);
+                      handleSetDetallePedido();
+                    }
+                  }}
+                  aria-label={`Ver detalles del pedido ${ordenCompra.id}`}
+                  className={styles.editButton}
+                >
+                  <span className="material-symbols-outlined edit">edit</span>
+                </button>
               </div>
             ))}
         </div>
@@ -226,9 +242,20 @@ export const PedidosAdmin = () => {
         <DetallePedido
           detallesPedido={detallesSeleccionados}
           close={handleVerDetallePedido}
+          modoEdicion={false}
           ordenCompra={ordenCompraActivo}
         />
       )}
+      {editDetalle && ordenCompraActivo &&(
+        <DetallePedido
+        detallesPedido={detallesSeleccionados}
+        ordenCompra={ordenCompraActivo}
+        close={handleSetDetallePedido}
+        modoEdicion={true}
+        onGuardarCambios={handleUpdate}
+      />
+      )
+}
     </>
   );
 };

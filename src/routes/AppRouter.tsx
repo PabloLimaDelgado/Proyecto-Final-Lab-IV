@@ -6,6 +6,7 @@ import { Landing } from "../components/screens/landing/Landing";
 import { DetalleProducto } from "../components/screens/detalleProducto/DetalleProducto";
 import { User } from "../components/screens/user/User";
 import { Carrito } from "../components/screens/carrito/Carrito";
+import { Pedidos } from "../components/screens/Pedidos/Pedidos";
 
 export const AppRouter = () => {
   return (
@@ -16,6 +17,7 @@ export const AppRouter = () => {
         <Route path="/vistaAdmin" element={<Admin />} />
         <Route path="/vistaShop" element={<Shop />} />
         <Route path="/VistaLanding" element={<Landing />} />
+        <Route path="/vistaPedidos" element={<Pedidos />} />
         <Route path="/vistaDetalleProducto" element={<DetalleProducto />} />
         <Route path="/VistaUsuario" element={<User />} />
         <Route path="/VistaCarrito" element={<Carrito />} />

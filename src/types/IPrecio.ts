@@ -4,8 +4,8 @@ import { IDetalle } from "./IDetalle";
 export interface IPrecio {
   id?: number;
   descuento?: IDescuento | null;
-  precioCompra?: number | null | string;
-  precioVenta: number | string;
+  precioCompra?: number;
+  precioVenta: number;
   estado: boolean;
   detalleDescuentoDTO?: IDetalle;
 }

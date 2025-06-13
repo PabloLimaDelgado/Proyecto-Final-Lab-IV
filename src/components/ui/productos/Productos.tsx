@@ -1,27 +1,40 @@
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import styles from "./productos.module.css";
 import { IDetalle } from "../../../types/IDetalle";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { detalleProductoStore } from "../../../store/detalleProductoStore";
 
 interface IProductos {
   genero: string;
   tipo: string;
 }
-
 export const Productos: FC<IProductos> = ({ genero, tipo }) => {
   const { detalles, setArrayDetalle } = detalleProductoStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
   const [values, setValues] = useState({ nombreProducto: "" });
+  const descuento = searchParams.get("fechaDescuento");
+  const categoria = searchParams.get("categoria");
 
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
-        const response: Response = await fetch(
-          `${
-            import.meta.env.VITE_BASE_URL
-          }/unicos/filtros?sexo=${genero}&tipo=${tipo.toUpperCase()}`
-        );
+        let url = `${import.meta.env.VITE_BASE_URL}/detalle/unicos/filtros?sexo=${genero}&tipo=${tipo.toUpperCase()}`;
+
+        if (categoria) {
+          url += `&categoria=${encodeURIComponent(categoria)}`;
+        }
+        if (descuento) {
+          url += `&fechaDescuento=${encodeURIComponent(descuento)}`;
+        }
+
+        const response: Response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("No se pudo obtener los detalles");
+        }
+
         const data: IDetalle[] = await response.json();
         setArrayDetalle(data);
       } catch (error) {
@@ -30,7 +43,7 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
     };
 
     fetchDetalle();
-  }, []);
+  }, [genero, tipo, categoria, setArrayDetalle]);
 
   const handleNavigate = (idProducto: number | null) => {
     navigate(`/vistaDetalleProducto?idProducto=${idProducto}`);

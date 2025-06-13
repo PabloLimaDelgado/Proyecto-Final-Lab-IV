@@ -34,15 +34,80 @@
   margin-left: 0.4rem;
 }
 
-.filterUlContainer ul li {
+.filterUlContainer div {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+.filterUlContainer div h2 {
+  color: white;
+  font-family: "Afacad", sans-serif;
+  font-size: 1.5rem;
+}
+
+.filterUlContainer div ul {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid white;
+}
+
+.filterUlContainer div ul li {
   color: white;
   font-family: "Roboto", sans-serif;
   font-size: 1.2rem;
-  margin: 0.8rem;
+  margin: 0.4rem;
 }
 
 .filterUlContainer ul li:hover {
   cursor: pointer;
+}
+
+.checkboxContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: center;
+  margin: 0.4rem;
+}
+
+.checkboxContainer label {
+  color: white;
+  font-family: "Roboto", sans-serif;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.checkboxContainer label input {
+  font-size: 1.5rem;
+  appearance: none;
+  border: 2px solid black;
+  border-radius: 5px;
+  background-color: white;
+  width: 1.2rem;
+  height: 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.checkboxContainer label input:checked {
+  background-color: black;
+}
+
+.checkboxContainer label input:checked::after {
+  content: "✓";
+  position: absolute;
+  top: -3px;
+  left: 2px;
+  font-size: 1rem;
+  color: white;
+  font-weight: bolder;
 }
 
 .filterUlContainerSelected {

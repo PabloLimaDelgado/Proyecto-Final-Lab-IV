@@ -20,7 +20,9 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
-        let url = `${import.meta.env.VITE_BASE_URL}/detalle/unicos/filtros?sexo=${genero}&tipo=${tipo.toUpperCase()}`;
+        let url = `${
+          import.meta.env.VITE_BASE_URL
+        }/detalle/unicos/filtros?sexo=${genero}&tipo=${tipo.toUpperCase()}`;
 
         if (categoria) {
           url += `&categoria=${encodeURIComponent(categoria)}`;
@@ -36,6 +38,9 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
         }
 
         const data: IDetalle[] = await response.json();
+
+        console.log(data);
+
         setArrayDetalle(data);
       } catch (error) {
         console.error("Error al cargar detalles:", error);
@@ -43,7 +48,7 @@ export const Productos: FC<IProductos> = ({ genero, tipo }) => {
     };
 
     fetchDetalle();
-  }, [genero, tipo, categoria, setArrayDetalle]);
+  }, [genero, tipo, categoria, setArrayDetalle, descuento]);
 
   const handleNavigate = (idProducto: number | null) => {
     navigate(`/vistaDetalleProducto?idProducto=${idProducto}`);

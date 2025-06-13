@@ -39,6 +39,7 @@
   border-radius: 6px;
   transition: background-color 0.2s ease;
 }
+
 select {
   width: 100%;
   padding: 0.6rem;
@@ -50,4 +51,32 @@ select {
 
 .detalleItem:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.inputBuscadorDetalle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.inputBuscadorDetalle input {
+  width: 99.5%;
+  margin-bottom: 8px;
+  font-family: "Roboto", sans-serif;
+  padding: 0.2rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: white;
+  border: 1px solid #ccc;
+}
+
+.inputBuscadorDetalle input::placeholder {
+  padding: 0.2rem;
+  font-family: "Roboto", sans-serif;
+}
+
+.inputBuscadorDetalle input:focus {
+  outline: none; /* Quita el borde azul o el outline por defecto */
 }

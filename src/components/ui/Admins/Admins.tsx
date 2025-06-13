@@ -3,9 +3,11 @@ import styles from "./admins.module.css";
 import { IUsuario } from "../../../types/IUsuario";
 import Swal from "sweetalert2";
 import { CrearAdmin } from "../modals/CrearAdmin/CrearAdmin";
+import { usuarioStore } from "../../../store/usuarioStore";
 
 export const Admins = () => {
-  const [admins, setAdmins] = useState<IUsuario[]>([]);
+  const { setArrayUsuario, setUsuarioActivo, usuarios, deleteUsuario } =
+    usuarioStore();
   const [paginaActual, setPaginaActual] = useState(1);
   const [paginasTotales, setPaginasTotales] = useState(1);
   const [crearAdmin, setCrearAdmin] = useState<boolean>(false);
@@ -15,14 +17,17 @@ export const Admins = () => {
   const fetchAdmins = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/usuario/admin`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/usuario/admin`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data: IUsuario[] = await response.json();
-      setAdmins(data.filter((admin) => admin.estado === true));
+      setArrayUsuario(data.filter((admin) => admin.estado === true));
     } catch (error) {
       console.error("Error al traer admins:", error);
     }
@@ -43,18 +48,25 @@ export const Admins = () => {
     if (confirm.isConfirmed) {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/usuario/${admin.id}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_BASE_URL}/usuario/${admin.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!response.ok) throw new Error("No se pudo eliminar");
 
-        setAdmins((prev) => prev.filter((a) => a.id !== admin.id));
+        deleteUsuario(Number(admin.id));
 
-        Swal.fire("Eliminado", "El administrador ha sido eliminado.", "success");
+        Swal.fire(
+          "Eliminado",
+          "El administrador ha sido eliminado.",
+          "success"
+        );
       } catch (error) {
         console.error("Error al eliminar admin:", error);
         Swal.fire("Error", "No se pudo eliminar el administrador.", "error");
@@ -67,10 +79,13 @@ export const Admins = () => {
   }, []);
 
   useEffect(() => {
-    const totalPaginas = Math.max(1, Math.ceil(admins.length / ITEMS_POR_PAGINA));
+    const totalPaginas = Math.max(
+      1,
+      Math.ceil(usuarios.length / ITEMS_POR_PAGINA)
+    );
     setPaginasTotales(totalPaginas);
     if (paginaActual > totalPaginas) setPaginaActual(totalPaginas);
-  }, [admins, paginaActual]);
+  }, [usuarios, paginaActual]);
 
   const handleAvanzarPagina = () => {
     setPaginaActual((prev) => (prev < paginasTotales ? prev + 1 : prev));
@@ -80,29 +95,30 @@ export const Admins = () => {
     setPaginaActual((prev) => (prev > 1 ? prev - 1 : prev));
   };
 
-  const adminsPaginados = admins.slice(
+  const adminsPaginados = usuarios.slice(
     (paginaActual - 1) * ITEMS_POR_PAGINA,
     paginaActual * ITEMS_POR_PAGINA
   );
 
+  console.log(adminsPaginados);
+
   return (
     <div className={styles.adminsContainer}>
-        
-
-
-
       <h1>SneakAdmin - Administradores</h1>
-        <div className={styles.crearUsuarioAdmin}>
-          <button onClick={()=>{setCrearAdmin(!crearAdmin)}}>
-            <span>
-              <span className="material-symbols-outlined">person_add</span>
-            </span>
-          </button>
-        </div>
+      <div className={styles.crearUsuarioAdmin}>
+        <button
+          onClick={() => {
+            setCrearAdmin(!crearAdmin);
+          }}
+        >
+          <span>
+            <span className="material-symbols-outlined">person_add</span>
+          </span>
+        </button>
+      </div>
       <table className={styles.adminsTable}>
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nombre</th>
             <th>Correo</th>
             <th>Rol</th>
@@ -112,7 +128,6 @@ export const Admins = () => {
         <tbody>
           {adminsPaginados.map((admin) => (
             <tr key={admin.id}>
-              <td>{admin.id}</td>
               <td>{admin.nombre}</td>
               <td>{admin.mail}</td>
               <td>{admin.rol}</td>
@@ -131,25 +146,30 @@ export const Admins = () => {
 
       <div className={styles.divPaginadoBotones}>
         <button onClick={handleRetrocederPagina} disabled={paginaActual === 1}>
-          <span className="material-symbols-outlined">keyboard_double_arrow_left</span>
+          <span className="material-symbols-outlined">
+            keyboard_double_arrow_left
+          </span>
         </button>
         <p>
           Página {paginaActual} de {paginasTotales}
         </p>
-        <button onClick={handleAvanzarPagina} disabled={paginaActual === paginasTotales}>
-          <span className="material-symbols-outlined">keyboard_double_arrow_right</span>
+        <button
+          onClick={handleAvanzarPagina}
+          disabled={paginaActual === paginasTotales}
+        >
+          <span className="material-symbols-outlined">
+            keyboard_double_arrow_right
+          </span>
         </button>
       </div>
 
-      {
-        crearAdmin && (
-            <CrearAdmin close={function (): void {
-                      setCrearAdmin(false);
-                  } }></CrearAdmin>
-        )
-      }
+      {crearAdmin && (
+        <CrearAdmin
+          close={function (): void {
+            setCrearAdmin(false);
+          }}
+        ></CrearAdmin>
+      )}
     </div>
-
-
   );
 };

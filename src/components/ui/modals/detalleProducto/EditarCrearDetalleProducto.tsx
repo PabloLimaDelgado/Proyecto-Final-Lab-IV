@@ -80,8 +80,8 @@ export const EditarCrearDetalleProducto: FC<IEditarCrearDetalleProducto> = ({
 
   const [valuesPrecio, setValuesPrecio] = useState<IPrecio>({
     id: detalleProducto?.precioDTO.id,
-    precioVenta: precio?.precioVenta ?? "",
-    precioCompra: precio?.precioCompra ?? "",
+    precioVenta: Number(precio?.precioVenta) ?? "",
+    precioCompra: Number(precio?.precioCompra) ?? "",
     estado: true,
     descuento: precio?.descuento,
   });

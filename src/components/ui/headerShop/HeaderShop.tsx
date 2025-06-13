@@ -41,7 +41,7 @@ export const HeaderShop = () => {
   const handleHoverAccountLeave = () => {
     setTimeout(() => {
       setHoverAccount(false);
-    }, 400);
+    }, 1000);
   };
 
   const handleHome = () => {
@@ -62,8 +62,6 @@ export const HeaderShop = () => {
 
   const { carritoActivo } = carritoStore();
   let cantidadProductos = carritoActivo?.detallesProductos.length;
-
-  console.log(carritoActivo);
 
   useEffect(() => {
     if (carritoActivo) {

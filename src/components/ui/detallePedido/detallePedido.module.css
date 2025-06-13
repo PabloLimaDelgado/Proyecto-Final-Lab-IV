@@ -17,11 +17,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  width: 60vw;
-  height: 70vh;
   border-radius: 0.5rem;
   position: relative;
   border: 1px solid black;
+}
+
+.divDetalleCompraDivTrue {
+  width: 60vw;
+  height: 70vh;
+}
+
+.divDetalleCompraDivFalse {
+  width: 60vw;
+  height: 90vh;
 }
 
 .divDetalleCompraDiv h1 {
@@ -47,6 +55,19 @@
   font-family: "Roboto", sans-serif;
   border: 1px solid black;
   font-weight: 400;
+  font-size: 1rem;
+}
+
+.gridDireccion input {
+  text-align: start;
+  padding: 0.4rem;
+  margin: 0.4rem;
+  background-color: #d9d9d9;
+  border-radius: 0.4rem;
+  font-family: "Roboto", sans-serif;
+  border: 1px solid black;
+  font-weight: 400;
+  font-size: 1rem;
 }
 
 .detallesProductosDiv {

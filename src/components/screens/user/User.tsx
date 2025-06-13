@@ -77,10 +77,6 @@ export const User = () => {
             </div>
           </div>
 
-          <div className={styles.divContraseña}>
-            <h2>Contraseña</h2>
-          </div>
-
           <div className={styles.divDNI}>
             <h2>DNI</h2>
             <h3>{usuarioActivo?.dni}</h3>

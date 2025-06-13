@@ -13,7 +13,9 @@ export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
   const navigate = useNavigate();
   const prendas = ["Buzo", "Pantalon", "Campera", "Remera", "Calzado"];
   const [categorias, setCategorias] = useState<ICategoria[]>([]);
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<string | null>(null);
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<
+    string | null
+  >(null);
   const [usarFechaHoy, setUsarFechaHoy] = useState<boolean>(false);
 
   useEffect(() => {
@@ -23,7 +25,9 @@ export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
           `${import.meta.env.VITE_BASE_URL}/categoria`
         );
         const data: ICategoria[] = await response.json();
-        const dataFiltered = data.filter((categoria) => categoria.estado === true);
+        const dataFiltered = data.filter(
+          (categoria) => categoria.estado === true
+        );
         setCategorias(dataFiltered);
       } catch (error) {
         console.error("Error al cargar categorías:", error);
@@ -36,7 +40,7 @@ export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
   const getFechaHoy = () => {
     const hoy = new Date();
     return hoy.toISOString().split("T")[0];
-    };
+  };
   const handleSelect = (
     tipo: string,
     genero: string,
@@ -55,24 +59,24 @@ export const FilterBar: FC<IFilterBar> = ({ genero, tipo }) => {
 
     navigate(`/vistaShop?${queryParams.toString()}`);
   };
-const handleCheckboxChange = (checked: boolean) => {
-  setUsarFechaHoy(checked);
+  const handleCheckboxChange = (checked: boolean) => {
+    setUsarFechaHoy(checked);
 
-  const queryParams = new URLSearchParams({
-    tipo,
-    genero,
-  });
+    const queryParams = new URLSearchParams({
+      tipo,
+      genero,
+    });
 
-  if (categoriaSeleccionada) {
-    queryParams.append("categoria", categoriaSeleccionada);
-  }
+    if (categoriaSeleccionada) {
+      queryParams.append("categoria", categoriaSeleccionada);
+    }
 
-  if (checked) {
-    queryParams.append("fechaDescuento", getFechaHoy());
-  }
+    if (checked) {
+      queryParams.append("fechaDescuento", getFechaHoy());
+    }
 
-  navigate(`/vistaShop?${queryParams.toString()}`);
-};
+    navigate(`/vistaShop?${queryParams.toString()}`);
+  };
 
   return (
     <div className={styles.filterBarContainer}>
@@ -82,37 +86,56 @@ const handleCheckboxChange = (checked: boolean) => {
       </div>
 
       <div className={styles.filterUlContainer}>
-        <ul>
-          {prendas.map((prenda) => (
+        <div>
+          <h2>Productos: </h2>
+          <ul>
+            {prendas.map((prenda) => (
+              <li
+                key={prenda}
+                className={
+                  tipo === prenda ? styles.filterUlContainerSelected : ""
+                }
+                onClick={() =>
+                  handleSelect(prenda, genero, categoriaSeleccionada)
+                }
+              >
+                {prenda}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h2>Categorias: </h2>
+          <ul>
             <li
-              key={prenda}
-              className={tipo === prenda ? styles.filterUlContainerSelected : ""}
-              onClick={() => handleSelect(prenda, genero, categoriaSeleccionada)}
+              key="todas-categorias"
+              className={
+                categoriaSeleccionada === null
+                  ? styles.filterUlContainerSelected
+                  : ""
+              }
+              onClick={() => handleSelect(tipo, genero, null)}
             >
-              {prenda}
+              Sin Categoria
             </li>
-          ))}
 
-          <li
-            key="todas-categorias"
-            className={categoriaSeleccionada === null ? styles.filterUlContainerSelected : ""}
-            onClick={() => handleSelect(tipo, genero, null)}
-          >
-            Todas las categorías
-          </li>
+            {categorias.map((cat) => (
+              <li
+                key={cat.id}
+                className={
+                  categoriaSeleccionada === cat.nombre
+                    ? styles.filterUlContainerSelected
+                    : ""
+                }
+                onClick={() => handleSelect(tipo, genero, cat.nombre)}
+              >
+                {cat.nombre}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {categorias.map((cat) => (
-            <li
-              key={cat.id}
-              className={categoriaSeleccionada === cat.nombre ? styles.filterUlContainerSelected : ""}
-              onClick={() => handleSelect(tipo, genero, cat.nombre)}
-            >
-              {cat.nombre}
-            </li>
-          ))}
-        </ul>
-        
-        <div className={styles.checkboxContainer}>
+        <div className={`${styles.checkboxContainer}`}>
           <label>
             <input
               type="checkbox"
@@ -123,7 +146,6 @@ const handleCheckboxChange = (checked: boolean) => {
           </label>
         </div>
       </div>
-
     </div>
   );
 };

@@ -41,7 +41,7 @@ export const Registrarse: FC<IRegistrarse> = ({ handleIniciarSesion }) => {
       !values.nombre.trim() ||
       !values.mail.trim() ||
       !values.dni.trim() ||
-      !values.password.trim()
+      !(values.password || "").trim()
     ) {
       Swal.fire({
         icon: "warning",

@@ -81,7 +81,6 @@ export const Carrito = () => {
 
   /*FUNCION PARA MANEJAR LA COMPRA*/
   const handleComprar = async () => {
-
     if (
       usarDireccionNueva &&
       nuevaDireccion &&
@@ -239,21 +238,19 @@ export const Carrito = () => {
 
       <footer className={styles.footer}>
         <div className={styles.divEleccionCarrito}>
-          <div className={styles.divSelectPago}></div>
+          <label>
+            <input
+              type="checkbox"
+              checked={usarDireccionNueva}
+              onChange={() => setUsarDireccionNueva((prev) => !prev)}
+            />
+            Usar una nueva dirección
+          </label>
         </div>
 
         <div className={styles.divUsuarioCheck}>
           <div className={styles.direccionesUsuarios}>
             <div className={styles.divDireccion}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={usarDireccionNueva}
-                  onChange={() => setUsarDireccionNueva((prev) => !prev)}
-                />
-                Usar una nueva dirección
-              </label>
-
               {usarDireccionNueva ? (
                 <CarritoDireccion
                   values={nuevaDireccion}
@@ -261,7 +258,7 @@ export const Carrito = () => {
                 />
               ) : (
                 <>
-                  <h2>Direcciones guardadas:</h2>
+                  <h2>Direcciones: </h2>
                   {usuarioActivo?.direcciones
                     ?.filter((direccion) => direccion.estado !== false)
                     .map((direccion) => (

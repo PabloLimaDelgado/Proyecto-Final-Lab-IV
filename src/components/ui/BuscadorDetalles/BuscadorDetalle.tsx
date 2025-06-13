@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { IOrdenCompra } from "../../../types/IOrdenCompra";
-import { DetalleFindDTO, IOrdenCompraDetalleFind, IProductoFind } from "../../../types/IProductoFind";
+import {
+  IOrdenCompraDetalleFind,
+  IProductoFind,
+} from "../../../types/IProductoFind";
+import styles from "./BuscadorDetalle.module.css";
 
 interface Props {
   onSelect: (nuevoDetalle: IOrdenCompraDetalleFind) => void;
   ordenCompra: IOrdenCompra;
 }
-export const BuscadorDetalleProducto = ({ onSelect, ordenCompra }: Props) => {
+export const BuscadorDetalleProducto = ({
+  onSelect,
+  ordenCompra,
+}: Props) => {
   const [query, setQuery] = useState("");
   const [productos, setProductos] = useState<IProductoFind[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -62,13 +69,13 @@ export const BuscadorDetalleProducto = ({ onSelect, ordenCompra }: Props) => {
     }
 
     const nuevoDetalle: IOrdenCompraDetalleFind = {
-        cantidad: 1,
-        producto: producto.nombre,
-        detalle,
-        ordenCompra,
-        subtotal: precioFinal,
-        estado: false,
-        id: 0
+      cantidad: 1,
+      producto: producto.nombre,
+      detalle,
+      ordenCompra,
+      subtotal: precioFinal,
+      estado: false,
+      id: 0,
     };
 
     onSelect(nuevoDetalle);
@@ -77,20 +84,23 @@ export const BuscadorDetalleProducto = ({ onSelect, ordenCompra }: Props) => {
   };
 
   return (
-    <div style={{ width: "100%" }}>
+    <div className={styles.inputBuscadorDetalle}>
       <input
         type="text"
         placeholder="Buscar producto, color o talle..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        style={{ width: "100%", padding: "8px", marginBottom: "8px" }}
       />
 
       {showDropdown && (
         <select
           onChange={(e) => handleSelect(parseInt(e.target.value))}
           defaultValue=""
-          style={{ width: "100%", padding: "8px" }}
+          style={{
+            width: "100%",
+            padding: "8px",
+            fontFamily: "Roboto, sans-serif",
+          }}
         >
           <option value="" disabled>
             Selecciona un detalle...

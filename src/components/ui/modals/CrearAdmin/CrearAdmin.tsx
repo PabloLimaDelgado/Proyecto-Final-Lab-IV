@@ -1,12 +1,17 @@
 import { ChangeEvent, FC, FormEvent, useState } from "react";
 import Swal from "sweetalert2";
 import styles from "../descuentos/EditarCrearDescuento.module.css";
+import { IRol } from "../../../../types/enums/IRol";
+import { usuarioStore } from "../../../../store/usuarioStore";
 
 interface IUserForm {
+  id: number;
   nombre: string;
   dni: string;
   mail: string;
   password: string;
+  rol: IRol;
+  estado: boolean;
 }
 
 interface ICrearAdminProps {
@@ -14,11 +19,15 @@ interface ICrearAdminProps {
 }
 
 export const CrearAdmin: FC<ICrearAdminProps> = ({ close }) => {
+  const { postusuario } = usuarioStore();
   const [values, setValues] = useState<IUserForm>({
+    id: 0,
     nombre: "",
     dni: "",
     mail: "",
     password: "",
+    rol: IRol.ADMIN,
+    estado: true,
   });
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -44,23 +53,25 @@ export const CrearAdmin: FC<ICrearAdminProps> = ({ close }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/usuario/admin`,
+        `${import.meta.env.VITE_BASE_URL}/usuario/registrarUsuario`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          
+
           body: JSON.stringify({
             ...values,
-            rol: "ADMIN",
           }),
         }
       );
 
       if (!response.ok) throw new Error("Error al registrar admin");
 
+      const usuario = await response.json();
+
+      postusuario(usuario);
       Swal.fire({
         icon: "success",
         title: "Administrador creado",
@@ -80,7 +91,10 @@ export const CrearAdmin: FC<ICrearAdminProps> = ({ close }) => {
 
   return (
     <div className={styles.formDescuentoContainer}>
-      <form className={styles.formDescuentoContainerForm} onSubmit={handleSubmit}>
+      <form
+        className={styles.formDescuentoContainerForm}
+        onSubmit={handleSubmit}
+      >
         <h1>Crear Admin</h1>
 
         <input

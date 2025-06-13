@@ -90,6 +90,10 @@
   justify-content: center;
 }
 
+.deleteButton span {
+  overflow: hidden;
+}
+
 .crearUsuarioAdmin {
   display: flex;
   flex-direction: column;

@@ -6,6 +6,7 @@ export interface IUsuario {
   nombre: string;
   dni: string;
   estado: boolean;
+  password?: string,
   rol: IRol;
   mail: string;
   direcciones?: IDireccion[];

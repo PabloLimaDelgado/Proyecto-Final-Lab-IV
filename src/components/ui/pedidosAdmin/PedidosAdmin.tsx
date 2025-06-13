@@ -181,7 +181,7 @@ export const PedidosAdmin = () => {
               <div key={ordenCompra.id}>
                 <h1>Pedido id: {ordenCompra.id}</h1>
                 <h2>Usuario: {ordenCompra.usuario.nombre}</h2>
-                <h2>Total: {ordenCompra.total}</h2>
+                <h2>Total: ${ordenCompra.total}</h2>
                 <h2>Fecha: {ordenCompra.fecha}</h2>
                 <button
                   onClick={() => {

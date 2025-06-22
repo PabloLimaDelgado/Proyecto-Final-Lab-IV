@@ -23,33 +23,74 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
     estado: true,
   };
   const [values, setValues] = useState<IImagen>(initialForm);
+  const [file, setFile] = useState<File | null>(null);
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
+    const { name, value, files } = event.target;
+
+    if (name === "url" && files && files.length > 0) {
+      const selectedFile = files[0];
+      setFile(selectedFile); // guardás el archivo
+      setValues((prev) => ({ ...prev, [name]: selectedFile.name })); // opcional: mostrás el nombre
+    } else {
+      setValues((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!values.url.trim() || !values.alt.trim()) {
+    if (!file) {
       Swal.fire({
         icon: "warning",
-        title: "Campos requeridos",
-        text: "Debe completar el campo URL y el texto alternativo.",
+        title: "Archivo requerido",
+        text: "Debe seleccionar un archivo para subir.",
+      });
+      return;
+    }
+    const cloudName = "dr3ijjkoq";
+    const presetName = "sneaks";
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", presetName);
+
+    let cloudinaryUrl = "";
+
+    try {
+      const responseCloud = await fetch(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await responseCloud.json();
+      cloudinaryUrl = data.secure_url;
+
+      if (!cloudinaryUrl) throw new Error("No se obtuvo URL de Cloudinary.");
+    } catch (uploadError) {
+      console.error("Error subiendo imagen a Cloudinary:", uploadError);
+      Swal.fire({
+        icon: "error",
+        title: "Error al subir imagen",
+        text: "No se pudo subir la imagen a Cloudinary.",
       });
       return;
     }
 
     const imagenCreada: IImagen = {
-      url: values.url,
+      url: cloudinaryUrl,
       alt: values.alt,
       estado: true,
       detalle: detalle,
     };
 
+    console.log(imagenCreada);
+
     const imagenZustand: IImagen = {
-      url: values.url,
+      url: cloudinaryUrl,
       alt: values.alt,
       estado: true,
     };
@@ -75,6 +116,7 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
       updateDetalle(detalle);
 
       setValues(initialForm);
+      setFile(null);
       setAgregarImagen(false);
 
       Swal.fire({
@@ -173,10 +215,9 @@ export const Imagenes: FC<IImagenes> = ({ detalle, close }) => {
               <form onSubmit={onSubmit}>
                 <div className={styles.formInputs}>
                   <input
-                    type="text"
-                    placeholder="Ingrese una URL"
+                    type="file"
+                    placeholder="Ingrese un archivo"
                     onChange={handleChange}
-                    value={values.url}
                     name="url"
                     aria-label="URL de la imagen"
                   />

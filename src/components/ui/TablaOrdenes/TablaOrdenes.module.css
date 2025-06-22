@@ -1,0 +1,78 @@
+.tablePedidos {
+  width: 100%;
+  height: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-family: "Afacad", sans-serif;
+  font-size: 1.1rem;
+  box-shadow: 1px 1px 4px black;
+}
+
+.tablePedidos th,
+.tablePedidos td {
+  padding: 0.8rem;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+.tablePedidos th {
+  background-color: #f6f6f6;
+  color: #333;
+  font-weight: bold;
+}
+
+.tablePedidos tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tablePedidos tr:hover {
+  background-color: #f0f0f0;
+}
+
+.divPaginadoBotones {
+  display: flex;
+  flex-direction: row;
+  margin: 0.4rem 0;
+  align-items: center;
+  gap: 0.6rem;
+  user-select: none;
+}
+
+.divPaginadoBotones button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #222;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+}
+
+.divPaginadoBotones p {
+  font-family: "Afacad", sans-serif;
+  font-size: 1.2rem;
+}
+
+.divPaginadoBotones button span {
+  overflow: hidden;
+}
+
+.divPaginadoBotones button:disabled {
+  cursor: default;
+  color: #999;
+}
+
+.divPaginadoBotones button:not(:disabled):hover {
+  color: #4caf50;
+}
+
+.idCss {
+  font-weight: bold;
+  background: #000000;
+  background: linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 1) 20%,
+    rgba(145, 145, 145, 1) 70%
+  );
+  color: white;
+}

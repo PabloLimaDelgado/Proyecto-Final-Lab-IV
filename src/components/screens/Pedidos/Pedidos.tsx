@@ -2,6 +2,7 @@ import  { useEffect, useState } from 'react';
 import { HeaderShop } from '../../ui/headerShop/HeaderShop';
 import { IOrdenCompra } from '../../../types/IOrdenCompra';
 import { TablaOrdenes } from '../../ui/TablaOrdenes/TablaOrdenes';
+import stlyes from "./Pedidos.module.css"
 
 export const Pedidos = () => {
   const [pedidos, setPedidos] = useState<IOrdenCompra[]>();
@@ -32,7 +33,7 @@ export const Pedidos = () => {
   return (
     <>
       <HeaderShop />
-      <div className="container">
+      <div className={stlyes.containerPedidos}>
         {pedidos ? (
           pedidos.length === 0 ? (
             <h2>No hay pedidos disponibles</h2>

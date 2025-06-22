@@ -169,6 +169,8 @@ export const DetalleProducto = () => {
     verificarStockDisponible();
   }, [detalleIndex, carritoActivo]);
 
+  console.log(imagenIndex);
+
   const verificarStockDisponible = () => {
     const detalle = detalles[detalleIndex];
     const idDetalle = detalle?.id;
@@ -182,6 +184,8 @@ export const DetalleProducto = () => {
     setStockSuperior(cantidadEnCarrito < stock);
   };
 
+  console.log(detalles);
+
   return (
     <>
       <HeaderShop />
@@ -190,9 +194,10 @@ export const DetalleProducto = () => {
           <>
             <div className={styles.imagenDivContainer}>
               <div
+                key={imagenIndex}
                 className={styles.imagenDivWitdh}
                 style={{
-                  backgroundImage: `url(${detalles[detalleIndex].imagenList[imagenIndex]?.url})`,
+                  backgroundImage: `url("${detalles[detalleIndex].imagenList[1]?.url}")`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}

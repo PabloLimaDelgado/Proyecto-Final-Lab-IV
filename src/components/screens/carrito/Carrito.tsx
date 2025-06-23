@@ -20,13 +20,15 @@ import { ICarrito } from "../../../types/ICarrito";
 import styles from "./carrito.module.css";
 import { CarritoDireccion } from "../../ui/carritoDireccion/CarritoDireccion";
 import { IDireccion } from "../../../types/IDireccion";
+import withReactContent from "sweetalert2-react-content";
 
 export const Carrito = () => {
   /*STORES Y HOOKS*/
+  const MySwal = withReactContent(Swal);
   const { usuarioActivo } = usuarioStore();
   const { carritoActivo, updateCarrito, setCarritoActivo } = carritoStore();
   const { direccionActiva, setDireccionActiva } = direccionStore();
-  const { añadirOrden } = useOrdenCompra();
+  const { añadirOrden, escucharWebSocket } = useOrdenCompra();
   const [usarDireccionNueva, setUsarDireccionNueva] = useState(false);
   const [nuevaDireccion, setNuevaDireccion] = useState<IDireccion>({
     localidad: "",
@@ -80,79 +82,72 @@ export const Carrito = () => {
   }, [carritoActivo]);
 
   /*FUNCION PARA MANEJAR LA COMPRA*/
-  const handleComprar = async () => {
-    if (
-      usarDireccionNueva &&
-      nuevaDireccion &&
-      nuevaDireccion.pais !== "" &&
-      nuevaDireccion.provincia !== "" &&
-      nuevaDireccion.departamento !== "" &&
-      nuevaDireccion.codigoPostal !== "" &&
-      nuevaDireccion.localidad !== ""
-    ) {
-      await añadirOrden(nuevaDireccion, false);
 
-      const diasEntrega = Math.floor(Math.random() * 5) + 2;
+const handleComprar = async () => {
+  const direccionValida =
+    nuevaDireccion &&
+    nuevaDireccion.pais !== "" &&
+    nuevaDireccion.provincia !== "" &&
+    nuevaDireccion.departamento !== "" &&
+    nuevaDireccion.codigoPostal !== "" &&
+    nuevaDireccion.localidad !== "";
+  let resultado;
 
-      Swal.fire({
-        title: "¡Compra realizada!",
-        text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
-        confirmButtonText: "Aceptar",
-        customClass: {
-          popup: "swal-custom-popup",
-          icon: "swal-custom-icon",
-          title: "swal-custom-title",
-          confirmButton: "swal-custom-button",
-        },
-      });
+  if (usarDireccionNueva && direccionValida) {
+    resultado = await añadirOrden(nuevaDireccion, false);
+  } else if (direccionActiva && !usarDireccionNueva) {
+    resultado = await añadirOrden(direccionActiva, true);
+  } else {
+    Swal.fire({
+      title: "Error",
+      text: "Por favor ingresa todos los campos de la dirección.",
+      icon: "error",
+      confirmButtonText: "Aceptar",
+    });
+    return;
+  }
+  console.log(resultado)
+  if (resultado?.initPoint) {
+  window.open(resultado.initPoint, "_blank");
+  }
 
-      const carritoVacio: ICarrito = {
-        ...carritoActivo!,
-        detallesProductos: [],
-      };
+  MySwal.fire({
+    title: "Procesando pago...",
+    text: "Esperando confirmación de Mercado Pago.",
+    allowOutsideClick: false,
+    didOpen: () => {
+      MySwal.showLoading();
+    },
+  });
 
-      updateCarrito(carritoVacio);
-      setCarritoActivo(carritoVacio);
-      localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
+  const cerrarSocket = escucharWebSocket(async () => {
+    const diasEntrega = Math.floor(Math.random() * 5) + 2;
 
-      handleNavigateLanding();
-      return;
-    } else if (direccionActiva && !usarDireccionNueva) {
-      const diasEntrega = Math.floor(Math.random() * 5) + 2;
+    await Swal.fire({
+      title: "¡Compra realizada!",
+      text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
+      confirmButtonText: "Aceptar",
+      customClass: {
+        popup: "swal-custom-popup",
+        icon: "swal-custom-icon",
+        title: "swal-custom-title",
+        confirmButton: "swal-custom-button",
+      },
+    });
 
-      Swal.fire({
-        title: "¡Compra realizada!",
-        text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
-        confirmButtonText: "Aceptar",
-        customClass: {
-          popup: "swal-custom-popup",
-          icon: "swal-custom-icon",
-          title: "swal-custom-title",
-          confirmButton: "swal-custom-button",
-        },
-      });
+    const carritoVacio: ICarrito = {
+      ...carritoActivo!,
+      detallesProductos: [],
+    };
 
-      const carritoVacio: ICarrito = {
-        ...carritoActivo!,
-        detallesProductos: [],
-      };
+    updateCarrito(carritoVacio);
+    setCarritoActivo(carritoVacio);
+    localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
 
-      updateCarrito(carritoVacio);
-      setCarritoActivo(carritoVacio);
-      localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
-
-      handleNavigateLanding();
-      await añadirOrden(direccionActiva, true);
-      return;
-    } else {
-      Swal.fire({
-        title: "Error",
-        text: "Por favor ingresa todos los campos de la dirección.",
-        icon: "error",
-        confirmButtonText: "Aceptar",
-      });
-    }
-  };
+    handleNavigateLanding();
+    cerrarSocket();
+  });
+};
 
   return (
     <div className={styles.divCarritoContainer}>

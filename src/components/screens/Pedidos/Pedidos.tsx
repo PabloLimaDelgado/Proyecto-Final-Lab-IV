@@ -24,7 +24,6 @@ export const Pedidos = () => {
     }
   };
 
-  // 💥 Esto debe ir fuera de cualquier función
   useEffect(() => {
     fetchPedidos();
   }, []);

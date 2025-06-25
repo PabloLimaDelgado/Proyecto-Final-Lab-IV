@@ -52,10 +52,6 @@ const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
 
       const token = localStorage.getItem("token");
 
-
-
-
-
       /*ESTABLECER EL USUARIO ACTIVO Y GUARDARLO EN EL LOCAL STORAGE*/
       setUsuarioActivo(usuario);
       localStorage.setItem("usuarioActivo", JSON.stringify(usuario));

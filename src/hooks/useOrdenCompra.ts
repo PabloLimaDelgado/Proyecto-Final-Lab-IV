@@ -8,7 +8,7 @@ export const useOrdenCompra = () => {
   const { carritoActivo } = carritoStore();
   const { postOrdenCompra, setOrdenCompraActivo } = ordenCompraStore();
 
-  const añadirOrden = async (
+const añadirOrden = async (
     direccion: IDireccion,
     usarDireccionUsuario: boolean
   ) => {
@@ -26,12 +26,14 @@ export const useOrdenCompra = () => {
         detallesAgrupados[detalle.id] = { detalle, cantidad: 1 };
       }
     });
+
     const detallesParaPayload: IDetallePost[] = Object.values(
       detallesAgrupados
     ).map(({ detalle, cantidad }) => ({
       detalle: { id: detalle.id! },
       cantidad,
     }));
+
     let ordenPayload: IOrdenPost;
     if (usarDireccionUsuario && direccion.id) {
       ordenPayload = {
@@ -42,49 +44,93 @@ export const useOrdenCompra = () => {
       };
     } else {
       ordenPayload = {
-        direccion: direccion,
+        direccion,
         direccionUsuario: usarDireccionUsuario,
         detalles: detallesParaPayload,
         estado: true,
       };
     }
 
-    console.log(detallesAgrupados);
-    console.log(ordenPayload);
-
     try {
-      // Obtiene token para autenticación
       const token = localStorage.getItem("token");
-
-      // Crea la ordenCompra en el backend
-      const responseOrdenCompra = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/ordenCompra/post`,
+      const ordenCompra = JSON.stringify(ordenPayload);
+      const responsePreferencia = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/mp/crearPreferencia`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(ordenPayload),
+          body: ordenCompra,
         }
       );
-
-      if (!responseOrdenCompra.ok) {
-        // Si falla la creación, lanza error con mensaje
-        const errorText = await responseOrdenCompra.text();
-        throw new Error(`Error ${responseOrdenCompra.status}: ${errorText}`);
+      console.log(responsePreferencia)
+      if (!responsePreferencia.ok) {
+        const errorText = await responsePreferencia.text();
+        throw new Error(
+          `Error al crear preferencia: ${responsePreferencia.status} - ${errorText}`
+        );
       }
 
-      const ordenCompra = await responseOrdenCompra.json();
+      const data = await responsePreferencia.json();
+      const initPoint = data.init_point;
+      const externalReference = data.Referencia;
 
-      // Actualiza estado global con la orden creada
-      postOrdenCompra(ordenCompra);
-      setOrdenCompraActivo(ordenCompra);
+      sessionStorage.setItem(
+        "ordenTemporal",
+        JSON.stringify({
+          orden: ordenPayload,
+          referencia: externalReference,
+        })
+        );
+    return { initPoint, externalReference };
     } catch (err) {
-      console.error("Error creando OrdenCompra:", err);
-      return; // termina función si falla la orden principal
+      console.error("Error iniciando pago con Mercado Pago:", err);
     }
   };
 
-  return { añadirOrden };
+const escucharWebSocket = (onPagoConfirmado: () => void) => {
+  const socket = new WebSocket("ws://localhost:8080/ws/pagos");
+
+  socket.onmessage = async (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.evento === "pago_confirmado" && data.estado === true) {
+      const ordenTemporalStr = sessionStorage.getItem("ordenTemporal");
+      if (!ordenTemporalStr) return;
+
+      const { orden, referencia } = JSON.parse(ordenTemporalStr);
+      if (data.referencia !== referencia) return;
+
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/ordenCompra/post`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orden),
+      });
+
+      if (response.ok) {
+        setOrdenCompraActivo(null);
+        sessionStorage.removeItem("ordenTemporal");
+        onPagoConfirmado();
+      } else {
+        console.error("Error guardando la orden tras confirmación de pago");
+      }
+    }
+  };
+
+  socket.onerror = (err) => {
+    console.error("Error en WebSocket:", err);
+  };
+    return () => {
+      socket.close();
+    };
+  };
+
+  return { añadirOrden, escucharWebSocket  };
 };

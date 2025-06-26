@@ -31,7 +31,7 @@ export const HeaderShop = () => {
   const handleHoverLeave = () => {
     setTimeout(() => {
       setHoverShop(false);
-    }, 400);
+    }, 1000);
   };
 
   const handleHoverAccountEnter = () => {

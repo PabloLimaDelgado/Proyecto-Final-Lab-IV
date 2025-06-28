@@ -28,7 +28,7 @@ export const Carrito = () => {
   const { usuarioActivo } = usuarioStore();
   const { carritoActivo, updateCarrito, setCarritoActivo } = carritoStore();
   const { direccionActiva, setDireccionActiva } = direccionStore();
-  const { añadirOrden, escucharWebSocket } = useOrdenCompra();
+  const { añadirOrden } = useOrdenCompra();
   const [usarDireccionNueva, setUsarDireccionNueva] = useState(false);
   const [nuevaDireccion, setNuevaDireccion] = useState<IDireccion>({
     localidad: "",
@@ -43,9 +43,6 @@ export const Carrito = () => {
     setNuevaDireccion((prev) => ({ ...prev, [name]: value }));
   };
 
-  /*USE STATE*/
-  const [medioPagoSeleccionado, setMedioPagoSeleccionado] =
-    useState<string>("");
 
   /*HOOKS*/
   const detallesAgrupados = agruparDetalles(carritoActivo?.detallesProductos);
@@ -55,7 +52,6 @@ export const Carrito = () => {
   /*NAVIGATE*/
   const navigate = useNavigate();
   const handleNavigateBack = () => navigate(-1);
-  const handleNavigateLanding = () => navigate("/VistaLanding");
 
   /*ELIMINAR PRODUCTO DEL CARRITO*/
   const handleEliminarProducto = (idDetalle: number) => {
@@ -94,10 +90,13 @@ const handleComprar = async () => {
   let resultado;
 
   if (usarDireccionNueva && direccionValida) {
+    setDireccionActiva(nuevaDireccion);
     resultado = await añadirOrden(nuevaDireccion, false);
-  } else if (direccionActiva && !usarDireccionNueva) {
+  } 
+  else if (direccionActiva && !usarDireccionNueva) {
+    setDireccionActiva(direccionActiva);
     resultado = await añadirOrden(direccionActiva, true);
-  } else {
+  }else {
     Swal.fire({
       title: "Error",
       text: "Por favor ingresa todos los campos de la dirección.",
@@ -106,34 +105,22 @@ const handleComprar = async () => {
     });
     return;
   }
+
   console.log(resultado)
   if (resultado?.initPoint) {
-  window.open(resultado.initPoint, "_blank");
+    window.location.href = resultado.initPoint;
   }
 
   MySwal.fire({
     title: "Procesando pago...",
-    text: "Esperando confirmación de Mercado Pago.",
+    text: "Redirigiendo a Mercado Pago.",
     allowOutsideClick: false,
     didOpen: () => {
       MySwal.showLoading();
     },
   });
 
-  const cerrarSocket = escucharWebSocket(async () => {
-    const diasEntrega = Math.floor(Math.random() * 5) + 2;
 
-    await Swal.fire({
-      title: "¡Compra realizada!",
-      text: `Tu producto será entregado en aproximadamente ${diasEntrega} días.`,
-      confirmButtonText: "Aceptar",
-      customClass: {
-        popup: "swal-custom-popup",
-        icon: "swal-custom-icon",
-        title: "swal-custom-title",
-        confirmButton: "swal-custom-button",
-      },
-    });
 
     const carritoVacio: ICarrito = {
       ...carritoActivo!,
@@ -144,10 +131,7 @@ const handleComprar = async () => {
     setCarritoActivo(carritoVacio);
     localStorage.setItem("carritoActivo", JSON.stringify(carritoVacio));
 
-    handleNavigateLanding();
-    cerrarSocket();
-  });
-};
+  };
 
   return (
     <div className={styles.divCarritoContainer}>
@@ -272,18 +256,6 @@ const handleComprar = async () => {
                 </>
               )}
             </div>
-            <select
-              value={medioPagoSeleccionado}
-              onChange={(e) => setMedioPagoSeleccionado(e.target.value)}
-              className={styles.selectCarrito}
-            >
-              <option value="" disabled hidden>
-                Medios de pago
-              </option>
-              <option value="debito">Débito</option>
-              <option value="credito">Crédito</option>
-              <option value="mercado_pago">Mercado Pago</option>
-            </select>
           </div>
         </div>
 
@@ -294,5 +266,5 @@ const handleComprar = async () => {
         </div>
       </footer>
     </div>
-  );
-};
+  )
+}

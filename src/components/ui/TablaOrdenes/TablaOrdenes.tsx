@@ -41,6 +41,8 @@ export const TablaOrdenes: FC<TablaOrdenesProps> = ({ ordenes }) => {
     return (precioFinal * detalle.cantidad).toFixed(2);
   };
 
+  console.log(ordenesPaginadas);
+
   return (
     <div
       style={{
@@ -71,13 +73,21 @@ export const TablaOrdenes: FC<TablaOrdenesProps> = ({ ordenes }) => {
               <tr key={orden.id} style={{ borderBottom: "1px solid #ccc" }}>
                 <td className={styles.idCss}>{orden.id}</td>
                 <td>{orden.usuario.nombre}</td>
-                <td>{new Date(orden.fecha).toLocaleString()}</td>
+                <td>
+                  {(() => {
+                    const [año, mes, dia] = orden.fecha.split("-");
+                    return `${dia}/${mes}/${año}`;
+                  })()}
+                </td>
                 <td>${orden.total.toFixed(2)}</td>
               </tr>
               <tr>
-                <td colSpan={5} style={{
-                      backgroundColor: "#f6f6f6",
-                    }}>
+                <td
+                  colSpan={5}
+                  style={{
+                    backgroundColor: "#f6f6f6",
+                  }}
+                >
                   <table
                     style={{
                       width: "100%",
@@ -86,10 +96,18 @@ export const TablaOrdenes: FC<TablaOrdenesProps> = ({ ordenes }) => {
                   >
                     <thead>
                       <tr style={{ fontWeight: "bold" }}>
-                        <td style={{ backgroundColor: "gray", color: "white" }}>Producto</td>
-                        <td style={{ backgroundColor: "gray", color: "white" }}>Cantidad</td>
-                        <td style={{ backgroundColor: "gray", color: "white" }}>Precio</td>
-                        <td style={{ backgroundColor: "gray", color: "white" }}>SubTotal</td>
+                        <td style={{ backgroundColor: "gray", color: "white" }}>
+                          Producto
+                        </td>
+                        <td style={{ backgroundColor: "gray", color: "white" }}>
+                          Cantidad
+                        </td>
+                        <td style={{ backgroundColor: "gray", color: "white" }}>
+                          Precio
+                        </td>
+                        <td style={{ backgroundColor: "gray", color: "white" }}>
+                          SubTotal
+                        </td>
                       </tr>
                     </thead>
                     <tbody>

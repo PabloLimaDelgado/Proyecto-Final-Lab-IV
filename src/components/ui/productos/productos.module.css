@@ -57,6 +57,7 @@
   width: 75vw;
   height: 90%;
   overflow-y: hidden;
+  overflow-x: hidden;
 }
 
 .gridDetalles h2 {

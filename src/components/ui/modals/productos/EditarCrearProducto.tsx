@@ -138,6 +138,9 @@ export const EditarCrearProducto: FC<IEditarCrearProducto> = ({
           icon: "success",
           title: "Producto actualizado",
           text: "El producto fue editado correctamente.",
+          customClass: {
+            popup: "no-x-scroll",
+          },
         });
       } else {
         // Crear producto nuevo

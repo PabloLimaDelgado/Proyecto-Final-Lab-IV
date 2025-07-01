@@ -3,9 +3,12 @@ import styles from "./landing.module.css";
 import { HeaderShop } from "../../ui/headerShop/HeaderShop";
 import { useNavigate } from "react-router-dom";
 import { IDetalle } from "../../../types/IDetalle";
+import { IUsuario } from "../../../types/IUsuario";
+import { usuarioStore } from "../../../store/usuarioStore";
 
 export const Landing = () => {
   const [detalles, setDetalles] = useState<null | IDetalle[]>(null);
+  const { setUsuarioActivo } = usuarioStore();
 
   const navigate = useNavigate();
 
@@ -53,8 +56,6 @@ export const Landing = () => {
     if (idProducto === null) return;
     navigate(`/vistaDetalleProducto?idProducto=${idProducto}`);
   };
-
-  console.log(detalles);
 
   return (
     <>
@@ -112,10 +113,7 @@ export const Landing = () => {
                   <div className={styles.divButtonProducto}>
                     <button
                       onClick={() =>
-                        handleNavigate(
-                          detalles.producto.id ??
-                            null
-                        )
+                        handleNavigate(detalles.producto.id ?? null)
                       }
                     >
                       Ver más

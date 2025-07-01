@@ -11,5 +11,9 @@ export const PrivateRouteAdmin = ({ children }: { children: JSX.Element }) => {
     return <Navigate to="/vistaLogin" replace />;
   }
 
+  if (!usuario) {
+    return <Navigate to="/vistaLogin" replace />;
+  }
+
   return children;
 };

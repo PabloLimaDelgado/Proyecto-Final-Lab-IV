@@ -15,10 +15,10 @@ export const HeaderShop = () => {
   useEffect(() => {
     if (usuario && usuario.rol === "ADMIN") {
       setIsAdmin(true);
-      console.log(isAdmin)
-    }else{
+      console.log(isAdmin);
+    } else {
       setIsAdmin(false);
-      console.log(isAdmin)  
+      console.log(isAdmin);
     }
   }, [usuario]);
 
@@ -61,7 +61,7 @@ export const HeaderShop = () => {
   };
 
   const { carritoActivo } = carritoStore();
-  let cantidadProductos = carritoActivo?.detallesProductos.length;
+  let cantidadProductos = carritoActivo?.detallesProductos.length || 0;
 
   useEffect(() => {
     if (carritoActivo) {
@@ -70,8 +70,7 @@ export const HeaderShop = () => {
   }, [carritoActivo]);
   const handlePedidos = () => {
     navigate("/vistaPedidos");
-  }
-
+  };
 
   return (
     <>
@@ -92,18 +91,13 @@ export const HeaderShop = () => {
                 Mis Pedidos
               </a>
             </li>
-          {
-              isAdmin ? (
-                <li>
-                  <a
-                    href=""
-                    onClick={() => navigate("/vistaAdmin")}
-                  >
-                    Admin
-                  </a>
-                </li>
-              ) : null
-          }
+            {isAdmin ? (
+              <li>
+                <a href="" onClick={() => navigate("/vistaAdmin")}>
+                  Admin
+                </a>
+              </li>
+            ) : null}
             <li>
               <a
                 href=""

@@ -4,6 +4,7 @@
   background-color: #383d42;
   width: 15vw;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .filterLogoContainer {
@@ -52,6 +53,7 @@
   flex-direction: column;
   align-items: center;
   border-bottom: 1px solid white;
+  list-style: none;
 }
 
 .filterUlContainer div ul li {

@@ -6,9 +6,9 @@ import { IDetallePost, IOrdenPost } from "../types/IOrdenPost";
 
 export const useOrdenCompra = () => {
   const { carritoActivo } = carritoStore();
-  const { postOrdenCompra, setOrdenCompraActivo } = ordenCompraStore();
+  const { setOrdenCompraActivo } = ordenCompraStore();
   const { setCarritoActivo } = carritoStore();
-const añadirOrden = async (
+  const añadirOrden = async (
     direccion: IDireccion,
     usarDireccionUsuario: boolean
   ) => {
@@ -65,7 +65,7 @@ const añadirOrden = async (
           body: ordenCompra,
         }
       );
-      console.log(responsePreferencia)
+      console.log(responsePreferencia);
       if (!responsePreferencia.ok) {
         const errorText = await responsePreferencia.text();
         throw new Error(
@@ -83,67 +83,75 @@ const añadirOrden = async (
           orden: ordenPayload,
           referencia: externalReference,
         })
-        );
-    return { initPoint, externalReference };
+      );
+      return { initPoint, externalReference };
     } catch (err) {
       console.error("Error iniciando pago con Mercado Pago:", err);
     }
-    };
-    const crearOrden = async () => {
-      const queryParams = new URLSearchParams(window.location.search);
-      const paymentId = queryParams.get("payment_id");
+  };
 
-      if (!paymentId) {
-        console.warn("No se encontró payment_id en la URL");
-        return false;
-      }
-      const estadoPago = await verificarPago(paymentId);
-      if (estadoPago !== "approved") {
-        console.warn("El pago no está aprobado:", estadoPago);
-        return false;
-      }
+  const crearOrden = async () => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const paymentId = queryParams.get("payment_id");
 
-      const ordenTemporalStr = sessionStorage.getItem("ordenTemporal");
-      if (!ordenTemporalStr) return false;
+    if (!paymentId) {
+      console.warn("No se encontró payment_id en la URL");
+      return false;
+    }
+    const estadoPago = await verificarPago(paymentId);
+    if (estadoPago !== "approved") {
+      console.warn("El pago no está aprobado:", estadoPago);
+      return false;
+    }
 
-      const { orden } = JSON.parse(ordenTemporalStr);
-      const token = localStorage.getItem("token");
+    const ordenTemporalStr = sessionStorage.getItem("ordenTemporal");
+    if (!ordenTemporalStr) return false;
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/ordenCompra/post`, {
+    const { orden } = JSON.parse(ordenTemporalStr);
+    const token = localStorage.getItem("token");
+
+    const response = await fetch(
+      `${import.meta.env.VITE_BASE_URL}/ordenCompra/post`,
+      {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(orden),
-      });
-
-      if (response.ok) {
-        setOrdenCompraActivo(null);
-        setCarritoActivo(null);
-        localStorage.removeItem("carritoActivo");
-        sessionStorage.removeItem("ordenTemporal");
-        return true;
-      } else {
-        console.error("Error guardando la orden tras confirmación de pago");
-        return false;
       }
-    };
-    const verificarPago = async (paymentId: string) => {
-      const accessToken = import.meta.env.VITE_MP_TOKEN;
-      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+    );
+
+    if (response.ok) {
+      setOrdenCompraActivo(null);
+      setCarritoActivo(null);
+      localStorage.removeItem("carritoActivo");
+      sessionStorage.removeItem("ordenTemporal");
+      return true;
+    } else {
+      console.error("Error guardando la orden tras confirmación de pago");
+      return false;
+    }
+  };
+
+  const verificarPago = async (paymentId: string) => {
+    const accessToken = import.meta.env.VITE_MP_TOKEN;
+    const response = await fetch(
+      `https://api.mercadopago.com/v1/payments/${paymentId}`,
+      {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
-      });
-      if (!response.ok) {
-        console.error("Error consultando el estado del pago");
-        return null;
       }
-      const data = await response.json();
-      console.log("Respuesta de MP:", data);
-      return data.status;
-    };
+    );
+    if (!response.ok) {
+      console.error("Error consultando el estado del pago");
+      return null;
+    }
+    const data = await response.json();
+    console.log("Respuesta de MP:", data);
+    return data.status;
+  };
 
-  return { añadirOrden  , crearOrden };
-}; 
+  return { añadirOrden, crearOrden };
+};

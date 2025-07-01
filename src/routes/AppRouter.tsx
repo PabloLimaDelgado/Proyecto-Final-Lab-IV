@@ -9,6 +9,7 @@ import { Carrito } from "../components/screens/carrito/Carrito";
 import { Pedidos } from "../components/screens/Pedidos/Pedidos";
 import { PrivateRouteAdmin } from "./PrivateRouteAdmin"; // 👈
 import { ConfirmacionPago } from "../components/screens/ConfirmacionPago/ConfirmacionPago";
+import { PrivateRoute } from "./PrivateRoute";
 
 export const AppRouter = () => {
   return (
@@ -26,13 +27,63 @@ export const AppRouter = () => {
           }
         />
 
-        <Route path="/vistaShop" element={<Shop />} />
-        <Route path="/VistaLanding" element={<Landing />} />
-        <Route path="/vistaPedidos" element={<Pedidos />} />
-        <Route path="/confirmacionPago" element={<ConfirmacionPago />} />
-        <Route path="/vistaDetalleProducto" element={<DetalleProducto />} />
-        <Route path="/VistaUsuario" element={<User />} />
-        <Route path="/VistaCarrito" element={<Carrito />} />
+        <Route
+          path="/vistaLanding"
+          element={
+            <PrivateRoute>
+              <Landing />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/vistaShop"
+          element={
+            <PrivateRoute>
+              <Shop />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/vistaPedidos"
+          element={
+            <PrivateRoute>
+              <Pedidos />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/confirmacionPago"
+          element={
+            <PrivateRoute>
+              <ConfirmacionPago />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/vistaDetalleProducto"
+          element={
+            <PrivateRoute>
+              <DetalleProducto />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/VistaUsuario"
+          element={
+            <PrivateRoute>
+              <User />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/VistaCarrito"
+          element={
+            <PrivateRoute>
+              <Carrito />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </>
   );
